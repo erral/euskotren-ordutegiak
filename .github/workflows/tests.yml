@@ -1,0 +1,53 @@
+name: tests
+
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install system dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y poppler-utils
+
+      - name: Install Python dependencies
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install -e .
+
+      - name: Download timetable PDFs
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+
+          import requests
+
+          manifest = json.loads(Path("data/manifest.json").read_text())
+          headers = {"User-Agent": "Mozilla/5.0 (compatible; euskotren-timetable CI)"}
+          for entry in manifest["files"]:
+              target = Path(entry["path"])
+              target.parent.mkdir(parents=True, exist_ok=True)
+              response = requests.get(entry["url"], timeout=60, headers=headers)
+              response.raise_for_status()
+              target.write_bytes(response.content)
+              print(f"downloaded {target}")
+          PY
+
+      - name: Run tests
+        run: python -m unittest discover -s tests -v
+
+      - name: Build workbook
+        run: python -m euskotren_timetable.cli build-weekday

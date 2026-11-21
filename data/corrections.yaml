@@ -1,0 +1,8 @@
+# Sidecar corrections, applied after parsing on every regeneration.
+# Keys are service IDs or stop names; values override parsed fields.
+# Example:
+# E1-PASAIA-MATIKO-WD-0735:
+#   notes: ["Altzola stop confirmed"]
+#
+# This file is intentionally empty for the first slice.
+corrections: {}

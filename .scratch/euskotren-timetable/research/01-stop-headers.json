@@ -1,0 +1,150 @@
+{
+  "researched": "2026-11-21",
+  "canonical_source": "current winter-2026 Euskotren PDFs",
+  "lines": {
+    "E1": {
+      "source_pdf": "E1 Pasaia - Matiko_4.pdf",
+      "page": 1,
+      "direction": "Pasaia -> Matiko-Bilbao",
+      "coordinate_source": "../prototypes/e1-weekday-parser/parse_e1.py (FULL_42)",
+      "stops": [
+        "Pasaia", "Altza (Donostia)", "Herrera (Donostia)", "Intxaurrondo (Donostia)",
+        "Loiola (Donostia)", "Anoeta (Donostia)", "Amara Donostia", "Kontxa-Zentroa (Donostia)",
+        "Benta-Berri (Donostia)", "Lugaritz (Donostia)", "Añorga (Donostia)", "Errekalde (Donostia)",
+        "Usurbil", "Aia-Orio", "San Pelaio (Zarautz)", "Zarautz", "Zumaia", "Arroa (Zestoa)",
+        "Deba", "Mendaro", "Altzola (Elgoibar)", "Toletxegain (Elgoibar)", "Elgoibar",
+        "Azitain (Eibar)", "Eibar", "Ardantza (Eibar)", "Amaña (Eibar)", "Unibertsitatea (Eibar)",
+        "San Lorentzo (Ermua)", "Errotabarri (Ermua)", "Ermua", "Zaldibar", "Berriz",
+        "Traña Abadiño", "Durango", "Euba (Amorebieta)", "Amorebieta Geltokia", "Lemoa",
+        "Bedia", "Usansolo", "Zuhatzu (Galdakao)", "Ariz (Basauri)", "Etxebarri",
+        "Kukullaga-Etxebarri", "Otxarkoaga (Bilbao)", "Txurdinaga (Bilbao)",
+        "Zurbaranbarri (Bilbao)", "Zazpikaleak/Casco Viejo (Bilbao)", "Uribarri (Bilbao)",
+        "Matiko-Bilbao"
+      ],
+      "amara_subset": [
+        "Amara Donostia", "Kontxa-Zentroa (Donostia)", "Benta-Berri (Donostia)",
+        "Lugaritz (Donostia)", "Añorga (Donostia)", "Errekalde (Donostia)", "Usurbil",
+        "Aia-Orio", "San Pelaio (Zarautz)", "Zarautz", "Zumaia", "Arroa (Zestoa)", "Deba",
+        "Mendaro", "Altzola (Elgoibar)", "Toletxegain (Elgoibar)", "Elgoibar",
+        "Azitain (Eibar)", "Eibar", "Ardantza (Eibar)", "Amaña (Eibar)",
+        "Unibertsitatea (Eibar)", "San Lorentzo (Ermua)", "Errotabarri (Ermua)", "Ermua",
+        "Zaldibar", "Berriz", "Traña Abadiño", "Durango", "Euba (Amorebieta)",
+        "Amorebieta Geltokia", "Lemoa", "Bedia", "Usansolo", "Zuhatzu (Galdakao)",
+        "Ariz (Basauri)", "Etxebarri", "Kukullaga-Etxebarri", "Otxarkoaga (Bilbao)",
+        "Txurdinaga (Bilbao)", "Zurbaranbarri (Bilbao)",
+        "Zazpikaleak/Casco Viejo (Bilbao)", "Uribarri (Bilbao)", "Matiko-Bilbao"
+      ],
+      "notes": [
+        "Altzola is conditional (8:56, 12:56, 19:56, 21:56).",
+        "The Pasaia-Amara section is part of the through service and overlaps E2."
+      ]
+    },
+    "E2_T1": {
+      "source_pdf": "T1_Hendaia-Lasarte.pdf",
+      "page": 1,
+      "direction": "Hendaia -> Lasarte-Oria",
+      "reverse_source": "T1_Lasarte-Hendaia.pdf",
+      "stops": [
+        {"name": "Hendaia", "x": 164.1},
+        {"name": "Irun Ficoba", "x": 218.5},
+        {"name": "Irun", "x": 266.7},
+        {"name": "Belaskoenea (Irun)", "x": 311.5},
+        {"name": "Bentak (Irun)", "x": 363.9},
+        {"name": "Gaintxurizketa (Lezo)", "x": 413.0},
+        {"name": "Oiartzun", "x": 470.6},
+        {"name": "Fanderia (Errenteria)", "x": 513.2},
+        {"name": "Errenteria", "x": 571.6},
+        {"name": "Galtzaraborda (Errenteria)", "x": 615.0},
+        {"name": "Pasaia", "x": 672.4},
+        {"name": "Altza (Donostia)", "x": 717.3},
+        {"name": "Herrera (Donostia)", "x": 767.5},
+        {"name": "Intxaurrondo (Donostia)", "x": 818.6},
+        {"name": "Loiola (Donostia)", "x": 869.5},
+        {"name": "Anoeta (Donostia)", "x": 919.3},
+        {"name": "Amara Donostia", "x": 993.9},
+        {"name": "Kontxa-Zentroa (Donostia)", "x": 1022.9},
+        {"name": "Benta-Berri (Donostia)", "x": 1075.4},
+        {"name": "Lugaritz (Donostia)", "x": 1126.3},
+        {"name": "Añorga (Donostia)", "x": 1173.8},
+        {"name": "Errekalde (Donostia)", "x": 1224.1},
+        {"name": "Lasarte-Oria", "x": 1276.5}
+      ],
+      "notes": [
+        "Gaintxurizketa is conditional, every 30 minutes.",
+        "Kontxa-Zentroa and Benta-Berri are the 21 November 2026 Donostia stations."
+      ]
+    },
+    "E3_L3": {
+      "source_pdf": "E3_L3_CARTEL_50x70_Invierno_2026_2.pdf",
+      "page": 1,
+      "direction": "Lezama -> Kukullaga-Etxebarri via Matiko",
+      "coordinate_source": "page-1 diagram; header text layer is fragmented",
+      "stops": [
+        "Lezama", "Kurtzea (Lezama)", "Zamudio", "Lekunbiz (Zamudio)", "Derio",
+        "Elotxelerri (Loiu)", "Larrondo (Loiu)", "Sondika", "Ola (Sondika)",
+        "Matiko-Bilbao", "Uribarri (Bilbao)", "Zazpikaleak/Casco Viejo (Bilbao)",
+        "Zurbaranbarri (Bilbao)", "Txurdinaga (Bilbao)", "Otxarkoaga (Bilbao)",
+        "Kukullaga-Etxebarri"
+      ],
+      "patterns": {
+        "L3": [
+          "Matiko-Bilbao", "Uribarri (Bilbao)", "Zazpikaleak/Casco Viejo (Bilbao)",
+          "Zurbaranbarri (Bilbao)", "Txurdinaga (Bilbao)", "Otxarkoaga (Bilbao)",
+          "Kukullaga-Etxebarri"
+        ],
+        "E3": [
+          "Lezama", "Kurtzea (Lezama)", "Zamudio", "Lekunbiz (Zamudio)", "Derio",
+          "Elotxelerri (Loiu)", "Larrondo (Loiu)", "Sondika", "Ola (Sondika)",
+          "Matiko-Bilbao", "Uribarri (Bilbao)", "Zazpikaleak/Casco Viejo (Bilbao)",
+          "Zurbaranbarri (Bilbao)", "Txurdinaga (Bilbao)", "Otxarkoaga (Bilbao)",
+          "Kukullaga-Etxebarri"
+        ]
+      }
+    },
+    "E4": {
+      "source_pdf": "E4_Bilbao-Bermeo_Bilbao_CARTEL_50x70_INVIERNO_2026_2.pdf",
+      "page": 1,
+      "direction": "Matiko-Bilbao -> Bermeo",
+      "stops": [
+        {"name": "Matiko-Bilbao", "x": 420.6},
+        {"name": "Uribarri (Bilbao)", "x": 458.1},
+        {"name": "Zazpikaleak/Casco Viejo (Bilbao)", "x": 495.5},
+        {"name": "Zurbaranbarri (Bilbao)", "x": 532.9},
+        {"name": "Txurdinaga (Bilbao)", "x": 570.4},
+        {"name": "Otxarkoaga (Bilbao)", "x": 607.8},
+        {"name": "Kukullaga-Etxebarri", "x": 645.2},
+        {"name": "Etxebarri", "x": 688.7},
+        {"name": "Ariz (Basauri)", "x": 720.1},
+        {"name": "Zuhatzu (Galdakao)", "x": 757.5},
+        {"name": "Usansolo", "x": 801.0},
+        {"name": "Bedia", "x": 838.4},
+        {"name": "Lemoa", "x": 875.8},
+        {"name": "Amorebieta Geralekua", "x": 907.3},
+        {"name": "Zugastieta (Muxika)", "x": 944.7},
+        {"name": "Muxika", "x": 988.1},
+        {"name": "Lurgorri (Gernika)", "x": 1019.6},
+        {"name": "Gernika", "x": 1063.0},
+        {"name": "Institutua (Gernika)", "x": 1094.4},
+        {"name": "Forua", "x": 1137.9},
+        {"name": "S. Kristobal (Busturia)", "x": 1169.3},
+        {"name": "Axpe (Busturia)", "x": 1205.9},
+        {"name": "Itsasbegi (Busturia)", "x": 1242.6},
+        {"name": "Mundaka", "x": 1286.0},
+        {"name": "Bermeo", "x": 1323.5}
+      ],
+      "notes": [
+        "E1 and E4 share the Lemoa-Matiko trunk.",
+        "E4 header uses Amorebieta Geralekua; the PDF note also mentions a train change at Amorebieta Geltokia.",
+        "The 22:12 train reaches Bermeo only on Saturdays and Gernika on Sundays/holidays."
+      ]
+    }
+  },
+  "resolved_questions": [
+    "Amorebieta Geltokia (E1 Bilbao-Donostia) and Amorebieta Geralekua (E4 Bilbao-Bermeo) are distinct stops.",
+    "E3 calls at Matiko-Bilbao."
+  ],
+  "open_questions": [
+    "Do all E3 services call at Ola (Sondika)?",
+    "Is Gaintxurizketa conditional on all E2 services?"
+  ]
+}

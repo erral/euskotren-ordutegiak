@@ -1,0 +1,77 @@
+{
+  "generated_at": "2026-11-21T15:44:33.216824+00:00",
+  "files": [
+    {
+      "label": "e1_pasaia_matiko",
+      "url": "https://www.euskotren.eus/sites/default/files/horarios/E1%20Pasaia%20-%20Matiko_4.pdf",
+      "path": "data/pdfs/e1_pasaia_matiko.pdf",
+      "sha256": "b675d609e21e40f71bbfa248b02aaecbd2ad04b48abe81c105aea875f53ffbfa",
+      "fetched_at": "2026-11-21T15:44:33.216824+00:00",
+      "page_count": 2,
+      "season": "Winter 2026",
+      "valid_from": "2026-11-21",
+      "valid_to": null,
+      "generator_version": "0.1.0"
+    },
+    {
+      "label": "e1_matiko_pasaia",
+      "url": "https://www.euskotren.eus/sites/default/files/horarios/E1%20Matiko%20-%20Pasaia_4.pdf",
+      "path": "data/pdfs/e1_matiko_pasaia.pdf",
+      "sha256": "1c56ea10ffea038fc2cb2fddc490f3561f794aba992b1c69c320a8cd4d7a272f",
+      "fetched_at": "2026-11-21T15:44:33.216824+00:00",
+      "page_count": 2,
+      "season": "Winter 2026",
+      "valid_from": "2026-11-21",
+      "valid_to": null,
+      "generator_version": "0.1.0"
+    },
+    {
+      "label": "e2_t1_hendaia_lasarte",
+      "url": "https://www.euskotren.eus/sites/default/files/horarios/E2_Hendaia-LasarteOria_CARTEL_50x70cm_Invierno_2026_4.pdf",
+      "path": "data/pdfs/e2_t1_hendaia_lasarte.pdf",
+      "sha256": "9985f5b113361971b8a9299e8d0d2b1718b20949175ecc6c787016694142bad8",
+      "fetched_at": "2026-11-21T15:44:33.216824+00:00",
+      "page_count": 1,
+      "season": "Winter 2026",
+      "valid_from": "2026-11-21",
+      "valid_to": null,
+      "generator_version": "0.1.0"
+    },
+    {
+      "label": "e2_t1_lasarte_hendaia",
+      "url": "https://www.euskotren.eus/sites/default/files/horarios/T1_LasarteOria-Hendaia_CARTEL_50x70cm_Invierno_2026_0.pdf",
+      "path": "data/pdfs/e2_t1_lasarte_hendaia.pdf",
+      "sha256": "8c771dda76c554e6ae25b1ff30bdc2f540a86bb8d7b5c83ecdda589b53652483",
+      "fetched_at": "2026-11-21T15:44:33.216824+00:00",
+      "page_count": 1,
+      "season": "Winter 2026",
+      "valid_from": "2026-11-21",
+      "valid_to": null,
+      "generator_version": "0.1.0"
+    },
+    {
+      "label": "e4_bilbao_bermeo",
+      "url": "https://www.euskotren.eus/sites/default/files/horarios/E4_Bilbao-Bermeo_Bilbao_CARTEL_50x70_INVIERNO_2026_2.pdf",
+      "path": "data/pdfs/e4_bilbao_bermeo.pdf",
+      "sha256": "ab16c6961c646db3f2ce8795e1fabbc8d60812f086384873d6a1ae0239926929",
+      "fetched_at": "2026-11-21T15:44:33.216824+00:00",
+      "page_count": 1,
+      "season": "Winter 2026",
+      "valid_from": "2026-11-21",
+      "valid_to": null,
+      "generator_version": "0.1.0"
+    },
+    {
+      "label": "e3_l3",
+      "url": "https://www.euskotren.eus/sites/default/files/horarios/E3_L3_CARTEL_50x70_Invierno%202026_2.pdf",
+      "path": "data/pdfs/e3_l3.pdf",
+      "sha256": "067aebeb1795e17d7d2031c60b7d8e9fb51076799edcfdbf1344d758d481cfc1",
+      "fetched_at": "2026-11-21T15:44:33.216824+00:00",
+      "page_count": 1,
+      "season": "Winter 2026",
+      "valid_from": "2026-11-21",
+      "valid_to": null,
+      "generator_version": "0.1.0"
+    }
+  ]
+}
