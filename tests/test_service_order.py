@@ -1,6 +1,5 @@
 import unittest
 
-from euskotren_timetable.model import Service, StopTime
 from euskotren_timetable.service_order import (
     CALENDAR_ORDER,
     DIRECTION_ORDER,
@@ -8,35 +7,7 @@ from euskotren_timetable.service_order import (
     corridor_sort_key,
     master_sort_key,
 )
-
-
-def make_service(
-    service_id: str,
-    calendar: str,
-    line: str,
-    direction: str,
-    departure: str,
-) -> Service:
-    return Service(
-        service_id=service_id,
-        primary_line=line,
-        pattern=["test"],
-        direction=direction,
-        calendar=calendar,
-        valid_from="2026-11-21",
-        valid_to=None,
-        origin="Origin",
-        destination="Destination",
-        departure=departure,
-        arrival=departure,
-        source_pdf="test",
-        frequency_rule_ids=[],
-        notes=[],
-        appears_in=[],
-        stop_times=[
-            StopTime("S999", "Origin", 1, departure, "stop", "test")
-        ],
-    )
+from tests.support import make_service
 
 
 class ServiceOrderTests(unittest.TestCase):
@@ -125,6 +96,12 @@ class ServiceOrderTests(unittest.TestCase):
 
     def test_unknown_direction_raises(self):
         service = make_service("BAD", "WD", "E1", "Wrong-Direction", "5:35")
+        with self.assertRaises(ValueError):
+            master_sort_key(service)
+
+    def test_missing_departure_raises(self):
+        service = make_service("BAD", "WD", "E1", "Pasaia-Matiko", "5:35")
+        service.departure = ""
         with self.assertRaises(ValueError):
             master_sort_key(service)
 

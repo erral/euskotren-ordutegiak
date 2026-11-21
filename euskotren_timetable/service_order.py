@@ -32,35 +32,41 @@ DIRECTION_RANK = {
 }
 
 
-def calendar_rank(service: Service) -> int:
+def _rank(table: dict, key, label: str) -> int:
     try:
-        return CALENDAR_RANK[service.calendar]
+        return table[key]
     except KeyError as exc:
-        raise ValueError(f"unknown calendar: {service.calendar!r}") from exc
+        raise ValueError(f"unknown {label}: {key!r}") from exc
 
 
-def line_rank(service: Service) -> int:
-    try:
-        return LINE_RANK[service.primary_line]
-    except KeyError as exc:
-        raise ValueError(f"unknown line: {service.primary_line!r}") from exc
+def _calendar_rank(service: Service) -> int:
+    return _rank(CALENDAR_RANK, service.calendar, "calendar")
 
 
-def direction_rank(service: Service) -> int:
-    try:
-        return DIRECTION_RANK[(service.primary_line, service.direction)]
-    except KeyError as exc:
-        raise ValueError(
-            f"unknown direction for {service.primary_line!r}: {service.direction!r}"
-        ) from exc
+def _line_rank(service: Service) -> int:
+    return _rank(LINE_RANK, service.primary_line, "line")
+
+
+def _direction_rank(service: Service) -> int:
+    return _rank(
+        DIRECTION_RANK,
+        (service.primary_line, service.direction),
+        f"direction for {service.primary_line!r}",
+    )
+
+
+def _departure_minutes(service: Service) -> int:
+    if not service.departure:
+        raise ValueError(f"service {service.service_id!r} has no departure")
+    return to_minutes(service.departure)
 
 
 def master_sort_key(service: Service) -> tuple[int, int, int, int, str]:
     return (
-        calendar_rank(service),
-        to_minutes(service.departure),
-        line_rank(service),
-        direction_rank(service),
+        _calendar_rank(service),
+        _departure_minutes(service),
+        _line_rank(service),
+        _direction_rank(service),
         service.service_id,
     )
 
@@ -69,9 +75,9 @@ def corridor_sort_key(
     service: Service, own_line: str
 ) -> tuple[int, int, int, int, str]:
     return (
-        to_minutes(service.departure),
+        _departure_minutes(service),
         0 if service.primary_line == own_line else 1,
-        line_rank(service),
-        direction_rank(service),
+        _line_rank(service),
+        _direction_rank(service),
         service.service_id,
     )

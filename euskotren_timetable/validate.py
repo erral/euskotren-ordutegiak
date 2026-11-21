@@ -3,9 +3,12 @@
 import re
 from dataclasses import dataclass
 
+from collections import Counter
+
 from .corridors import CORRIDORS, appears_in as corridor_appears_in
 from .model import FrequencyRule, Service
 from .parse_e1 import ALTZOLA, is_time, to_minutes
+from .service_order import master_sort_key
 from .stops import STOP_REGISTRY
 
 TIME_RE = re.compile(r"^\d{1,2}:\d{2}$")
@@ -184,6 +187,45 @@ def validate(services: list[Service], rules: list[FrequencyRule]) -> list[Check]
     checks.append(_check("l3_east_count", len(l3e) == 138, f"found {len(l3e)}, expected 138"))
     checks.append(_check("l3_weekend_west_count", len(l3ww) == 103, f"found {len(l3ww)}, expected 103"))
     checks.append(_check("l3_weekend_east_count", len(l3we) == 101, f"found {len(l3we)}, expected 101"))
+    invalid_departures = [
+        service.service_id
+        for service in services
+        if not service.departure or not TIME_RE.match(service.departure)
+    ]
+    checks.append(
+        _check(
+            "service_departures_present",
+            not invalid_departures,
+            f"{len(invalid_departures)} missing or invalid departures",
+        )
+    )
+
+    duplicate_ids = [
+        service_id
+        for service_id, count in Counter(service.service_id for service in services).items()
+        if count > 1
+    ]
+    checks.append(
+        _check(
+            "service_ids_unique",
+            not duplicate_ids,
+            f"{len(duplicate_ids)} duplicate service IDs",
+        )
+    )
+
+    invalid_sort_values = []
+    for service in services:
+        try:
+            master_sort_key(service)
+        except ValueError as exc:
+            invalid_sort_values.append(f"{service.service_id}: {exc}")
+    checks.append(
+        _check(
+            "service_sort_values",
+            not invalid_sort_values,
+            f"{len(invalid_sort_values)} invalid: {'; '.join(invalid_sort_values[:3])}",
+        )
+    )
     checks.append(_check("l3_friday_night_west_count", len(l3fn) == 14, f"found {len(l3fn)}, expected 14"))
     checks.append(_check("l3_saturday_night_west_count", len(l3sn) == 27, f"found {len(l3sn)}, expected 27"))
     checks.append(_check("l3_friday_night_east_count", len(l3fnr) == 12, f"found {len(l3fnr)}, expected 12"))

@@ -10,12 +10,11 @@ from openpyxl.utils import get_column_letter
 from . import __version__
 from .corridors import CORRIDORS, services_for_corridor
 from .model import FrequencyRule, Service
-from .service_order import corridor_sort_key, master_sort_key
+from .service_order import CALENDAR_ORDER, corridor_sort_key, master_sort_key
 from .source_notes import SOURCE_NOTES
 from .stops import E1_STOPS, E2_STOPS, SHARED_TRUNKS, STOP_REGISTRY
 from .validate import Check
 
-CALENDAR_ORDER = ("WD", "SA", "SU", "WE", "FN", "SN")
 CALENDAR_LABELS = {
     "WD": "Astegunak / Weekday (Monday-Friday laborable)",
     "SA": "Larunbatak / Saturday",
@@ -433,7 +432,7 @@ def build_workbook(
         E1_STOPS,
         services_for_corridor(services, CORRIDORS[0]),
         through_stops,
-        "E1",
+        CORRIDORS[0].line,
     )
     _corridor_sheet(
         wb.create_sheet("E1 Matiko-Pasaia"),
@@ -442,7 +441,7 @@ def build_workbook(
         list(CORRIDORS[1].stops),
         services_for_corridor(services, CORRIDORS[1]),
         through_stops,
-        "E1",
+        CORRIDORS[1].line,
     )
     _corridor_sheet(
         wb.create_sheet("E2-T1 Hendaia-Lasarte"),
@@ -451,7 +450,7 @@ def build_workbook(
         E2_STOPS,
         services_for_corridor(services, CORRIDORS[2]),
         through_stops,
-        "E2-T1",
+        CORRIDORS[2].line,
     )
     _corridor_sheet(
         wb.create_sheet("E2-T1 Lasarte-Hendaia"),
@@ -460,7 +459,7 @@ def build_workbook(
         list(CORRIDORS[3].stops),
         services_for_corridor(services, CORRIDORS[3]),
         through_stops,
-        "E2-T1",
+        CORRIDORS[3].line,
     )
     _corridor_sheet(
         wb.create_sheet("E4 Matiko-Bermeo"),
@@ -469,7 +468,7 @@ def build_workbook(
         list(CORRIDORS[4].stops),
         services_for_corridor(services, CORRIDORS[4]),
         through_stops,
-        "E4",
+        CORRIDORS[4].line,
     )
     _corridor_sheet(
         wb.create_sheet("E4 Bermeo-Matiko"),
@@ -478,7 +477,7 @@ def build_workbook(
         list(CORRIDORS[5].stops),
         services_for_corridor(services, CORRIDORS[5]),
         through_stops,
-        "E4",
+        CORRIDORS[5].line,
     )
     _corridor_sheet(
         wb.create_sheet("E3-L3 Lezama-Kukullaga"),
@@ -487,7 +486,7 @@ def build_workbook(
         list(CORRIDORS[6].stops),
         services_for_corridor(services, CORRIDORS[6]),
         through_stops,
-        "E3-L3",
+        CORRIDORS[6].line,
     )
     _corridor_sheet(
         wb.create_sheet("E3-L3 Kukullaga-Lezama"),
@@ -496,7 +495,7 @@ def build_workbook(
         list(CORRIDORS[7].stops),
         services_for_corridor(services, CORRIDORS[7]),
         through_stops,
-        "E3-L3",
+        CORRIDORS[7].line,
     )
     _frequency_rules(wb.create_sheet("Frequency rules"), rules)
     _validation(wb.create_sheet("Validation"), checks)
