@@ -1,6 +1,6 @@
 # Publish the timetables as HTML on GitHub Pages
 
-Status: route clear — all decisions resolved; spec task open.
+Status: route clear — HTML publishing specification written 2026-11-21.
 
 ## Destination
 
@@ -34,15 +34,11 @@ A written specification for a generated HTML view of the timetables — index, p
 - [Decide the GitHub Pages deployment contract](issues/05-pages-deployment.md): single workflow with test + deploy, deploy only on `main`, `output/html` Pages artifact, standard Pages actions/permissions, no PDFs or custom domain.
 - [Decide the generator interface and build integration](issues/06-generator-interface.md): in-package `site.py` / `build_site` over in-memory services; `build-html` CLI also in `all`; `output/html/`; packaged Jinja2 templates.
 - [Decide how the generated site is validated](issues/07-validation.md): JSON/HTML/order/link/anchor/artifact checks in the `test` job; `deploy` needs `test`; no Lighthouse/axe gate in the first version.
+- [Write the HTML publishing specification](issues/08-write-spec.md): spec written at [`spec.md`](spec.md); site map, data contract, page contracts, visual/accessibility rules, generator, Pages workflow, validation gate and implementation boundary defined.
 
 ## Not yet specified
 
-- The Jinja2 template decomposition and partial naming.
-- Whether frequency rules, provenance and source notes get their own views.
-- Whether to include a language switcher, an accessibility statement or both.
-- Whether to expose a site-wide search index or SEO metadata beyond `services.json`.
-- Whether the site needs a favicon or brand asset set beyond the CSS palette.
-- How much of the build version and generated timestamp to surface on every page.
+None. The spec fixes the first-version defaults; only implementation-level template decomposition remains, which does not need a decision.
 
 ## Out of scope
 
