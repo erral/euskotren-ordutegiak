@@ -2,6 +2,8 @@
 
 **Euskara** · [English](README.md) · [Español](README-es.md)
 
+**HTML gunea:** [erral.github.io/euskotren-ordutegiak](https://erral.github.io/euskotren-ordutegiak/)
+
 Euskotrenen 2026ko neguko ordutegi normalizatu bakarra, jatorrizko PDFetatik sortua eta honela argitaratua:
 
 - **Excel lan-koaderno** kanonikoa;
@@ -93,11 +95,11 @@ python3 -m euskotren_timetable.cli validate-site --output output/html
 
 ## GitHub Pages-en argitaratzea
 
-Biltegiaren izena **`euskotren-ordutegiak`** izatea aurreikusten da, beraz gunea helbide honetan egongo da:
+Biltegiaren izena **`euskotren-ordutegiak`** da, eta gunea helbide honetan dago:
 
-`https://<owner>.github.io/euskotren-ordutegiak/`
+`https://erral.github.io/euskotren-ordutegiak/`
 
-Biltegia sortu ondoren:
+Pages konfiguratu behar bada:
 
 1. Igo `main` adarra.
 2. Ireki **Settings → Pages**.

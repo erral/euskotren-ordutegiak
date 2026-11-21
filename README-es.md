@@ -2,6 +2,8 @@
 
 **Español** · [English](README.md) · [Euskara](README-eu.md)
 
+**Sitio HTML:** [erral.github.io/euskotren-ordutegiak](https://erral.github.io/euskotren-ordutegiak/)
+
 Un horario único de Euskotren para el invierno de 2026, generado a partir de los PDF oficiales y publicado como:
 
 - un **libro de Excel** canónico;
@@ -93,11 +95,11 @@ python3 -m euskotren_timetable.cli validate-site --output output/html
 
 ## Publicación en GitHub Pages
 
-Está previsto que el repositorio se llame **`euskotren-ordutegiak`**, por lo que el sitio se servirá en:
+El repositorio es **`euskotren-ordutegiak`**, y el sitio se sirve en:
 
-`https://<owner>.github.io/euskotren-ordutegiak/`
+`https://erral.github.io/euskotren-ordutegiak/`
 
-Después de crear el repositorio:
+Si hay que configurar Pages:
 
 1. Sube la rama `main`.
 2. Abre **Settings → Pages**.

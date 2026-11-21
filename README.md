@@ -2,6 +2,8 @@
 
 **English** · [Euskara](README-eu.md) · [Español](README-es.md)
 
+**HTML site:** [erral.github.io/euskotren-ordutegiak](https://erral.github.io/euskotren-ordutegiak/)
+
 One normalized Euskotren winter-2026 timetable, generated from the official PDFs and published as:
 
 - a canonical **Excel workbook**;
@@ -93,11 +95,11 @@ python3 -m euskotren_timetable.cli validate-site --output output/html
 
 ## Publishing to GitHub Pages
 
-The repository is intended to be named **`euskotren-ordutegiak`**, so the site will be served at:
+The repository is **`euskotren-ordutegiak`**, and the site is served at:
 
-`https://<owner>.github.io/euskotren-ordutegiak/`
+`https://erral.github.io/euskotren-ordutegiak/`
 
-After creating the repository:
+If Pages needs to be configured:
 
 1. Push `main`.
 2. Open **Settings → Pages**.
