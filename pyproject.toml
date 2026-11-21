@@ -2,7 +2,15 @@
 name = "euskotren-timetable"
 version = "0.1.0"
 description = "Build a single Excel timetable from the official Euskotren PDFs"
+readme = "README.md"
+license = { file = "LICENSE" }
 requires-python = ">=3.12"
+keywords = ["euskotren", "timetable", "public transport", "basque"]
+classifiers = [
+  "License :: OSI Approved :: GNU General Public License v2 (GPLv2)",
+  "Programming Language :: Python :: 3",
+  "Programming Language :: Python :: 3.12",
+]
 dependencies = [
   "openpyxl>=3.1",
   "PyYAML>=6.0",
