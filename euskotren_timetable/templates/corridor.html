@@ -26,6 +26,24 @@
   {% endfor %}
 </nav>
 
+<div class="stop-filter js-only" role="search" aria-label="Geltokia bilatu / Buscar parada">
+  <label for="stop-filter">Geltokia / <span lang="es">Parada</span></label>
+  <div class="stop-filter-row">
+    <input
+      id="stop-filter"
+      type="search"
+      list="corridor-stops"
+      placeholder="Idatzi geltokia / Escribe una parada"
+      autocomplete="off"
+    >
+    <button type="button" id="stop-filter-clear" hidden>Garbitu / <span lang="es">Limpiar</span></button>
+  </div>
+  <datalist id="corridor-stops">
+    {% for stop in stops %}<option value="{{ stop }}"></option>{% endfor %}
+  </datalist>
+  <p id="stop-filter-count" class="filter-count" aria-live="polite"></p>
+</div>
+
 <input type="checkbox" id="show-metadata" class="metadata-toggle">
 <label for="show-metadata" class="metadata-toggle-label">
   <span class="show-label">Erakutsi metadatuak / <span lang="es">Mostrar metadatos</span></span>
@@ -45,7 +63,7 @@
         <th scope="col" class="metadata-col">Departure</th>
         <th scope="col" class="metadata-col">Arrival</th>
         {% for stop in stops %}
-        <th scope="col"{% if loop.first %} class="stop-first"{% endif %}>{{ stop }}</th>
+        <th scope="col" data-stop="{{ stop }}">{{ stop }}</th>
         {% endfor %}
       </tr>
     </thead>
@@ -63,7 +81,7 @@
         <td class="time metadata-col">{{ row.service.departure }}</td>
         <td class="time metadata-col">{{ row.service.arrival }}</td>
         {% for cell in row.cells %}
-        <td class="{{ cell.klass }}{% if loop.first %} stop-first{% endif %}">{{ cell.display }}</td>
+        <td data-stop="{{ stops[loop.index0] }}" class="{{ cell.klass }}">{{ cell.display }}</td>
         {% endfor %}
       </tr>
       {% endfor %}

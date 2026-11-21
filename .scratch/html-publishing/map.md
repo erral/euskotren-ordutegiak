@@ -23,14 +23,14 @@ A written specification for a generated HTML view of the timetables — index, p
 5. Publishing scope: **HTML + `services.json` + the Excel workbook download**; the source PDFs are not republished.
 6. Automation: **one workflow** with `test` and `deploy` jobs; deploy only on `main`, using the GitHub Pages actions.
 7. Language: **Basque primary**, bilingual Basque/Spanish interface labels, Basque-only stop names.
-8. Tables: **wide timetable with sticky headers/stop names and horizontal scrolling**; no mobile card view in the first version.
+8. Tables: **wide timetable with sticky headers and horizontal scrolling; the first column scrolls with the table**; no mobile card view in the first version.
 
 ## Decisions so far
 
 - [Decide the HTML site structure and URL scheme](issues/01-site-structure.md): static views with stable slugs; index, per-line/direction/calendar pages, Master, JSON and workbook download, all linked relatively.
 - [Decide the `services.json` data contract](issues/02-data-contract.md): one versioned `services.json` with meta, lines, calendars, stops, corridors and canonically ordered services with stop times; no PDFs or internal evidence.
-- [Decide the page content and table behaviour](issues/03-page-content.md): one calendar per corridor page with a switcher; metadata hidden behind a toggle; Master full table + client-side filters; `?`/`>`/blank states and a night legend.
-- [Decide the visual, responsive and accessibility rules](issues/04-visual-accessibility.md): custom CSS, Euskotren-inspired palette, semantic accessible tables, sticky headers/first columns, horizontal scrolling and basic print styles.
+- [Decide the page content and table behaviour](issues/03-page-content.md): one calendar per corridor page with a switcher; metadata hidden behind a toggle; a stop search filter; Master full table + client-side filters; `?`/`>`/blank states and a night legend.
+- [Decide the visual, responsive and accessibility rules](issues/04-visual-accessibility.md): custom CSS, Euskotren-inspired palette, semantic accessible tables, sticky headers, horizontal scrolling and basic print styles.
 - [Decide the GitHub Pages deployment contract](issues/05-pages-deployment.md): single workflow with test + deploy, deploy only on `main`, `output/html` Pages artifact, standard Pages actions/permissions, no PDFs or custom domain.
 - [Decide the generator interface and build integration](issues/06-generator-interface.md): in-package `site.py` / `build_site` over in-memory services; `build-html` CLI also in `all`; `output/html/`; packaged Jinja2 templates.
 - [Decide how the generated site is validated](issues/07-validation.md): JSON/HTML/order/link/anchor/artifact checks in the `test` job; `deploy` needs `test`; no Lighthouse/axe gate in the first version.

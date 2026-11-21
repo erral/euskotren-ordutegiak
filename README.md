@@ -33,6 +33,13 @@ The workbook's `Source notes` sheet keeps the verbatim Basque/Spanish side notes
 python3 -m euskotren_timetable.cli all
 ```
 
+Or with the Makefile:
+
+```bash
+make workbook   # Excel workbook only
+make html       # workbook + static HTML site in output/html
+```
+
 Outputs:
 
 - `output/euskotren_timetables_winter_2026_v12.xlsx`
@@ -52,7 +59,7 @@ python3 -m euskotren_timetable.cli validate-site --output output/html
 
 ## HTML site
 
-`build-html` builds the workbook and the static site. The site contains the index, per-line/direction/calendar pages, the searchable Master, `data/services.json` and a workbook download under `output/html/downloads/`.
+`build-html` builds the workbook and the static site. The site contains the index, per-line/direction/calendar pages, the searchable Master, `data/services.json` and a workbook download under `output/html/downloads/`. Corridor pages include a stop search filter and a metadata toggle.
 
 The GitHub Actions workflow runs the tests, builds and validates the site, and deploys `output/html` to GitHub Pages from `main`. The repository must have **Settings → Pages → Source: GitHub Actions** enabled once.
 

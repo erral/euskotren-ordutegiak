@@ -101,8 +101,10 @@ class SiteTests(unittest.TestCase):
         self.assertIn('id="show-metadata"', page)
         self.assertIn('class="service-id metadata-col"', page)
         self.assertIn('class="metadata-col"', page)
-        self.assertIn('class="stop-first"', page)
-        self.assertIn('class="time stop-first"', page)
+        self.assertIn('id="stop-filter"', page)
+        self.assertIn('id="corridor-stops"', page)
+        self.assertIn('data-stop="Pasaia"', page)
+        self.assertIn("assets/site.js", page)
 
     def test_master_rows_and_attributes(self):
         page = (self.output / "master.html").read_text()
@@ -116,6 +118,7 @@ class SiteTests(unittest.TestCase):
         page = (self.output / "index.html").read_text()
         self.assertIn('href="line/e1/pasaia-matiko/weekday.html"', page)
         self.assertNotIn('id="show-metadata"', page)
+        self.assertNotIn('id="stop-filter"', page)
         self.assertIn('href="line/e1/pasaia-matiko/saturday.html"', page)
         self.assertNotIn('href="line/e1/pasaia-matiko/sunday-holiday.html"', page)
 

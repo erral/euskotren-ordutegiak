@@ -147,7 +147,8 @@ The table:
 - metadata is **hidden by default** behind a “show metadata” toggle; the default reading view is stop times only;
 - service notes available as a `title` tooltip on the service ID, not a full column;
 - a table `<caption>` naming the line, direction and calendar;
-- sticky header and first columns; horizontal scrolling in a keyboard-focusable container;
+- sticky header; horizontal scrolling in a keyboard-focusable container; the first column scrolls with the table;
+- a stop search box that filters services to those serving the matching stop(s), highlights the matching stop columns and reports the visible count;
 - a row `id="<service-id>"`;
 - a `:target` highlight for deep-linked rows.
 
@@ -200,7 +201,7 @@ Filters are labelled and update a result count in an `aria-live="polite"` region
 ```
 
 - System font stack; dense table typography; `font-variant-numeric: tabular-nums`.
-- Sticky `thead th` and first columns with an opaque background.
+- Sticky `thead th` with an opaque background; the first column scrolls with the table.
 - Horizontal scroll container with `overflow-x: auto`, `tabindex="0"` and an accessible label.
 - Visible `:focus-visible` outline; WCAG AA contrast; no animation or `prefers-reduced-motion` fallback needed.
 - Semantic `<table>`, `<caption>`, `scope="col"` and `scope="row"`; skip link, `<header>`, `<nav>`, `<main>`, `<footer>`.
