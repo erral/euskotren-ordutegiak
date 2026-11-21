@@ -1,6 +1,6 @@
 # Publish the timetables as HTML on GitHub Pages
 
-Status: charted — 1 decision ticket on the frontier, spec task blocked.
+Status: route clear — all decisions resolved; spec task open.
 
 ## Destination
 
@@ -33,6 +33,7 @@ A written specification for a generated HTML view of the timetables — index, p
 - [Decide the visual, responsive and accessibility rules](issues/04-visual-accessibility.md): custom CSS, Euskotren-inspired palette, semantic accessible tables, sticky headers/first columns, horizontal scrolling and basic print styles.
 - [Decide the GitHub Pages deployment contract](issues/05-pages-deployment.md): single workflow with test + deploy, deploy only on `main`, `output/html` Pages artifact, standard Pages actions/permissions, no PDFs or custom domain.
 - [Decide the generator interface and build integration](issues/06-generator-interface.md): in-package `site.py` / `build_site` over in-memory services; `build-html` CLI also in `all`; `output/html/`; packaged Jinja2 templates.
+- [Decide how the generated site is validated](issues/07-validation.md): JSON/HTML/order/link/anchor/artifact checks in the `test` job; `deploy` needs `test`; no Lighthouse/axe gate in the first version.
 
 ## Not yet specified
 
