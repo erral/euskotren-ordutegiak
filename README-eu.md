@@ -1,6 +1,6 @@
 # Euskotren ordutegiak
 
-**Euskara** · [English](README.md) · [Español](README.es)
+**Euskara** · [English](README.md) · [Español](README-es.md)
 
 Euskotrenen 2026ko neguko ordutegi normalizatu bakarra, jatorrizko PDFetatik sortua eta honela argitaratua:
 

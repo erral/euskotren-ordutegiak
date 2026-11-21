@@ -1,6 +1,6 @@
 # Euskotren ordutegiak
 
-**Español** · [English](README.md) · [Euskara](README.eu)
+**Español** · [English](README.md) · [Euskara](README-eu.md)
 
 Un horario único de Euskotren para el invierno de 2026, generado a partir de los PDF oficiales y publicado como:
 

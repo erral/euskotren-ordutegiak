@@ -1,6 +1,6 @@
 # Euskotren ordutegiak
 
-**English** · [Euskara](README.eu) · [Español](README.es)
+**English** · [Euskara](README-eu.md) · [Español](README-es.md)
 
 One normalized Euskotren winter-2026 timetable, generated from the official PDFs and published as:
 
