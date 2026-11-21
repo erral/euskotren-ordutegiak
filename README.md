@@ -148,7 +148,7 @@ Timetable data is derived from the official Euskotren winter-2026 PDFs. The sour
 
 This is an unofficial project and is not affiliated with Euskotren. Always check the official Euskotren timetable before travelling.
 
-The project was built with [OpenCode](https://opencode.ai) using Matt Pocock’s skills and DeepSeek Flash 4-flash.
+The project was built with [OpenCode](https://opencode.ai) using [Matt Pocock’s skills](https://github.com/mattpocock/skills) and [DeepSeek Flash 4-flash](https://www.deepseek.com/).
 
 ## License
 
