@@ -30,9 +30,10 @@ The direction order is the **published sheet order**:
 - E1: `Pasaia-Matiko` → `Matiko-Pasaia`
 - E2-T1: `Hendaia-Lasarte` → `Lasarte-Hendaia`
 - E4: `Matiko-Bermeo` → `Bermeo-Matiko`
-- E3-L3: `Lezama-Kukullaga` → `Kukullaga-Lezama`
+- E3-L3 (E3 branch): `Lezama-Kukullaga` → `Kukullaga-Lezama`
+- E3-L3 (L3 local): `Matiko-Kukullaga` → `Kukullaga-Matiko`
 
-`Master` uses this order when grouping each line's two directions. Lexicographic order was rejected because it would not match the corridor sheet-tab order.
+`Master` uses this order when grouping each line's directions. The E3-L3 primary line carries both patterns, so the E3 branch pair comes first, then the L3 local pair. Lexicographic order was rejected because it would not match the corridor sheet-tab order.
 
 ## Comments
 
