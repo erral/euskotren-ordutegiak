@@ -32,6 +32,7 @@ A written specification for a generated HTML view of the timetables — index, p
 - [Decide the page content and table behaviour](issues/03-page-content.md): one calendar per corridor page with a switcher; Master full table + client-side filters; `?`/`>`/blank states and a night legend.
 - [Decide the visual, responsive and accessibility rules](issues/04-visual-accessibility.md): custom CSS, Euskotren-inspired palette, semantic accessible tables, sticky headers/first columns, horizontal scrolling and basic print styles.
 - [Decide the GitHub Pages deployment contract](issues/05-pages-deployment.md): single workflow with test + deploy, deploy only on `main`, `output/html` Pages artifact, standard Pages actions/permissions, no PDFs or custom domain.
+- [Decide the generator interface and build integration](issues/06-generator-interface.md): in-package `site.py` / `build_site` over in-memory services; `build-html` CLI also in `all`; `output/html/`; packaged Jinja2 templates.
 
 ## Not yet specified
 
