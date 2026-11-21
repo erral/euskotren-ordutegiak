@@ -39,3 +39,4 @@ The direction order is the **published sheet order**:
 - Charted 2026-11-21. Waiting for the direction-order decision.
 - 2026-11-21: claimed for resolution.
 - 2026-11-21: answered (a), published sheet order.
+- 2026-11-21: implementation surfaced the L3 local directions, which share the E3-L3 primary line. Extended the order with `Matiko-Kukullaga → Kukullaga-Matiko` after the E3 branch pair; spec updated.

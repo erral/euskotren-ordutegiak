@@ -63,7 +63,10 @@ Within a line, use the published order:
 | E1 | `Pasaia-Matiko` | `Matiko-Pasaia` |
 | E2-T1 | `Hendaia-Lasarte` | `Lasarte-Hendaia` |
 | E4 | `Matiko-Bermeo` | `Bermeo-Matiko` |
-| E3-L3 | `Lezama-Kukullaga` | `Kukullaga-Lezama` |
+| E3-L3 (E3 branch) | `Lezama-Kukullaga` | `Kukullaga-Lezama` |
+| E3-L3 (L3 local) | `Matiko-Kukullaga` | `Kukullaga-Matiko` |
+
+E3-L3 is one primary line carrying both patterns: the E3 branch directions keep the published sheet order, then the L3 local directions follow.
 
 ### Final tie-breaker
 

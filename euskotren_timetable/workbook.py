@@ -10,7 +10,7 @@ from openpyxl.utils import get_column_letter
 from . import __version__
 from .corridors import CORRIDORS, services_for_corridor
 from .model import FrequencyRule, Service
-from .parse_e1 import to_minutes
+from .service_order import corridor_sort_key, master_sort_key
 from .source_notes import SOURCE_NOTES
 from .stops import E1_STOPS, E2_STOPS, SHARED_TRUNKS, STOP_REGISTRY
 from .validate import Check
@@ -71,6 +71,7 @@ def _readme(ws, manifest: dict | None, workbook_name: str) -> None:
         ("Source", "Official Euskotren winter-2026 PDFs, https://euskotren.eus/eu/tren/ordutegiak"),
         ("Legend", "Blank = does not stop. ? = time not published. Times are 24-hour."),
         ("Cross-line", "Master > Appears in lists every corridor sheet a service traverses. A service can appear on both E1 and E2."),
+        ("Sort order", "Services are ordered by calendar, departure time, line and direction; corridor sheets put their own line first when services share a departure. Night times use the extended clock (24:xx/25:xx)."),
         ("Source notes", "Verbatim side notes from the posters are on the Source notes sheet."),
         ("", ""),
         ("Sheet", "Purpose"),
@@ -225,7 +226,8 @@ def _master(ws, services: list[Service]) -> None:
         "Source PDF", "Frequency rule(s)", "Notes",
     ]
     _header_row(ws, 1, headers)
-    for r, service in enumerate(services, 2):
+    ordered = sorted(services, key=master_sort_key)
+    for r, service in enumerate(ordered, 2):
         values = [
             service.service_id,
             service.primary_line,
@@ -261,6 +263,7 @@ def _corridor_sheet(
     stops: list[str],
     services: list[Service],
     through_stops: set[str],
+    own_line: str,
 ) -> None:
     metadata = ["Service ID", "Primary line", "Pattern", "Calendar", "Valid from",
                 "Valid to", "Origin", "Destination", "Departure", "Arrival", "Notes"]
@@ -310,7 +313,9 @@ def _corridor_sheet(
         header.alignment = Alignment(vertical="center")
         row += 1
 
-        for service in sorted(group, key=lambda item: to_minutes(item.departure)):
+        for service in sorted(
+            group, key=lambda item: corridor_sort_key(item, own_line)
+        ):
             metadata_values = [
                 service.service_id,
                 service.primary_line,
@@ -428,6 +433,7 @@ def build_workbook(
         E1_STOPS,
         services_for_corridor(services, CORRIDORS[0]),
         through_stops,
+        "E1",
     )
     _corridor_sheet(
         wb.create_sheet("E1 Matiko-Pasaia"),
@@ -436,6 +442,7 @@ def build_workbook(
         list(CORRIDORS[1].stops),
         services_for_corridor(services, CORRIDORS[1]),
         through_stops,
+        "E1",
     )
     _corridor_sheet(
         wb.create_sheet("E2-T1 Hendaia-Lasarte"),
@@ -444,6 +451,7 @@ def build_workbook(
         E2_STOPS,
         services_for_corridor(services, CORRIDORS[2]),
         through_stops,
+        "E2-T1",
     )
     _corridor_sheet(
         wb.create_sheet("E2-T1 Lasarte-Hendaia"),
@@ -452,6 +460,7 @@ def build_workbook(
         list(CORRIDORS[3].stops),
         services_for_corridor(services, CORRIDORS[3]),
         through_stops,
+        "E2-T1",
     )
     _corridor_sheet(
         wb.create_sheet("E4 Matiko-Bermeo"),
@@ -460,6 +469,7 @@ def build_workbook(
         list(CORRIDORS[4].stops),
         services_for_corridor(services, CORRIDORS[4]),
         through_stops,
+        "E4",
     )
     _corridor_sheet(
         wb.create_sheet("E4 Bermeo-Matiko"),
@@ -468,6 +478,7 @@ def build_workbook(
         list(CORRIDORS[5].stops),
         services_for_corridor(services, CORRIDORS[5]),
         through_stops,
+        "E4",
     )
     _corridor_sheet(
         wb.create_sheet("E3-L3 Lezama-Kukullaga"),
@@ -476,6 +487,7 @@ def build_workbook(
         list(CORRIDORS[6].stops),
         services_for_corridor(services, CORRIDORS[6]),
         through_stops,
+        "E3-L3",
     )
     _corridor_sheet(
         wb.create_sheet("E3-L3 Kukullaga-Lezama"),
@@ -484,6 +496,7 @@ def build_workbook(
         list(CORRIDORS[7].stops),
         services_for_corridor(services, CORRIDORS[7]),
         through_stops,
+        "E3-L3",
     )
     _frequency_rules(wb.create_sheet("Frequency rules"), rules)
     _validation(wb.create_sheet("Validation"), checks)
