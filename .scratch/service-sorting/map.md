@@ -1,6 +1,6 @@
 # Sort services in the output Excel timetable
 
-Status: charted — decision tickets resolved; spec task open.
+Status: route clear — sorting specification written 2026-11-21.
 
 ## Destination
 
@@ -31,12 +31,11 @@ A written sorting specification for the workbook: one deterministic row order fo
 - [Decide line order in the service sort key](issues/01-line-order.md): published workbook/sheet order `E1 → E2-T1 → E4 → E3-L3`.
 - [Decide direction order within each line](issues/02-direction-order.md): published sheet order for each line (e.g. E1 `Pasaia-Matiko` before `Matiko-Pasaia`).
 - [Decide how the sort order is documented in the workbook](issues/03-sort-documentation.md): concise `README` note only; detailed rules live in the spec.
+- [Write the service sorting specification](issues/04-write-sort-spec.md): spec written at [`spec.md`](spec.md); master and corridor keys, own-line tie-break, calendar/line/direction orders, night handling, validation and implementation boundary defined.
 
 ## Not yet specified
 
-- The spec's section structure and whether it carries pseudocode or a reference implementation.
-- How the order is validated (golden rows, regression tests, or a manual review checklist).
-- How the spec should present its golden examples (inline table, appendix, or fixture file).
+None. The specification covers the section structure, validation approach and golden-example format.
 
 ## Out of scope
 

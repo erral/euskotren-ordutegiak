@@ -1,7 +1,7 @@
 # Write the service sorting specification
 
 Type: task
-Status: claimed
+Status: resolved
 Blocked by: 01, 02, 03
 Parent: [Sort services in the output Excel timetable](../map.md)
 
@@ -21,7 +21,24 @@ It must cover:
 
 Resolved when the spec is written and reviewed. The task is AFK to draft and HITL to review.
 
+## Answer
+
+Resolved 2026-11-21.
+
+The specification is written at [`spec.md`](../spec.md). It defines:
+
+- the master key and the corridor key;
+- the own-line-first tie-break, applied **after** departure;
+- the calendar, line and published-direction orders;
+- extended-clock handling for `FN`/`SN`;
+- the flat `Master` layout and the stacked corridor calendar blocks;
+- the README-only documentation rule;
+- edge cases, golden examples, validation checks and implementation notes for the later effort.
+
+Reviewed and confirmed. Implementation remains a separate effort.
+
 ## Comments
 
 - Charted 2026-11-21. Blocked by the line-order, direction-order and documentation tickets.
 - 2026-11-21: claimed; spec drafted at [`spec.md`](../spec.md). Awaiting review before resolution.
+- 2026-11-21: reviewed and confirmed; resolved.
