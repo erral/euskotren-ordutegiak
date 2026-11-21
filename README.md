@@ -36,6 +36,7 @@ python3 -m euskotren_timetable.cli all
 Outputs:
 
 - `output/euskotren_timetables_winter_2026_v12.xlsx`
+- `output/html/` — the static timetable site
 - `output/validation.md`
 - `data/manifest.json`
 - `data/pdfs/*.pdf`
@@ -45,7 +46,15 @@ Individual steps:
 ```bash
 python3 -m euskotren_timetable.cli manifest
 python3 -m euskotren_timetable.cli build-weekday
+python3 -m euskotren_timetable.cli build-html
+python3 -m euskotren_timetable.cli validate-site --output output/html
 ```
+
+## HTML site
+
+`build-html` builds the workbook and the static site. The site contains the index, per-line/direction/calendar pages, the searchable Master, `data/services.json` and a workbook download under `output/html/downloads/`.
+
+The GitHub Actions workflow runs the tests, builds and validates the site, and deploys `output/html` to GitHub Pages from `main`. The repository must have **Settings → Pages → Source: GitHub Actions** enabled once.
 
 ## Tests
 
@@ -87,6 +96,9 @@ The GitHub Actions workflow runs `make lint` (equivalently, both Ruff checks) be
 - `euskotren_timetable/model.py` — normalized records.
 - `euskotren_timetable/validate.py` — structural checks.
 - `euskotren_timetable/workbook.py` — Excel renderer with stacked calendar blocks.
+- `euskotren_timetable/site.py` — static HTML site generator and link validator.
+- `euskotren_timetable/templates/` — Jinja2 templates for the site.
+- `euskotren_timetable/assets/` — site stylesheet and Master filter script.
 - `euskotren_timetable/manifest.py` — PDF download and provenance.
 - `data/corrections.yaml` — sidecar corrections, applied on regeneration.
 

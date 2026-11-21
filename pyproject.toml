@@ -7,6 +7,7 @@ dependencies = [
   "openpyxl>=3.1",
   "PyYAML>=6.0",
   "requests>=2.31",
+  "Jinja2>=3.1",
 ]
 
 [project.optional-dependencies]
@@ -21,6 +22,9 @@ build-backend = "setuptools.build_meta"
 
 [tool.setuptools.packages.find]
 include = ["euskotren_timetable*"]
+
+[tool.setuptools.package-data]
+euskotren_timetable = ["templates/*.html", "assets/*"]
 
 [tool.ruff]
 target-version = "py312"

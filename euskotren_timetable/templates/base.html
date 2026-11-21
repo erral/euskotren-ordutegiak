@@ -1,0 +1,46 @@
+<!doctype html>
+<html lang="eu">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{% block title %}Euskotren ordutegiak{% endblock %}</title>
+  <meta name="description" content="{% block description %}Euskotren winter-2026 timetable.{% endblock %}">
+  <link rel="stylesheet" href="{{ root }}assets/site.css">
+</head>
+<body>
+  <a class="skip-link" href="#main">Saltatu edukira / <span lang="es">Saltar al contenido</span></a>
+  <header class="site-header">
+    <div class="wrap header-inner">
+      <a class="brand" href="{{ root }}index.html">Euskotren · Ordutegiak / <span lang="es">Horarios</span></a>
+      <nav aria-label="Nagusia / Principal">
+        <a href="{{ root }}index.html">Hasiera / <span lang="es">Inicio</span></a>
+        <a href="{{ root }}master.html">Zerbitzuak / <span lang="es">Servicios</span></a>
+        <a href="{{ root }}data/services.json">JSON</a>
+        {% if workbook_url %}<a href="{{ root }}{{ workbook_url }}">XLSX</a>{% endif %}
+      </nav>
+    </div>
+  </header>
+
+  <main id="main" class="wrap">
+    {% block content %}{% endblock %}
+  </main>
+
+  <footer class="site-footer">
+    <div class="wrap">
+      <p>
+        {{ meta.season }} · {{ meta.valid_from }}{% if meta.valid_to %} – {{ meta.valid_to }}{% endif %}
+        · Sortua / <span lang="es">Generado</span> {{ meta.generated_at }}
+        · v{{ meta.generator_version }}
+      </p>
+      {% if meta.source_manifest %}
+      <p>
+        Iturria / <span lang="es">Fuente</span>:
+        {% for source in meta.source_manifest %}
+          <a href="{{ source.url }}">{{ source.label }}</a>{% if not loop.last %} · {% endif %}
+        {% endfor %}
+      </p>
+      {% endif %}
+    </div>
+  </footer>
+</body>
+</html>

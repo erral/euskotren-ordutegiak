@@ -1,0 +1,609 @@
+:root {
+  --brand-green: #7ab800;
+  --brand-blue: #00519e;
+  --ink: #1f2933;
+  --muted: #5b6770;
+  --surface: #ffffff;
+  --surface-alt: #f3f6f4;
+  --border: #cbd5d1;
+  --danger: #b00020;
+  --focus: #005fcc;
+  --shadow: 0 1px 2px rgb(0 0 0 / 8%);
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html {
+  color: var(--ink);
+  background: var(--surface-alt);
+  font-family: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  line-height: 1.45;
+}
+
+body {
+  margin: 0;
+}
+
+a {
+  color: var(--brand-blue);
+  text-underline-offset: 0.15em;
+}
+
+a:hover {
+  color: var(--ink);
+}
+
+:focus-visible {
+  outline: 2px solid var(--focus);
+  outline-offset: 2px;
+}
+
+.wrap {
+  width: min(100% - 2rem, 120rem);
+  margin-inline: auto;
+}
+
+.skip-link {
+  position: absolute;
+  top: -4rem;
+  left: 1rem;
+  z-index: 100;
+  padding: 0.75rem 1rem;
+  background: var(--ink);
+  color: var(--surface);
+}
+
+.skip-link:focus {
+  top: 0.5rem;
+}
+
+.site-header {
+  background: var(--brand-blue);
+  color: var(--surface);
+  border-bottom: 4px solid var(--brand-green);
+}
+
+.header-inner {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem 1.5rem;
+  align-items: center;
+  justify-content: space-between;
+  padding-block: 0.9rem;
+}
+
+.brand {
+  color: var(--surface);
+  font-weight: 700;
+  text-decoration: none;
+  letter-spacing: 0.01em;
+}
+
+.site-header nav {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem 1rem;
+}
+
+.site-header nav a {
+  color: var(--surface);
+  text-decoration: none;
+  font-size: 0.92rem;
+}
+
+.site-header nav a:hover {
+  text-decoration: underline;
+}
+
+main {
+  padding-block: 1.5rem 3rem;
+}
+
+h1,
+h2,
+h3 {
+  line-height: 1.2;
+  margin: 0 0 0.4rem;
+}
+
+h1 {
+  font-size: clamp(1.5rem, 3vw, 2.1rem);
+}
+
+h2 {
+  font-size: 1.35rem;
+}
+
+h3 {
+  font-size: 1.05rem;
+}
+
+.intro,
+.line-card,
+.page-head,
+.legend,
+.filters {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 0.5rem;
+  padding: 1rem 1.1rem;
+  margin-block: 1rem;
+  box-shadow: var(--shadow);
+}
+
+.intro p,
+.page-head p {
+  margin-block: 0.3rem;
+}
+
+.downloads {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem 1rem;
+  padding: 0;
+  margin: 0.8rem 0;
+  list-style: none;
+}
+
+.downloads a {
+  display: inline-block;
+  padding: 0.35rem 0.6rem;
+  border: 1px solid var(--border);
+  border-radius: 0.35rem;
+  background: var(--surface-alt);
+  text-decoration: none;
+}
+
+.line-card {
+  display: grid;
+  grid-template-columns: minmax(5rem, 8rem) 1fr;
+  gap: 0.5rem 1rem;
+}
+
+.line-card h2 {
+  grid-row: 1 / span 10;
+  margin: 0;
+  color: var(--brand-blue);
+}
+
+.direction {
+  grid-column: 2;
+  padding-block: 0.35rem;
+  border-bottom: 1px solid var(--border);
+}
+
+.direction:last-child {
+  border-bottom: 0;
+}
+
+.calendar-links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem 0.8rem;
+  padding: 0;
+  margin: 0.3rem 0 0;
+  list-style: none;
+}
+
+.calendar-links a {
+  text-decoration: none;
+}
+
+.page-head {
+  border-left: 5px solid var(--brand-green);
+}
+
+.page-meta,
+.calendar-title {
+  color: var(--muted);
+  margin: 0.2rem 0;
+}
+
+.calendar-switcher {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+  margin-block: 0.8rem;
+}
+
+.calendar-switcher a {
+  padding: 0.35rem 0.6rem;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  background: var(--surface);
+  text-decoration: none;
+  font-size: 0.9rem;
+}
+
+.calendar-switcher a[aria-current="page"] {
+  background: var(--brand-blue);
+  border-color: var(--brand-blue);
+  color: var(--surface);
+}
+
+.breadcrumb {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+  margin-block: 0.5rem;
+  color: var(--muted);
+  font-size: 0.9rem;
+}
+
+.table-scroll {
+  overflow: auto;
+  max-height: 80vh;
+  border: 1px solid var(--border);
+  border-radius: 0.4rem;
+  background: var(--surface);
+  box-shadow: var(--shadow);
+}
+
+.table-scroll:focus-visible {
+  outline: 2px solid var(--focus);
+}
+
+.timetable {
+  border-collapse: separate;
+  border-spacing: 0;
+  min-width: max-content;
+  width: 100%;
+  font-size: 0.82rem;
+  font-variant-numeric: tabular-nums;
+}
+
+.timetable caption {
+  caption-side: top;
+  padding: 0.7rem 0.8rem;
+  text-align: left;
+  font-weight: 700;
+  background: var(--surface);
+  border-bottom: 1px solid var(--border);
+}
+
+.timetable th,
+.timetable td {
+  padding: 0.35rem 0.5rem;
+  border-right: 1px solid var(--border);
+  border-bottom: 1px solid var(--border);
+  text-align: left;
+  white-space: nowrap;
+}
+
+.timetable thead th {
+  position: sticky;
+  top: 0;
+  z-index: 2;
+  background: var(--surface-alt);
+  vertical-align: bottom;
+  font-size: 0.78rem;
+  color: var(--ink);
+}
+
+.timetable th:first-child,
+.timetable td:first-child {
+  position: sticky;
+  left: 0;
+  z-index: 1;
+  background: var(--surface);
+  min-width: 13rem;
+}
+
+.timetable thead th:first-child {
+  z-index: 3;
+  background: var(--surface-alt);
+}
+
+.timetable tbody th {
+  font-weight: 400;
+  text-align: left;
+  background: var(--surface);
+}
+
+.timetable tbody tr:nth-child(even) td,
+.timetable tbody tr:nth-child(even) th {
+  background: #fbfdfc;
+}
+
+.timetable tbody tr:target td,
+.timetable tbody tr:target th {
+  background: #fff4c2;
+}
+
+.timetable .time {
+  font-weight: 600;
+}
+
+.timetable .unpublished {
+  color: var(--danger);
+  font-weight: 700;
+  text-align: center;
+}
+
+.timetable .pass {
+  color: var(--muted);
+  text-align: center;
+}
+
+.timetable .empty {
+  background: repeating-linear-gradient(
+    -45deg,
+    transparent,
+    transparent 3px,
+    rgb(0 0 0 / 2%) 3px,
+    rgb(0 0 0 / 2%) 6px
+  );
+}
+
+.service-id {
+  font-family: ui-monospace, "SFMono-Regular", Consolas, "Liberation Mono", monospace;
+  font-size: 0.76rem;
+}
+
+.service-id a {
+  text-decoration: none;
+}
+
+.notes {
+  display: inline-grid;
+  place-items: center;
+  width: 1.1rem;
+  height: 1.1rem;
+  margin-left: 0.3rem;
+  border-radius: 50%;
+  background: var(--surface-alt);
+  border: 1px solid var(--border);
+  color: var(--muted);
+  font-size: 0.7rem;
+  font-family: system-ui, sans-serif;
+  cursor: help;
+}
+
+.legend {
+  color: var(--muted);
+  font-size: 0.9rem;
+}
+
+.legend p {
+  margin: 0.25rem 0;
+}
+
+.legend .unpublished {
+  color: var(--danger);
+  font-weight: 700;
+}
+
+.legend .pass {
+  color: var(--muted);
+  font-weight: 700;
+}
+
+.filters {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(13rem, 1fr));
+  gap: 0.75rem 1rem;
+}
+
+.filters label {
+  display: grid;
+  gap: 0.2rem;
+  font-weight: 600;
+  font-size: 0.88rem;
+}
+
+.filters input,
+.filters select {
+  width: 100%;
+  padding: 0.4rem 0.45rem;
+  border: 1px solid var(--border);
+  border-radius: 0.3rem;
+  background: var(--surface);
+  color: var(--ink);
+  font: inherit;
+}
+
+.filter-count {
+  grid-column: 1 / -1;
+  margin: 0;
+  color: var(--muted);
+  font-size: 0.9rem;
+}
+
+.metadata-toggle {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  clip-path: inset(50%);
+  white-space: nowrap;
+  border: 0;
+  opacity: 0;
+}
+
+.metadata-toggle-label {
+  display: inline-block;
+  margin-block: 0.35rem;
+  padding: 0.35rem 0.7rem;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  background: var(--surface);
+  font-size: 0.9rem;
+  cursor: pointer;
+}
+
+.metadata-toggle:focus-visible + .metadata-toggle-label {
+  outline: 2px solid var(--focus);
+  outline-offset: 2px;
+}
+
+.metadata-toggle:checked + .metadata-toggle-label {
+  background: var(--brand-blue);
+  border-color: var(--brand-blue);
+  color: var(--surface);
+}
+
+.hide-label {
+  display: none;
+}
+
+.metadata-toggle:checked + .metadata-toggle-label .show-label {
+  display: none;
+}
+
+.metadata-toggle:checked + .metadata-toggle-label .hide-label {
+  display: inline;
+}
+
+.metadata-col {
+  display: none;
+}
+
+#show-metadata:checked ~ .table-scroll .metadata-col {
+  display: table-cell;
+}
+
+#show-metadata:not(:checked) ~ .table-scroll .timetable .stop-first {
+  position: sticky;
+  left: 0;
+  z-index: 1;
+  background: var(--surface);
+}
+
+#show-metadata:not(:checked) ~ .table-scroll .timetable thead .stop-first {
+  z-index: 3;
+  background: var(--surface-alt);
+}
+
+#show-metadata:not(:checked) ~ .table-scroll .timetable tbody tr:nth-child(even) .stop-first {
+  background: #fbfdfc;
+}
+
+#show-metadata:not(:checked) ~ .table-scroll .timetable tbody tr:target .stop-first {
+  background: #fff4c2;
+}
+
+.js-only {
+  display: none;
+}
+
+.js .js-only {
+  display: grid;
+}
+
+.noscript {
+  padding: 0.75rem 1rem;
+  border: 1px solid var(--border);
+  border-left: 4px solid var(--brand-green);
+  background: var(--surface);
+}
+
+.master .corridor-links {
+  white-space: normal;
+  min-width: 16rem;
+}
+
+.site-footer {
+  padding-block: 1.2rem;
+  border-top: 1px solid var(--border);
+  background: var(--surface);
+  color: var(--muted);
+  font-size: 0.85rem;
+}
+
+.site-footer p {
+  margin: 0.25rem 0;
+}
+
+@media (max-width: 700px) {
+  .line-card {
+    grid-template-columns: 1fr;
+  }
+
+  .line-card h2,
+  .direction {
+    grid-column: 1;
+    grid-row: auto;
+  }
+
+  .timetable {
+    font-size: 0.78rem;
+  }
+
+  .timetable th:first-child,
+  .timetable td:first-child {
+    min-width: 10rem;
+  }
+}
+
+@media print {
+  @page {
+    size: A4 landscape;
+    margin: 10mm;
+  }
+
+  html {
+    background: #fff;
+    font-size: 9pt;
+  }
+
+  .site-header,
+  .site-footer,
+  .skip-link,
+  .downloads,
+  .filters,
+  .noscript,
+  .calendar-switcher,
+  .legend,
+  .breadcrumb,
+  .metadata-toggle,
+  .metadata-toggle-label {
+    display: none !important;
+  }
+
+  .wrap {
+    width: 100%;
+  }
+
+  .page-head,
+  .intro {
+    border: 0;
+    box-shadow: none;
+    padding: 0;
+  }
+
+  .table-scroll {
+    overflow: visible;
+    max-height: none;
+    border: 0;
+    box-shadow: none;
+  }
+
+  .timetable {
+    font-size: 8pt;
+  }
+
+  .timetable thead th,
+  .timetable th:first-child,
+  .timetable td:first-child {
+    position: static;
+    background: #fff;
+  }
+
+  .timetable thead {
+    display: table-header-group;
+  }
+
+  .timetable tr {
+    break-inside: avoid;
+  }
+
+  .timetable a {
+    color: inherit;
+    text-decoration: none;
+  }
+}

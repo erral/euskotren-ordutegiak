@@ -1,0 +1,82 @@
+{% extends "base.html" %}
+{% block title %}{{ title }}{% endblock %}
+{% block description %}{{ corridor.line }} · {{ corridor.direction }} · {{ calendar.label_eu }} / {{ calendar.label_es }}{% endblock %}
+{% block content %}
+<nav class="breadcrumb" aria-label="Breadcrumb">
+  <a href="{{ root }}index.html">Hasiera / <span lang="es">Inicio</span></a>
+  <span aria-hidden="true">/</span>
+  <span>{{ corridor.line }}</span>
+  <span aria-hidden="true">/</span>
+  <span>{{ corridor.direction }}</span>
+</nav>
+
+<header class="page-head">
+  <h1>{{ corridor.line }} · {{ corridor.direction }}</h1>
+  <p class="calendar-title">{{ calendar.label_eu }} / <span lang="es">{{ calendar.label_es }}</span></p>
+  <p class="page-meta">
+    {{ meta.season }} · {{ meta.valid_from }}{% if meta.valid_to %} – {{ meta.valid_to }}{% endif %}
+  </p>
+</header>
+
+<nav class="calendar-switcher" aria-label="Egutegia / Calendario">
+  {% for item in calendar_links %}
+  <a href="{{ item.slug }}.html"{% if item.current %} aria-current="page"{% endif %}>
+    {{ item.label_eu }} / <span lang="es">{{ item.label_es }}</span>
+  </a>
+  {% endfor %}
+</nav>
+
+<input type="checkbox" id="show-metadata" class="metadata-toggle">
+<label for="show-metadata" class="metadata-toggle-label">
+  <span class="show-label">Erakutsi metadatuak / <span lang="es">Mostrar metadatos</span></span>
+  <span class="hide-label">Ezkutatu metadatuak / <span lang="es">Ocultar metadatos</span></span>
+</label>
+
+<div class="table-scroll" tabindex="0" role="region" aria-label="{{ title }} taula / tabla">
+  <table class="timetable">
+    <caption>{{ title }}</caption>
+    <thead>
+      <tr>
+        <th scope="col" class="metadata-col">Service ID</th>
+        <th scope="col" class="metadata-col">Line</th>
+        <th scope="col" class="metadata-col">Pattern</th>
+        <th scope="col" class="metadata-col">Origin</th>
+        <th scope="col" class="metadata-col">Destination</th>
+        <th scope="col" class="metadata-col">Departure</th>
+        <th scope="col" class="metadata-col">Arrival</th>
+        {% for stop in stops %}
+        <th scope="col"{% if loop.first %} class="stop-first"{% endif %}>{{ stop }}</th>
+        {% endfor %}
+      </tr>
+    </thead>
+    <tbody>
+      {% for row in rows %}
+      <tr id="{{ row.service.service_id }}">
+        <th scope="row" class="service-id metadata-col">
+          <a href="#{{ row.service.service_id }}">{{ row.service.service_id }}</a>
+          {% if row.notes %}<span class="notes" title="{{ row.notes }}" aria-label="{{ row.notes }}">i</span>{% endif %}
+        </th>
+        <td class="metadata-col">{{ row.service.primary_line }}</td>
+        <td class="metadata-col">{{ row.service.pattern | join("; ") }}</td>
+        <td class="metadata-col">{{ row.service.origin }}</td>
+        <td class="metadata-col">{{ row.service.destination }}</td>
+        <td class="time metadata-col">{{ row.service.departure }}</td>
+        <td class="time metadata-col">{{ row.service.arrival }}</td>
+        {% for cell in row.cells %}
+        <td class="{{ cell.klass }}{% if loop.first %} stop-first{% endif %}">{{ cell.display }}</td>
+        {% endfor %}
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+
+{% if night %}
+<aside class="legend night-legend" aria-label="Gaua / Noche">
+  <p><strong>24:xx / 25:xx</strong> — gaueko orduak / <span lang="es">horas nocturnas</span>.</p>
+  <p>Zerbitzu-eguna: 00:30eko igandeko trena larunbat gauekoa da. / <span lang="es">Día de servicio: un tren de las 00:30 del domingo pertenece a la noche del sábado.</span></p>
+</aside>
+{% endif %}
+
+{% include "_legend.html" %}
+{% endblock %}

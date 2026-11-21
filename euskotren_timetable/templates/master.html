@@ -1,0 +1,103 @@
+{% extends "base.html" %}
+{% block title %}{{ title }}{% endblock %}
+{% block description %}Search every Euskotren winter-2026 service by line, calendar, origin, destination and departure.{% endblock %}
+{% block content %}
+<header class="page-head">
+  <h1>Zerbitzu guztiak / <span lang="es">Todos los servicios</span></h1>
+  <p class="page-meta">
+    {{ meta.season }} · {{ meta.valid_from }}{% if meta.valid_to %} – {{ meta.valid_to }}{% endif %}
+    · <a href="{{ root }}data/services.json">JSON</a>
+  </p>
+</header>
+
+<form class="filters js-only" aria-label="Iragazkiak / Filtros">
+  <label>Bilaketa / <span lang="es">Búsqueda</span>
+    <input id="filter-text" type="search" placeholder="Service ID, origin, destination">
+  </label>
+  <label>Linea
+    <select id="filter-line">
+      <option value="">Guztiak / <span lang="es">Todas</span></option>
+      {% for line in line_options %}<option value="{{ line.code }}">{{ line.label }}</option>{% endfor %}
+    </select>
+  </label>
+  <label>Egutegia / <span lang="es">Calendario</span>
+    <select id="filter-calendar">
+      <option value="">Guztiak / <span lang="es">Todos</span></option>
+      {% for calendar in calendar_options %}<option value="{{ calendar.id }}">{{ calendar.label_eu }} / {{ calendar.label_es }}</option>{% endfor %}
+    </select>
+  </label>
+  <label>Jatorria / <span lang="es">Origen</span>
+    <select id="filter-origin">
+      <option value="">Guztiak / <span lang="es">Todos</span></option>
+      {% for stop in stop_options %}<option value="{{ stop }}">{{ stop }}</option>{% endfor %}
+    </select>
+  </label>
+  <label>Helmuga / <span lang="es">Destino</span>
+    <select id="filter-destination">
+      <option value="">Guztiak / <span lang="es">Todos</span></option>
+      {% for stop in stop_options %}<option value="{{ stop }}">{{ stop }}</option>{% endfor %}
+    </select>
+  </label>
+  <label>Irteera / <span lang="es">Salida desde</span>
+    <input id="filter-departure-from" type="text" inputmode="numeric" placeholder="HH:MM">
+  </label>
+  <label>Irteera / <span lang="es">Salida hasta</span>
+    <input id="filter-departure-to" type="text" inputmode="numeric" placeholder="HH:MM">
+  </label>
+  <p id="filter-count" class="filter-count" aria-live="polite"></p>
+</form>
+
+<noscript>
+  <p class="noscript">Iragazkiek JavaScript behar dute; taula osoa ikusten da. / <span lang="es">Los filtros necesitan JavaScript; se muestra la tabla completa.</span></p>
+</noscript>
+
+<div class="table-scroll" tabindex="0" role="region" aria-label="Zerbitzu guztiak / Todos los servicios">
+  <table class="timetable master">
+    <caption>Zerbitzu guztiak / <span lang="es">Todos los servicios</span></caption>
+    <thead>
+      <tr>
+        <th scope="col">Service ID</th>
+        <th scope="col">Line</th>
+        <th scope="col">Direction</th>
+        <th scope="col">Calendar</th>
+        <th scope="col">Origin</th>
+        <th scope="col">Destination</th>
+        <th scope="col">Departure</th>
+        <th scope="col">Arrival</th>
+        <th scope="col">Pattern</th>
+        <th scope="col">Corridors</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for row in rows %}
+      <tr
+        data-search="{{ row.search }}"
+        data-line="{{ row.line }}"
+        data-calendar="{{ row.calendar }}"
+        data-origin="{{ row.origin }}"
+        data-destination="{{ row.destination }}"
+        data-departure="{{ row.departure_minutes }}"
+      >
+        <th scope="row" class="service-id">
+          {{ row.service.service_id }}
+          {% if row.notes %}<span class="notes" title="{{ row.notes }}" aria-label="{{ row.notes }}">i</span>{% endif %}
+        </th>
+        <td>{{ row.line }}</td>
+        <td>{{ row.service.direction }}</td>
+        <td>{{ row.calendar_label }}</td>
+        <td>{{ row.origin }}</td>
+        <td>{{ row.destination }}</td>
+        <td class="time">{{ row.departure }}</td>
+        <td class="time">{{ row.arrival }}</td>
+        <td>{{ row.pattern }}</td>
+        <td class="corridor-links">
+          {% for link in row.corridors %}<a href="{{ link.url }}">{{ link.label }}</a>{% if not loop.last %} · {% endif %}{% endfor %}
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+
+<script src="{{ root }}assets/site.js" defer></script>
+{% endblock %}

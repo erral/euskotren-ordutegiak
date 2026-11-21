@@ -1,0 +1,38 @@
+{% extends "base.html" %}
+{% block title %}Euskotren ordutegiak / Horarios{% endblock %}
+{% block description %}Euskotren winter-2026 timetable by line, direction and calendar.{% endblock %}
+{% block content %}
+<section class="intro">
+  <h1>Euskotren ordutegiak / <span lang="es">Horarios</span></h1>
+  <p>
+    Neguko 2026 ordutegia · <span lang="es">Horario de invierno 2026</span>.
+    Linea, norabidea eta egutegia aukeratu.
+  </p>
+  <ul class="downloads">
+    <li><a href="{{ root }}master.html">Zerbitzu guztiak / <span lang="es">Todos los servicios</span></a></li>
+    <li><a href="{{ root }}data/services.json">Datuak / <span lang="es">Datos</span> (JSON)</a></li>
+    {% if workbook_url %}<li><a href="{{ root }}{{ workbook_url }}">Kalkulu-orria / <span lang="es">Hoja de cálculo</span> (XLSX)</a></li>{% endif %}
+  </ul>
+  {% include "_legend.html" %}
+</section>
+
+{% for line in line_sections %}
+<section class="line-card">
+  <h2>{{ line.code }}</h2>
+  {% for direction in line.directions %}
+  <div class="direction">
+    <h3>{{ direction.name }}</h3>
+    <ul class="calendar-links">
+      {% for calendar in direction.calendars %}
+      <li>
+        <a href="{{ root }}line/{{ line.slug }}/{{ direction.slug }}/{{ calendar.slug }}.html">
+          {{ calendar.label_eu }} / <span lang="es">{{ calendar.label_es }}</span>
+        </a>
+      </li>
+      {% endfor %}
+    </ul>
+  </div>
+  {% endfor %}
+</section>
+{% endfor %}
+{% endblock %}

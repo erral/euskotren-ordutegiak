@@ -144,6 +144,7 @@ The table:
 
 - stops as columns, services as rows;
 - metadata columns: **Service ID**, **Line**, **Pattern**, **Origin**, **Destination**, **Departure**, **Arrival**;
+- metadata is **hidden by default** behind a “show metadata” toggle; the default reading view is stop times only;
 - service notes available as a `title` tooltip on the service ID, not a full column;
 - a table `<caption>` naming the line, direction and calendar;
 - sticky header and first columns; horizontal scrolling in a keyboard-focusable container;

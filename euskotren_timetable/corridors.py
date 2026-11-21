@@ -10,19 +10,22 @@ from .stops import E1_STOPS, E2_STOPS, E3L3_STOPS, E4_STOPS
 class Corridor:
     line: str
     sheet: str
+    direction: str
     stops: tuple[str, ...]
     direction_sign: int
 
 
 CORRIDORS = (
-    Corridor("E1", "E1 Pasaia-Matiko", tuple(E1_STOPS), -1),
-    Corridor("E1", "E1 Matiko-Pasaia", tuple(reversed(E1_STOPS)), +1),
-    Corridor("E2-T1", "E2-T1 Hendaia-Lasarte", tuple(E2_STOPS), -1),
-    Corridor("E2-T1", "E2-T1 Lasarte-Hendaia", tuple(reversed(E2_STOPS)), +1),
-    Corridor("E4", "E4 Matiko-Bermeo", tuple(E4_STOPS), +1),
-    Corridor("E4", "E4 Bermeo-Matiko", tuple(reversed(E4_STOPS)), -1),
-    Corridor("E3-L3", "E3-L3 Lezama-Kukullaga", tuple(E3L3_STOPS), +1),
-    Corridor("E3-L3", "E3-L3 Kukullaga-Lezama", tuple(reversed(E3L3_STOPS)), -1),
+    Corridor("E1", "E1 Pasaia-Matiko", "Pasaia-Matiko", tuple(E1_STOPS), -1),
+    Corridor("E1", "E1 Matiko-Pasaia", "Matiko-Pasaia", tuple(reversed(E1_STOPS)), +1),
+    Corridor("E2-T1", "E2-T1 Hendaia-Lasarte", "Hendaia-Lasarte", tuple(E2_STOPS), -1),
+    Corridor("E2-T1", "E2-T1 Lasarte-Hendaia", "Lasarte-Hendaia", tuple(reversed(E2_STOPS)), +1),
+    Corridor("E4", "E4 Matiko-Bermeo", "Matiko-Bermeo", tuple(E4_STOPS), +1),
+    Corridor("E4", "E4 Bermeo-Matiko", "Bermeo-Matiko", tuple(reversed(E4_STOPS)), -1),
+    Corridor("E3-L3", "E3-L3 Lezama-Kukullaga", "Lezama-Kukullaga", tuple(E3L3_STOPS), +1),
+    Corridor(
+        "E3-L3", "E3-L3 Kukullaga-Lezama", "Kukullaga-Lezama", tuple(reversed(E3L3_STOPS)), -1
+    ),
 )
 
 DIRECTION_SIGNS = {

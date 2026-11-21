@@ -55,13 +55,15 @@ from .parse_night import (
     parse_e4_night,
     parse_e4_night_reverse,
 )
+from .site import SITE_DIR, build_site, validate_site
 from .validate import validate, write_report
 from .workbook import build_workbook
 
 DEFAULT_OUTPUT = "output/euskotren_timetables_winter_2026_v12.xlsx"
+DEFAULT_SITE_OUTPUT = str(SITE_DIR)
 
 
-def _build_weekday(manifest_path: str, output: str) -> None:
+def _build_weekday(manifest_path: str, output: str, site_output: str | None = None) -> None:
     path = Path(manifest_path)
     if not path.exists():
         raise SystemExit(
@@ -287,6 +289,9 @@ def _build_weekday(manifest_path: str, output: str) -> None:
     print("validation: output/validation.md")
     if passed != len(checks):
         raise SystemExit(1)
+    if site_output:
+        site_path = build_site(services, site_output, manifest, workbook_path=target)
+        print(f"site: {site_path}")
 
 
 def main() -> None:
@@ -298,7 +303,13 @@ def main() -> None:
     )
     build.add_argument("--manifest", default=str(MANIFEST_PATH))
     build.add_argument("--output", default=DEFAULT_OUTPUT)
-    sub.add_parser("all", help="manifest + build-weekday")
+    html = sub.add_parser("build-html", help="Build the workbook and the static HTML site")
+    html.add_argument("--manifest", default=str(MANIFEST_PATH))
+    html.add_argument("--output", default=DEFAULT_SITE_OUTPUT)
+    html.add_argument("--workbook", default=DEFAULT_OUTPUT)
+    site_check = sub.add_parser("validate-site", help="Check the generated site")
+    site_check.add_argument("--output", default=DEFAULT_SITE_OUTPUT)
+    sub.add_parser("all", help="manifest + build-weekday + build-html")
     args = parser.parse_args()
 
     if args.command == "manifest":
@@ -307,9 +318,22 @@ def main() -> None:
         print(f"written: {MANIFEST_PATH}")
         return
 
+    if args.command == "build-html":
+        _build_weekday(args.manifest, args.workbook, site_output=args.output)
+        return
+
+    if args.command == "validate-site":
+        errors = validate_site(args.output)
+        if errors:
+            for error in errors:
+                print(error)
+            raise SystemExit(1)
+        print(f"site valid: {args.output}")
+        return
+
     if args.command == "all":
         build_manifest()
-        _build_weekday(str(MANIFEST_PATH), DEFAULT_OUTPUT)
+        _build_weekday(str(MANIFEST_PATH), DEFAULT_OUTPUT, site_output=DEFAULT_SITE_OUTPUT)
         return
 
     _build_weekday(args.manifest, args.output)

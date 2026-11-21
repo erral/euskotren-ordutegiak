@@ -30,3 +30,4 @@ Resolved 2026-11-21. All three recommendations accepted.
 - Charted 2026-11-21. Blocked by the site-structure and data-contract tickets.
 - 2026-11-21: claimed for resolution; both blockers resolved.
 - 2026-11-21: answered “ok” to all three (interpreted “çok” as ok).
+- 2026-11-21: refinement — corridor metadata columns (Service ID, Line, Pattern, Origin, Destination, Departure, Arrival) are hidden by default and revealed with a “show metadata” toggle. The Master remains a metadata index.
