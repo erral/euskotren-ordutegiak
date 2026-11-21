@@ -1,54 +1,78 @@
-# Euskotren single timetable
+# Euskotren ordutegiak
 
-Build one Excel workbook from the official Euskotren winter-2026 timetable PDFs.
+One normalized Euskotren winter-2026 timetable, generated from the official PDFs and published as:
 
-The planning map and implementation spec live in `.scratch/euskotren-timetable/`:
+- a canonical **Excel workbook**;
+- a static, searchable **HTML site**.
 
-- [Map](.scratch/euskotren-timetable/map.md)
-- [Implementation spec](.scratch/euskotren-timetable/spec.md)
-- [Stop inventory](.scratch/euskotren-timetable/research/01-stop-inventory.md)
-- [E1 weekday prototype](.scratch/euskotren-timetable/prototypes/e1-weekday-parser/README.md)
+Basque is the primary language; interface labels are bilingual Basque/Spanish. Stop names are Basque-only; Spanish aliases are intentionally omitted.
 
-## Current slice
+The workbook is the source of truth. The HTML site is an additional view built from the same parsed `Service` data and the same ordering contract.
 
-The production slice covers:
+## Features
 
-- **E1, E2/T1, E4 and E3/L3 weekdays in both directions**;
-- **E1, E2/T1, E4, E3 and L3 combined weekend (Saturday + Sunday + holiday), both directions**;
-- **E2/T1 Saturday and Sunday/holiday Añorga shuttle, both directions**;
-- **E1, E2/T1 and E4 Saturday night, both directions** (after-midnight times as `24:xx`/`25:xx`);
-- **E3-L3 Friday night and Saturday night**, including the E3 Lezama branch Saturday night.
+### Timetable data
 
-It downloads the current PDFs, parses the tables by word coordinates, expands the E1 hourly, E2 30-minute, 15-minute and 7.5-minute shuttle, E4 30/60-minute, E3 15/30-minute and L3 7.5/10-minute rules, and builds corridor views where a service appears in every corridor it traverses. Weekday and weekend services are stacked as separate calendar blocks in the same corridor sheets; the E2 Saturday and Sunday/holiday shuttles use their own `SA`/`SU` blocks.
+- **2,227 services** on **E1, E2-T1, E4 and E3-L3**, both directions.
+- **Calendars:** weekday, Saturday, Sunday/holiday, combined weekend, Friday night and Saturday night.
+- Through-running and cross-line membership: a service appears in every corridor it traverses, such as E1 services on the shared E2-T1 Donostia section.
+- Partial and special services: E1 Pasaia–Zumaia, Zaldibar–Matiko/Traña, Elgoibar–Matiko and Eibar–Ermua; E2 Añorga shuttles; E4 Gernika variants and short-turns; the Amorebieta Geltokia transfer column; and the night blocks.
+- Canonical ordering shared by Excel and HTML: **calendar → departure → line → direction → service ID**. Corridor pages put the corridor’s own line first when services share a departure.
+- **212 structural validation checks** and **163 unit tests**.
 
-The workbook's `Coverage` sheet lists every line/calendar pattern and marks it `Included` or `Pending`.
+### Excel workbook
 
-The E2 weekend **full-line and separate Saturday/Sunday Añorga shuttle** are included. The E1 Topo stops omitted from the 42-column full-line tables are merged from the `Pasaia → Zumaia` / `Zumaia → Pasaia` partial tables, using the poster side note that every train stops between Pasaia and Aia-Orio. The **E1, E2/T1, E4 Saturday-night** and **E3-L3 Friday/Saturday-night** blocks are included; after-midnight times are stored as `24:xx`/`25:xx` with a day offset. The E4 22:12 Saturday Bermeo special is part of the night block, the 22:12 Sunday/holiday Gernika variant is a separate `SU` service, and the 22:52/22:45 Gernika short-turns are part of the weekend block. The **Pasaia–Zumaia / Zumaia–Pasaia short-turns** are included for weekdays, Saturdays and Sundays, along with the **Zaldibar→Matiko**, **Matiko→Traña**, **Elgoibar↔Matiko** and **Eibar↔Ermua** partials. The E1 refuerzo tables are complete. The E4 Gernika short-turns and the Amorebieta Geltokia transfer column are included. Spanish aliases are intentionally omitted; Basque names remain canonical.
+`output/euskotren_timetables_winter_2026_v12.xlsx` contains 17 sheets:
 
-The workbook's `Source notes` sheet keeps the verbatim Basque/Spanish side notes from the posters.
+- `README`, `Stops`, `Calendars`, `Manifest`, `Coverage` and `Source notes`;
+- `Master` with one canonical row per service;
+- eight corridor sheets with services as rows and stops as columns;
+- `Frequency rules` with compressed source rules and expanded services;
+- `Validation` with the structural checks for the run.
 
-## Run
+Calendar blocks are stacked in each corridor sheet. The `Coverage` sheet marks every line/calendar pattern as `Included` or `Pending`. `Source notes` keeps the verbatim Basque/Spanish notes from the posters.
+
+### HTML site
+
+`make html` writes `output/html/` with:
+
+- an index with line, direction and calendar links, validity and downloads;
+- one page for every non-empty line/direction/calendar combination;
+- a calendar switcher, sticky table header and horizontal scrolling; the first column scrolls with the table;
+- a stop search filter with datalist suggestions, accent-insensitive matching, service row filtering and matching-column highlighting;
+- a metadata toggle for Service ID, line, pattern, origin, destination, departure and arrival;
+- a Master page with text search and line, calendar, origin, destination and departure filters;
+- `data/services.json` (schema version 1) and the workbook download;
+- print styles, a skip link, keyboard-accessible scroll regions and `aria-live` result counts;
+- relative links, so the site works from a project Pages URL;
+- no source PDFs in the published artifact.
+
+### Automation
+
+- GitHub Actions runs Ruff, the full test suite, the workbook/site build and the site validation gate.
+- The `deploy` job publishes `output/html` to GitHub Pages only from `main`.
+
+## Quick start
+
+Requirements: **Python 3.12+** and **Poppler** (`pdftotext`).
 
 ```bash
+python3 -m pip install -e ".[dev]"
 python3 -m euskotren_timetable.cli all
 ```
 
-Or with the Makefile:
+`all` downloads the official PDFs, builds the workbook and builds the HTML site.
+
+Or use Make:
 
 ```bash
 make workbook   # Excel workbook only
-make html       # workbook + static HTML site in output/html
+make html       # workbook + static site in output/html
 ```
 
-Outputs:
+`make workbook` and `make html` expect the source PDFs in `data/pdfs/`. Run the manifest command first on a fresh checkout.
 
-- `output/euskotren_timetables_winter_2026_v12.xlsx`
-- `output/html/` — the static timetable site
-- `output/validation.md`
-- `data/manifest.json`
-- `data/pdfs/*.pdf`
-
-Individual steps:
+### Individual commands
 
 ```bash
 python3 -m euskotren_timetable.cli manifest
@@ -57,60 +81,75 @@ python3 -m euskotren_timetable.cli build-html
 python3 -m euskotren_timetable.cli validate-site --output output/html
 ```
 
-## HTML site
+### Outputs
 
-`build-html` builds the workbook and the static site. The site contains the index, per-line/direction/calendar pages, the searchable Master, `data/services.json` and a workbook download under `output/html/downloads/`. Corridor pages include a stop search filter and a metadata toggle.
+- `output/euskotren_timetables_winter_2026_v12.xlsx`
+- `output/html/` — the static timetable site
+- `output/validation.md`
+- `data/manifest.json`
+- `data/pdfs/*.pdf`
 
-The GitHub Actions workflow runs the tests, builds and validates the site, and deploys `output/html` to GitHub Pages from `main`. The repository must have **Settings → Pages → Source: GitHub Actions** enabled once.
+## Publishing to GitHub Pages
 
-## Tests
+The repository is intended to be named **`euskotren-ordutegiak`**, so the site will be served at:
+
+`https://<owner>.github.io/euskotren-ordutegiak/`
+
+After creating the repository:
+
+1. Push `main`.
+2. Open **Settings → Pages**.
+3. Set **Source** to **GitHub Actions**.
+
+The workflow runs the tests, builds and validates the site, and deploys `output/html`. If validation fails, deployment is blocked.
+
+## Tests, linting and validation
 
 ```bash
-python3 -m unittest discover -s tests
+make test
+make lint
+python3 -m euskotren_timetable.cli validate-site --output output/html
 ```
 
-## Formatting and linting
-
-Ruff is the formatter and linter; its configuration lives in `pyproject.toml`.
-
-```bash
-python3 -m pip install -e ".[dev]"
-make format   # ruff format . && ruff check --fix .
-make lint     # ruff format --check . && ruff check .
-```
-
-The GitHub Actions workflow runs `make lint` (equivalently, both Ruff checks) before the tests.
+The site validation checks internal links and anchors, duplicate IDs, the JSON payload and the absence of PDFs in `output/html`. The test suite covers the timetable parsers, ordering, workbook contracts and the generated site.
 
 ## Layout
 
-- `euskotren_timetable/stops.py` — canonical stops and shared trunks.
-- `euskotren_timetable/corridors.py` — eight corridors and cross-line membership.
-- `euskotren_timetable/pdf.py` — coordinate-based PDF extraction.
-- `euskotren_timetable/parse_e1.py` — E1 Pasaia → Matiko weekday.
-- `euskotren_timetable/parse_e1_reverse.py` — E1 Matiko → Pasaia weekday full-line.
-- `euskotren_timetable/parse_e1_weekend.py` — E1 combined weekend full-line.
-- `euskotren_timetable/parse_e1_night.py` — E1 Saturday-night Deba↔Matiko blocks.
-- `euskotren_timetable/parse_night.py` — shared E2/T1 and E4 Saturday-night tables.
-- `euskotren_timetable/parse_e1_partial.py` — E1 Pasaia↔Zumaia partial tables and Topo merge.
-- `euskotren_timetable/source_notes.py` — verbatim poster side notes.
-- `euskotren_timetable/parse_e2.py` — E2/T1 full-line and shuttle weekdays.
-- `euskotren_timetable/parse_e2_weekend.py` — E2/T1 combined weekend full-line.
-- `euskotren_timetable/parse_e2_shuttle_weekend.py` — E2/T1 Saturday and Sunday/holiday Añorga shuttle.
-- `euskotren_timetable/parse_e3.py` — E3 Lezama branch weekdays and weekend.
-- `euskotren_timetable/parse_e4.py` — E4 full-line weekdays and weekend.
-- `euskotren_timetable/parse_l3.py` — L3 Matiko ↔ Kukullaga local weekdays and weekend.
-- `euskotren_timetable/parse_l3_night.py` — E3-L3 Friday/Saturday night blocks.
-- `euskotren_timetable/model.py` — normalized records.
-- `euskotren_timetable/validate.py` — structural checks.
-- `euskotren_timetable/workbook.py` — Excel renderer with stacked calendar blocks.
-- `euskotren_timetable/site.py` — static HTML site generator and link validator.
-- `euskotren_timetable/templates/` — Jinja2 templates for the site.
-- `euskotren_timetable/assets/` — site stylesheet and Master filter script.
-- `euskotren_timetable/manifest.py` — PDF download and provenance.
-- `data/corrections.yaml` — sidecar corrections, applied on regeneration.
+| Path | Purpose |
+|---|---|
+| `euskotren_timetable/cli.py` | CLI, build orchestration and manifest workflow |
+| `euskotren_timetable/parse_*.py` | Coordinate-based PDF table parsers |
+| `euskotren_timetable/corridors.py` | Eight corridor definitions and cross-line membership |
+| `euskotren_timetable/model.py` | Normalized `Service` / `StopTime` records |
+| `euskotren_timetable/service_order.py` | Shared canonical sort contract |
+| `euskotren_timetable/validate.py` | 212 structural checks |
+| `euskotren_timetable/workbook.py` | Excel renderer |
+| `euskotren_timetable/site.py` | Static HTML generator and link validator |
+| `euskotren_timetable/templates/` | Jinja2 site templates |
+| `euskotren_timetable/assets/` | Site stylesheet and Master/stop-filter scripts |
+| `euskotren_timetable/manifest.py`, `pdf.py` | PDF download, provenance and extraction |
+| `euskotren_timetable/stops.py`, `source_notes.py` | Canonical stops and poster notes |
+| `data/manifest.json`, `data/corrections.yaml` | Source URLs and sidecar corrections |
+| `tests/` | Unit and generated-site tests |
 
 ## Legend
 
 - Blank cell = does not stop.
-- `?` = time not published in the source.
-- Times are 24-hour.
+- `?` = time not published in the source; shown in red on the HTML site.
+- `>` = the train passes without stopping.
+- Times are 24-hour. After-midnight times use `24:xx`/`25:xx`; a 00:30 Sunday train belongs to Saturday night.
+- `FN` = Friday night and holiday eves; `SN` = Saturday night.
+
+## Source
+
+Timetable data is derived from the official Euskotren winter-2026 PDFs. The source manifest records each URL and SHA-256 hash.
+
+## Disclaimer
+
+This is an unofficial project and is not affiliated with Euskotren. Always check the official Euskotren timetable before travelling.
+
+The project was built with [OpenCode](https://opencode.ai) using Matt Pocock’s skills and DeepSeek Flash 4-flash.
+
+## License
+
+GPL-2.0. See [LICENSE](LICENSE).
