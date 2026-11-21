@@ -1,6 +1,6 @@
 # Publish the timetables as HTML on GitHub Pages
 
-Status: charted — 3 decision tickets on the frontier, spec task blocked.
+Status: charted — 2 decision tickets on the frontier, spec task blocked.
 
 ## Destination
 
@@ -30,6 +30,7 @@ A written specification for a generated HTML view of the timetables — index, p
 - [Decide the HTML site structure and URL scheme](issues/01-site-structure.md): static views with stable slugs; index, per-line/direction/calendar pages, Master, JSON and workbook download, all linked relatively.
 - [Decide the `services.json` data contract](issues/02-data-contract.md): one versioned `services.json` with meta, lines, calendars, stops, corridors and canonically ordered services with stop times; no PDFs or internal evidence.
 - [Decide the page content and table behaviour](issues/03-page-content.md): one calendar per corridor page with a switcher; Master full table + client-side filters; `?`/`>`/blank states and a night legend.
+- [Decide the visual, responsive and accessibility rules](issues/04-visual-accessibility.md): custom CSS, Euskotren-inspired palette, semantic accessible tables, sticky headers/first columns, horizontal scrolling and basic print styles.
 
 ## Not yet specified
 
