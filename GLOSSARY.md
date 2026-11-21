@@ -70,6 +70,10 @@ The operating day a service belongs to. For an after-midnight service, this is t
 
 The night before a public holiday. It is a distinct calendar condition from an ordinary Friday night.
 
+## Service order
+
+The canonical order of service rows in a timetable sheet. It is a presentation order, separate from service identity and from the calling pattern: it is stable across regenerations and orders services by operating calendar, departure time, line and direction, with a deterministic tie-breaker.
+
 ## Timetable version
 
 A published edition of a timetable with a validity start, an open validity end until superseded, a season label and a source document.
