@@ -1,7 +1,7 @@
 # Write the service sorting specification
 
 Type: task
-Status: open
+Status: claimed
 Blocked by: 01, 02, 03
 Parent: [Sort services in the output Excel timetable](../map.md)
 
@@ -24,3 +24,4 @@ Resolved when the spec is written and reviewed. The task is AFK to draft and HIT
 ## Comments
 
 - Charted 2026-11-21. Blocked by the line-order, direction-order and documentation tickets.
+- 2026-11-21: claimed; spec drafted at [`spec.md`](../spec.md). Awaiting review before resolution.
