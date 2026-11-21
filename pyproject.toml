@@ -9,6 +9,9 @@ dependencies = [
   "requests>=2.31",
 ]
 
+[project.optional-dependencies]
+dev = ["ruff==0.15.22"]
+
 [project.scripts]
 euskotren-timetable = "euskotren_timetable.cli:main"
 
@@ -18,3 +21,13 @@ build-backend = "setuptools.build_meta"
 
 [tool.setuptools.packages.find]
 include = ["euskotren_timetable*"]
+
+[tool.ruff]
+target-version = "py312"
+line-length = 100
+exclude = [".scratch", "data", "output"]
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "B", "UP"]
+# Long poster notes and workbook strings intentionally exceed the line length.
+ignore = ["E501"]

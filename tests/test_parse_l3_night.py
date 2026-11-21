@@ -32,16 +32,28 @@ class ParseL3NightTests(unittest.TestCase):
 
     def test_l3_rules(self):
         rules = {rule.rule_id: rule for rule in self.rules}
-        self.assertEqual(len(rules["E3-L3-MATIKO-KUKULLAGA-FN-2330-0215-15"].expanded_service_ids), 12)
-        self.assertEqual(len(rules["E3-L3-MATIKO-KUKULLAGA-SN-2345-0545-15"].expanded_service_ids), 25)
-        self.assertEqual(len(rules["E3-L3-KUKULLAGA-MATIKO-FN-2338-0208-15"].expanded_service_ids), 11)
-        self.assertEqual(len(rules["E3-L3-KUKULLAGA-MATIKO-SN-2338-0553-15"].expanded_service_ids), 26)
+        self.assertEqual(
+            len(rules["E3-L3-MATIKO-KUKULLAGA-FN-2330-0215-15"].expanded_service_ids), 12
+        )
+        self.assertEqual(
+            len(rules["E3-L3-MATIKO-KUKULLAGA-SN-2345-0545-15"].expanded_service_ids), 25
+        )
+        self.assertEqual(
+            len(rules["E3-L3-KUKULLAGA-MATIKO-FN-2338-0208-15"].expanded_service_ids), 11
+        )
+        self.assertEqual(
+            len(rules["E3-L3-KUKULLAGA-MATIKO-SN-2338-0553-15"].expanded_service_ids), 26
+        )
 
     def test_e3_explicit(self):
         forward = [s for s in self.e3 if s.direction == "Lezama-Kukullaga"]
         reverse = [s for s in self.e3 if s.direction == "Kukullaga-Lezama"]
-        self.assertEqual([s.departure for s in forward], ["23:07", "23:50", "24:51", "26:51", "28:51", "30:57"])
-        self.assertEqual([s.departure for s in reverse], ["22:54", "24:08", "26:08", "28:08", "30:08"])
+        self.assertEqual(
+            [s.departure for s in forward], ["23:07", "23:50", "24:51", "26:51", "28:51", "30:57"]
+        )
+        self.assertEqual(
+            [s.departure for s in reverse], ["22:54", "24:08", "26:08", "28:08", "30:08"]
+        )
 
     def test_day_offsets(self):
         service = self.by_key[("FN", "Matiko-Kukullaga", "24:00")]
@@ -59,9 +71,7 @@ class ParseL3NightTests(unittest.TestCase):
         for services in (self.l3, self.e3):
             for service in services:
                 minutes = [
-                    to_minutes(st.time)
-                    for st in service.stop_times
-                    if st.time and st.time != "?"
+                    to_minutes(st.time) for st in service.stop_times if st.time and st.time != "?"
                 ]
                 self.assertEqual(minutes, sorted(minutes), service.service_id)
 

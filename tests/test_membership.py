@@ -21,12 +21,6 @@ from euskotren_timetable.parse_e1_weekend import parse_e1_weekend, parse_e1_week
 from euskotren_timetable.parse_e2 import parse_e2_reverse, parse_e2_weekday
 from euskotren_timetable.parse_e2_shuttle_weekend import parse_e2_shuttle_weekend
 from euskotren_timetable.parse_e2_weekend import parse_e2_weekend, parse_e2_weekend_reverse
-from euskotren_timetable.parse_night import (
-    parse_e2_night,
-    parse_e2_night_reverse,
-    parse_e4_night,
-    parse_e4_night_reverse,
-)
 from euskotren_timetable.parse_e3 import (
     parse_e3_reverse,
     parse_e3_weekday,
@@ -51,6 +45,12 @@ from euskotren_timetable.parse_l3 import (
     parse_l3_weekend_reverse,
 )
 from euskotren_timetable.parse_l3_night import parse_e3_night, parse_l3_night
+from euskotren_timetable.parse_night import (
+    parse_e2_night,
+    parse_e2_night_reverse,
+    parse_e4_night,
+    parse_e4_night_reverse,
+)
 
 PDFS = {
     "e1w": Path("data/pdfs/e1_pasaia_matiko.pdf"),
@@ -86,12 +86,24 @@ class MembershipTests(unittest.TestCase):
             for service in e1ww
         }
         e1p = (
-            build_partial_services(PDFS["e1w"], "test", FORWARD_WEEKDAY, e1w_times, "Pasaia-Matiko", "PASAIA-ZUMAIA")
-            + build_partial_services(PDFS["e1w"], "test", FORWARD_SATURDAY, e1we_times, "Pasaia-Matiko", "PASAIA-ZUMAIA")
-            + build_partial_services(PDFS["e1w"], "test", FORWARD_SUNDAY, e1we_times, "Pasaia-Matiko", "PASAIA-ZUMAIA")
-            + build_partial_services(PDFS["e1e"], "test", REVERSE_WEEKDAY, e1e_zumaia, "Matiko-Pasaia", "ZUMAIA-PASAIA")
-            + build_partial_services(PDFS["e1e"], "test", REVERSE_SATURDAY, e1ww_zumaia, "Matiko-Pasaia", "ZUMAIA-PASAIA")
-            + build_partial_services(PDFS["e1e"], "test", REVERSE_SUNDAY, e1ww_zumaia, "Matiko-Pasaia", "ZUMAIA-PASAIA")
+            build_partial_services(
+                PDFS["e1w"], "test", FORWARD_WEEKDAY, e1w_times, "Pasaia-Matiko", "PASAIA-ZUMAIA"
+            )
+            + build_partial_services(
+                PDFS["e1w"], "test", FORWARD_SATURDAY, e1we_times, "Pasaia-Matiko", "PASAIA-ZUMAIA"
+            )
+            + build_partial_services(
+                PDFS["e1w"], "test", FORWARD_SUNDAY, e1we_times, "Pasaia-Matiko", "PASAIA-ZUMAIA"
+            )
+            + build_partial_services(
+                PDFS["e1e"], "test", REVERSE_WEEKDAY, e1e_zumaia, "Matiko-Pasaia", "ZUMAIA-PASAIA"
+            )
+            + build_partial_services(
+                PDFS["e1e"], "test", REVERSE_SATURDAY, e1ww_zumaia, "Matiko-Pasaia", "ZUMAIA-PASAIA"
+            )
+            + build_partial_services(
+                PDFS["e1e"], "test", REVERSE_SUNDAY, e1ww_zumaia, "Matiko-Pasaia", "ZUMAIA-PASAIA"
+            )
         )
         e2w, _ = parse_e2_weekday(PDFS["e2w"], "test")
         e2e, _ = parse_e2_reverse(PDFS["e2e"], "test")
@@ -123,20 +135,58 @@ class MembershipTests(unittest.TestCase):
         l3night, _ = parse_l3_night(PDFS["e3"], "test")
         e3night = parse_e3_night(PDFS["e3"], "test")
         cls.services = (
-            e1w + e1e + e1we + e1ww + e1snw + e1sne + e1p + e1r + e1elg + e1eib
-            + e2w + e2e + e2we + e2ww + e2sh
-            + e2snw + e2sne
-            + e4w + e4e + e4we + e4ww + e4ger + e4snw + e4sne
-            + e3w + e3e + e3we + e3ww + e3night
-            + l3w + l3e + l3we + l3ww + l3night
+            e1w
+            + e1e
+            + e1we
+            + e1ww
+            + e1snw
+            + e1sne
+            + e1p
+            + e1r
+            + e1elg
+            + e1eib
+            + e2w
+            + e2e
+            + e2we
+            + e2ww
+            + e2sh
+            + e2snw
+            + e2sne
+            + e4w
+            + e4e
+            + e4we
+            + e4ww
+            + e4ger
+            + e4snw
+            + e4sne
+            + e3w
+            + e3e
+            + e3we
+            + e3ww
+            + e3night
+            + l3w
+            + l3e
+            + l3we
+            + l3ww
+            + l3night
         )
         assign_membership(cls.services)
         cls.by_id = {service.service_id: service for service in cls.services}
 
     def test_allowed_corridors(self):
         allowed = {
-            "Pasaia-Matiko": {"E1 Pasaia-Matiko", "E2-T1 Hendaia-Lasarte", "E4 Bermeo-Matiko", "E3-L3 Kukullaga-Lezama"},
-            "Matiko-Pasaia": {"E1 Matiko-Pasaia", "E2-T1 Lasarte-Hendaia", "E4 Matiko-Bermeo", "E3-L3 Lezama-Kukullaga"},
+            "Pasaia-Matiko": {
+                "E1 Pasaia-Matiko",
+                "E2-T1 Hendaia-Lasarte",
+                "E4 Bermeo-Matiko",
+                "E3-L3 Kukullaga-Lezama",
+            },
+            "Matiko-Pasaia": {
+                "E1 Matiko-Pasaia",
+                "E2-T1 Lasarte-Hendaia",
+                "E4 Matiko-Bermeo",
+                "E3-L3 Lezama-Kukullaga",
+            },
             "Hendaia-Lasarte": {"E2-T1 Hendaia-Lasarte", "E1 Pasaia-Matiko"},
             "Lasarte-Hendaia": {"E2-T1 Lasarte-Hendaia", "E1 Matiko-Pasaia"},
             "Bermeo-Matiko": {"E4 Bermeo-Matiko", "E1 Pasaia-Matiko", "E3-L3 Kukullaga-Lezama"},
@@ -159,13 +209,20 @@ class MembershipTests(unittest.TestCase):
             "Kukullaga-Matiko": "E3-L3 Kukullaga-Lezama",
         }
         for service in self.services:
-            self.assertTrue(set(service.appears_in) <= allowed[service.direction], service.service_id)
+            self.assertTrue(
+                set(service.appears_in) <= allowed[service.direction], service.service_id
+            )
             self.assertIn(primary[service.direction], service.appears_in, service.service_id)
 
     def test_short_turn_membership(self):
         self.assertEqual(
             set(self.by_id["E1-PASAIA-MATIKO-WD-0535"].appears_in),
-            {"E1 Pasaia-Matiko", "E2-T1 Hendaia-Lasarte", "E4 Bermeo-Matiko", "E3-L3 Kukullaga-Lezama"},
+            {
+                "E1 Pasaia-Matiko",
+                "E2-T1 Hendaia-Lasarte",
+                "E4 Bermeo-Matiko",
+                "E3-L3 Kukullaga-Lezama",
+            },
         )
         self.assertEqual(
             set(self.by_id["E1-PASAIA-MATIKO-WD-2035"].appears_in),

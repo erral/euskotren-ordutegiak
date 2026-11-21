@@ -64,7 +64,9 @@ DEFAULT_OUTPUT = "output/euskotren_timetables_winter_2026_v12.xlsx"
 def _build_weekday(manifest_path: str, output: str) -> None:
     path = Path(manifest_path)
     if not path.exists():
-        raise SystemExit(f"manifest not found: {manifest_path}\nRun `python3 -m euskotren_timetable.cli manifest` first.")
+        raise SystemExit(
+            f"manifest not found: {manifest_path}\nRun `python3 -m euskotren_timetable.cli manifest` first."
+        )
     manifest = json.loads(path.read_text())
     entries = {entry["label"]: entry for entry in manifest["files"]}
     labels = (
@@ -98,33 +100,55 @@ def _build_weekday(manifest_path: str, output: str) -> None:
     }
     e1r_services = parse_e1_refuerzos(e1w["path"], e1e["path"], e1w["url"], e1e["url"])
     e1elg_services = parse_e1_elgoibar(e1w["path"], e1e["path"], e1w["url"], e1e["url"])
-    e1eib_services, e1eib_rules = parse_e1_eibar(
-        e1w["path"], e1e["path"], e1w["url"], e1e["url"]
-    )
+    e1eib_services, e1eib_rules = parse_e1_eibar(e1w["path"], e1e["path"], e1w["url"], e1e["url"])
     e1p_services = (
         build_partial_services(
-            e1w["path"], e1w["url"], FORWARD_WEEKDAY, e1w_times,
-            "Pasaia-Matiko", "PASAIA-ZUMAIA",
+            e1w["path"],
+            e1w["url"],
+            FORWARD_WEEKDAY,
+            e1w_times,
+            "Pasaia-Matiko",
+            "PASAIA-ZUMAIA",
         )
         + build_partial_services(
-            e1w["path"], e1w["url"], FORWARD_SATURDAY, e1we_times,
-            "Pasaia-Matiko", "PASAIA-ZUMAIA",
+            e1w["path"],
+            e1w["url"],
+            FORWARD_SATURDAY,
+            e1we_times,
+            "Pasaia-Matiko",
+            "PASAIA-ZUMAIA",
         )
         + build_partial_services(
-            e1w["path"], e1w["url"], FORWARD_SUNDAY, e1we_times,
-            "Pasaia-Matiko", "PASAIA-ZUMAIA",
+            e1w["path"],
+            e1w["url"],
+            FORWARD_SUNDAY,
+            e1we_times,
+            "Pasaia-Matiko",
+            "PASAIA-ZUMAIA",
         )
         + build_partial_services(
-            e1e["path"], e1e["url"], REVERSE_WEEKDAY, e1e_zumaia,
-            "Matiko-Pasaia", "ZUMAIA-PASAIA",
+            e1e["path"],
+            e1e["url"],
+            REVERSE_WEEKDAY,
+            e1e_zumaia,
+            "Matiko-Pasaia",
+            "ZUMAIA-PASAIA",
         )
         + build_partial_services(
-            e1e["path"], e1e["url"], REVERSE_SATURDAY, e1ww_zumaia,
-            "Matiko-Pasaia", "ZUMAIA-PASAIA",
+            e1e["path"],
+            e1e["url"],
+            REVERSE_SATURDAY,
+            e1ww_zumaia,
+            "Matiko-Pasaia",
+            "ZUMAIA-PASAIA",
         )
         + build_partial_services(
-            e1e["path"], e1e["url"], REVERSE_SUNDAY, e1ww_zumaia,
-            "Matiko-Pasaia", "ZUMAIA-PASAIA",
+            e1e["path"],
+            e1e["url"],
+            REVERSE_SUNDAY,
+            e1ww_zumaia,
+            "Matiko-Pasaia",
+            "ZUMAIA-PASAIA",
         )
     )
     e2w_services, e2w_rules = parse_e2_weekday(e2w["path"], e2w["url"])
@@ -160,24 +184,55 @@ def _build_weekday(manifest_path: str, output: str) -> None:
     e3night_services = parse_e3_night(e3["path"], e3["url"])
 
     services = (
-        e1w_services + e1e_services + e1we_services + e1ww_services
-        + e1snw_services + e1sne_services + e1p_services + e1r_services
-        + e1elg_services + e1eib_services
-        + e2w_services + e2e_services + e2we_services + e2ww_services + e2sh_services
-        + e2snw_services + e2sne_services
-        + e4w_services + e4e_services + e4we_services + e4ww_services
-        + e4snw_services + e4sne_services + e4ger_services
-        + e3w_services + e3e_services + e3we_services + e3ww_services + e3night_services
-        + l3w_services + l3e_services + l3we_services + l3ww_services + l3night_services
+        e1w_services
+        + e1e_services
+        + e1we_services
+        + e1ww_services
+        + e1snw_services
+        + e1sne_services
+        + e1p_services
+        + e1r_services
+        + e1elg_services
+        + e1eib_services
+        + e2w_services
+        + e2e_services
+        + e2we_services
+        + e2ww_services
+        + e2sh_services
+        + e2snw_services
+        + e2sne_services
+        + e4w_services
+        + e4e_services
+        + e4we_services
+        + e4ww_services
+        + e4snw_services
+        + e4sne_services
+        + e4ger_services
+        + e3w_services
+        + e3e_services
+        + e3we_services
+        + e3ww_services
+        + e3night_services
+        + l3w_services
+        + l3e_services
+        + l3we_services
+        + l3ww_services
+        + l3night_services
     )
-    services.sort(key=lambda service: (to_minutes(service.departure), service.primary_line, service.direction))
+    services.sort(
+        key=lambda service: (to_minutes(service.departure), service.primary_line, service.direction)
+    )
     assign_membership(services)
     rules = (
-        [e1w_rule, e1e_rule, e1we_rule, e1ww_rule] + e2w_rules + e2e_rules
-        + [e2we_rule, e2ww_rule] + e2sh_rules
+        [e1w_rule, e1e_rule, e1we_rule, e1ww_rule]
+        + e2w_rules
+        + e2e_rules
+        + [e2we_rule, e2ww_rule]
+        + e2sh_rules
         + [e4w_rule, e4e_rule, e4we_rule, e4ww_rule]
         + [e3w_rule, e3e_rule, e3we_rule, e3ww_rule]
-        + [l3w_rule, l3e_rule, l3we_rule, l3ww_rule] + l3night_rules
+        + [l3w_rule, l3e_rule, l3we_rule, l3ww_rule]
+        + l3night_rules
         + e1eib_rules
     )
     checks = validate(services, rules)
@@ -238,7 +293,9 @@ def main() -> None:
     parser = argparse.ArgumentParser(prog="euskotren-timetable")
     sub = parser.add_subparsers(dest="command", required=True)
     sub.add_parser("manifest", help="Download/refresh the PDF manifest")
-    build = sub.add_parser("build-weekday", help="Parse, validate and render the E1/E2 weekday slice")
+    build = sub.add_parser(
+        "build-weekday", help="Parse, validate and render the E1/E2 weekday slice"
+    )
     build.add_argument("--manifest", default=str(MANIFEST_PATH))
     build.add_argument("--output", default=DEFAULT_OUTPUT)
     sub.add_parser("all", help="manifest + build-weekday")

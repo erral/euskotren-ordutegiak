@@ -101,21 +101,24 @@ def parse_e1_reverse(
         raise ValueError("could not find the E1 reverse full-line table")
 
     grid = build_grid(rows[0], E1_REVERSE_42)
-    explicit = {row_to_dict(row, grid).get("Matiko-Bilbao", "?"): row_to_dict(row, grid) for row in rows}
+    explicit = {
+        row_to_dict(row, grid).get("Matiko-Bilbao", "?"): row_to_dict(row, grid) for row in rows
+    }
 
     start, end, interval = parse_frequency_note(words)
     template = explicit[start]
     footnote_times = parse_altzola_footnote(pdf)
     rule_id = (
-        f"E1-WD-{start.replace(':', '').zfill(4)}-"
-        f"{end.replace(':', '').zfill(4)}-{int(interval)}"
+        f"E1-WD-{start.replace(':', '').zfill(4)}-{end.replace(':', '').zfill(4)}-{int(interval)}"
     )
 
     services: list[Service] = []
     for departure in _generate_hourly(start, end, int(interval)):
         offset = to_minutes(departure) - to_minutes(start)
         record_42 = {
-            stop: add_minutes(template[stop], offset) if is_time(template.get(stop)) else template.get(stop, "")
+            stop: add_minutes(template[stop], offset)
+            if is_time(template.get(stop))
+            else template.get(stop, "")
             for stop in E1_REVERSE_42
         }
         source_42 = {stop: "frequency" for stop in E1_REVERSE_42}

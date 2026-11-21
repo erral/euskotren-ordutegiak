@@ -71,9 +71,7 @@ def master_sort_key(service: Service) -> tuple[int, int, int, int, str]:
     )
 
 
-def corridor_sort_key(
-    service: Service, own_line: str
-) -> tuple[int, int, int, int, str]:
+def corridor_sort_key(service: Service, own_line: str) -> tuple[int, int, int, int, str]:
     return (
         _departure_minutes(service),
         0 if service.primary_line == own_line else 1,

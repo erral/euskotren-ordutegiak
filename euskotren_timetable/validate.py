@@ -1,13 +1,13 @@
 """Structural checks for the E1/E2 weekday slice in both directions."""
 
 import re
+from collections import Counter
 from dataclasses import dataclass
 
-from collections import Counter
-
-from .corridors import CORRIDORS, appears_in as corridor_appears_in
+from .corridors import CORRIDORS
+from .corridors import appears_in as corridor_appears_in
 from .model import FrequencyRule, Service
-from .parse_e1 import ALTZOLA, is_time, to_minutes
+from .parse_e1 import ALTZOLA, to_minutes
 from .service_order import master_sort_key
 from .stops import STOP_REGISTRY
 
@@ -28,11 +28,16 @@ def _check(name: str, ok: bool, detail: str) -> Check:
 def _first_last(services: list[Service], first: str, last: str, name: str) -> Check:
     if not services:
         return _check(name, False, "no services")
-    return _check(name, services[0].departure == first and services[-1].departure == last,
-                  f"{services[0].departure} .. {services[-1].departure}")
+    return _check(
+        name,
+        services[0].departure == first and services[-1].departure == last,
+        f"{services[0].departure} .. {services[-1].departure}",
+    )
 
 
-def _complete(service: Service | None, expected: int, expected_unpublished: int, name: str) -> Check:
+def _complete(
+    service: Service | None, expected: int, expected_unpublished: int, name: str
+) -> Check:
     if service is None:
         return _check(name, False, "service missing")
     unpublished = [st for st in service.stop_times if st.disposition == "unpublished"]
@@ -43,25 +48,17 @@ def _complete(service: Service | None, expected: int, expected_unpublished: int,
     )
 
 
-def _stop_time(
-    service: Service | None, stop_name: str, expected: str, name: str
-) -> Check:
+def _stop_time(service: Service | None, stop_name: str, expected: str, name: str) -> Check:
     if service is None:
         return _check(name, False, "service missing")
-    actual = next(
-        (st.time for st in service.stop_times if st.stop_name == stop_name), None
-    )
+    actual = next((st.time for st in service.stop_times if st.stop_name == stop_name), None)
     return _check(name, actual == expected, f"expected {expected}, got {actual}")
 
 
-def _day_offset(
-    service: Service | None, stop_name: str, expected: int, name: str
-) -> Check:
+def _day_offset(service: Service | None, stop_name: str, expected: int, name: str) -> Check:
     if service is None:
         return _check(name, False, "service missing")
-    actual = next(
-        (st.day_offset for st in service.stop_times if st.stop_name == stop_name), None
-    )
+    actual = next((st.day_offset for st in service.stop_times if st.stop_name == stop_name), None)
     return _check(name, actual == expected, f"expected {expected}, got {actual}")
 
 
@@ -75,13 +72,53 @@ def _altzola(service: Service | None, expected: str | None, name: str) -> Check:
 def validate(services: list[Service], rules: list[FrequencyRule]) -> list[Check]:
     checks: list[Check] = []
 
-    e1_elgoibar = [s for s in services if s.service_id.startswith(("E1-ELGOIBAR-MATIKO", "E1-MATIKO-ELGOIBAR"))]
-    e1_eibar = [s for s in services if s.service_id.startswith(("E1-EIBAR-ERMUA", "E1-ERMUA-EIBAR"))]
+    e1_elgoibar = [
+        s for s in services if s.service_id.startswith(("E1-ELGOIBAR-MATIKO", "E1-MATIKO-ELGOIBAR"))
+    ]
+    e1_eibar = [
+        s for s in services if s.service_id.startswith(("E1-EIBAR-ERMUA", "E1-ERMUA-EIBAR"))
+    ]
     partial_ids = {s.service_id for s in e1_elgoibar + e1_eibar}
-    e1w = [s for s in services if s.primary_line == "E1" and s.direction == "Pasaia-Matiko" and s.calendar == "WD" and s.destination != "Zumaia" and "refuerzo" not in s.pattern and s.service_id not in partial_ids]
-    e1e = [s for s in services if s.primary_line == "E1" and s.direction == "Matiko-Pasaia" and s.calendar == "WD" and s.origin != "Zumaia" and "refuerzo" not in s.pattern and s.service_id not in partial_ids]
-    e1we = [s for s in services if s.primary_line == "E1" and s.direction == "Pasaia-Matiko" and s.calendar == "WE" and s.destination != "Zumaia" and "refuerzo" not in s.pattern and s.service_id not in partial_ids]
-    e1ww = [s for s in services if s.primary_line == "E1" and s.direction == "Matiko-Pasaia" and s.calendar == "WE" and s.origin != "Zumaia" and "refuerzo" not in s.pattern and s.service_id not in partial_ids]
+    e1w = [
+        s
+        for s in services
+        if s.primary_line == "E1"
+        and s.direction == "Pasaia-Matiko"
+        and s.calendar == "WD"
+        and s.destination != "Zumaia"
+        and "refuerzo" not in s.pattern
+        and s.service_id not in partial_ids
+    ]
+    e1e = [
+        s
+        for s in services
+        if s.primary_line == "E1"
+        and s.direction == "Matiko-Pasaia"
+        and s.calendar == "WD"
+        and s.origin != "Zumaia"
+        and "refuerzo" not in s.pattern
+        and s.service_id not in partial_ids
+    ]
+    e1we = [
+        s
+        for s in services
+        if s.primary_line == "E1"
+        and s.direction == "Pasaia-Matiko"
+        and s.calendar == "WE"
+        and s.destination != "Zumaia"
+        and "refuerzo" not in s.pattern
+        and s.service_id not in partial_ids
+    ]
+    e1ww = [
+        s
+        for s in services
+        if s.primary_line == "E1"
+        and s.direction == "Matiko-Pasaia"
+        and s.calendar == "WE"
+        and s.origin != "Zumaia"
+        and "refuerzo" not in s.pattern
+        and s.service_id not in partial_ids
+    ]
     e1elg_wd = [s for s in e1_elgoibar if s.calendar == "WD" and s.direction == "Pasaia-Matiko"]
     e1elg_we = [s for s in e1_elgoibar if s.calendar == "WE" and s.direction == "Pasaia-Matiko"]
     e1elgr_wd = [s for s in e1_elgoibar if s.calendar == "WD" and s.direction == "Matiko-Pasaia"]
@@ -90,103 +127,419 @@ def validate(services: list[Service], rules: list[FrequencyRule]) -> list[Check]
     e1eib_we = [s for s in e1_eibar if s.calendar == "WE" and s.direction == "Pasaia-Matiko"]
     e1eibr_wd = [s for s in e1_eibar if s.calendar == "WD" and s.direction == "Matiko-Pasaia"]
     e1eibr_we = [s for s in e1_eibar if s.calendar == "WE" and s.direction == "Matiko-Pasaia"]
-    e1_ref = [s for s in services if s.primary_line == "E1" and s.calendar == "WD" and "refuerzo" in s.pattern]
+    e1_ref = [
+        s
+        for s in services
+        if s.primary_line == "E1" and s.calendar == "WD" and "refuerzo" in s.pattern
+    ]
     e1_ref_fwd = [s for s in e1_ref if s.direction == "Pasaia-Matiko"]
     e1_ref_rev = [s for s in e1_ref if s.direction == "Matiko-Pasaia"]
     e1_ref_fwd_by = {s.departure: s for s in e1_ref_fwd}
     e1_ref_rev_by = {s.departure: s for s in e1_ref_rev}
-    e1p_wd = [s for s in services if s.primary_line == "E1" and s.direction == "Pasaia-Matiko" and s.calendar == "WD" and s.destination == "Zumaia"]
-    e1p_sa = [s for s in services if s.primary_line == "E1" and s.direction == "Pasaia-Matiko" and s.calendar == "SA" and s.destination == "Zumaia"]
-    e1p_su = [s for s in services if s.primary_line == "E1" and s.direction == "Pasaia-Matiko" and s.calendar == "SU" and s.destination == "Zumaia"]
-    e1pr_wd = [s for s in services if s.primary_line == "E1" and s.direction == "Matiko-Pasaia" and s.calendar == "WD" and s.origin == "Zumaia"]
-    e1pr_sa = [s for s in services if s.primary_line == "E1" and s.direction == "Matiko-Pasaia" and s.calendar == "SA" and s.origin == "Zumaia"]
-    e1pr_su = [s for s in services if s.primary_line == "E1" and s.direction == "Matiko-Pasaia" and s.calendar == "SU" and s.origin == "Zumaia"]
-    e1snw = [s for s in services if s.primary_line == "E1" and s.direction == "Pasaia-Matiko" and s.calendar == "SN"]
-    e1sne = [s for s in services if s.primary_line == "E1" and s.direction == "Matiko-Pasaia" and s.calendar == "SN"]
-    e2w = [s for s in services if s.primary_line == "E2-T1" and s.direction == "Hendaia-Lasarte" and s.calendar == "WD"]
-    e2e = [s for s in services if s.primary_line == "E2-T1" and s.direction == "Lasarte-Hendaia" and s.calendar == "WD"]
-    e2we = [s for s in services if s.primary_line == "E2-T1" and s.direction == "Hendaia-Lasarte" and s.calendar == "WE"]
-    e2ww = [s for s in services if s.primary_line == "E2-T1" and s.direction == "Lasarte-Hendaia" and s.calendar == "WE"]
+    e1p_wd = [
+        s
+        for s in services
+        if s.primary_line == "E1"
+        and s.direction == "Pasaia-Matiko"
+        and s.calendar == "WD"
+        and s.destination == "Zumaia"
+    ]
+    e1p_sa = [
+        s
+        for s in services
+        if s.primary_line == "E1"
+        and s.direction == "Pasaia-Matiko"
+        and s.calendar == "SA"
+        and s.destination == "Zumaia"
+    ]
+    e1p_su = [
+        s
+        for s in services
+        if s.primary_line == "E1"
+        and s.direction == "Pasaia-Matiko"
+        and s.calendar == "SU"
+        and s.destination == "Zumaia"
+    ]
+    e1pr_wd = [
+        s
+        for s in services
+        if s.primary_line == "E1"
+        and s.direction == "Matiko-Pasaia"
+        and s.calendar == "WD"
+        and s.origin == "Zumaia"
+    ]
+    e1pr_sa = [
+        s
+        for s in services
+        if s.primary_line == "E1"
+        and s.direction == "Matiko-Pasaia"
+        and s.calendar == "SA"
+        and s.origin == "Zumaia"
+    ]
+    e1pr_su = [
+        s
+        for s in services
+        if s.primary_line == "E1"
+        and s.direction == "Matiko-Pasaia"
+        and s.calendar == "SU"
+        and s.origin == "Zumaia"
+    ]
+    e1snw = [
+        s
+        for s in services
+        if s.primary_line == "E1" and s.direction == "Pasaia-Matiko" and s.calendar == "SN"
+    ]
+    e1sne = [
+        s
+        for s in services
+        if s.primary_line == "E1" and s.direction == "Matiko-Pasaia" and s.calendar == "SN"
+    ]
+    e2w = [
+        s
+        for s in services
+        if s.primary_line == "E2-T1" and s.direction == "Hendaia-Lasarte" and s.calendar == "WD"
+    ]
+    e2e = [
+        s
+        for s in services
+        if s.primary_line == "E2-T1" and s.direction == "Lasarte-Hendaia" and s.calendar == "WD"
+    ]
+    e2we = [
+        s
+        for s in services
+        if s.primary_line == "E2-T1" and s.direction == "Hendaia-Lasarte" and s.calendar == "WE"
+    ]
+    e2ww = [
+        s
+        for s in services
+        if s.primary_line == "E2-T1" and s.direction == "Lasarte-Hendaia" and s.calendar == "WE"
+    ]
     e2sa = [s for s in services if s.primary_line == "E2-T1" and s.calendar == "SA"]
     e2su = [s for s in services if s.primary_line == "E2-T1" and s.calendar == "SU"]
-    e2snw = [s for s in services if s.primary_line == "E2-T1" and s.direction == "Hendaia-Lasarte" and s.calendar == "SN"]
-    e2sne = [s for s in services if s.primary_line == "E2-T1" and s.direction == "Lasarte-Hendaia" and s.calendar == "SN"]
+    e2snw = [
+        s
+        for s in services
+        if s.primary_line == "E2-T1" and s.direction == "Hendaia-Lasarte" and s.calendar == "SN"
+    ]
+    e2sne = [
+        s
+        for s in services
+        if s.primary_line == "E2-T1" and s.direction == "Lasarte-Hendaia" and s.calendar == "SN"
+    ]
     e2w_full = [s for s in e2w if s.origin == "Hendaia"]
     e2w_partial = [s for s in e2w if s.origin == "Pasaia"]
     e2e_full = [s for s in e2e if s.origin == "Lasarte-Oria"]
     e2e_partial = [s for s in e2e if s.origin == "Añorga (Donostia)"]
-    e4e = [s for s in services if s.primary_line == "E4" and s.direction == "Matiko-Bermeo" and s.calendar == "WD" and s.origin != "Gernika"]
-    e4w = [s for s in services if s.primary_line == "E4" and s.direction == "Bermeo-Matiko" and s.calendar == "WD" and s.origin != "Gernika"]
-    e4we = [s for s in services if s.primary_line == "E4" and s.direction == "Matiko-Bermeo" and s.calendar == "WE" and s.origin != "Gernika"]
-    e4su = [s for s in services if s.primary_line == "E4" and s.direction == "Matiko-Bermeo" and s.calendar == "SU"]
-    e4ww = [s for s in services if s.primary_line == "E4" and s.direction == "Bermeo-Matiko" and s.calendar == "WE" and s.origin != "Gernika"]
-    e4snw = [s for s in services if s.primary_line == "E4" and s.direction == "Matiko-Bermeo" and s.calendar == "SN"]
-    e4sne = [s for s in services if s.primary_line == "E4" and s.direction == "Bermeo-Matiko" and s.calendar == "SN"]
-    e4ger_wd = [s for s in services if s.primary_line == "E4" and s.origin == "Gernika" and s.calendar == "WD"]
-    e4ger_we = [s for s in services if s.primary_line == "E4" and s.origin == "Gernika" and s.calendar == "WE"]
-    e3e = [s for s in services if s.primary_line == "E3-L3" and s.direction == "Lezama-Kukullaga" and s.calendar == "WD"]
-    e3w = [s for s in services if s.primary_line == "E3-L3" and s.direction == "Kukullaga-Lezama" and s.calendar == "WD"]
-    e3we = [s for s in services if s.primary_line == "E3-L3" and s.direction == "Lezama-Kukullaga" and s.calendar == "WE"]
-    e3ww = [s for s in services if s.primary_line == "E3-L3" and s.direction == "Kukullaga-Lezama" and s.calendar == "WE"]
-    l3e = [s for s in services if s.primary_line == "E3-L3" and s.direction == "Matiko-Kukullaga" and s.calendar == "WD"]
-    l3w = [s for s in services if s.primary_line == "E3-L3" and s.direction == "Kukullaga-Matiko" and s.calendar == "WD"]
-    l3we = [s for s in services if s.primary_line == "E3-L3" and s.direction == "Matiko-Kukullaga" and s.calendar == "WE"]
-    l3ww = [s for s in services if s.primary_line == "E3-L3" and s.direction == "Kukullaga-Matiko" and s.calendar == "WE"]
-    l3fn = [s for s in services if s.primary_line == "E3-L3" and s.direction == "Matiko-Kukullaga" and s.calendar == "FN"]
-    l3sn = [s for s in services if s.primary_line == "E3-L3" and s.direction == "Matiko-Kukullaga" and s.calendar == "SN"]
-    l3fnr = [s for s in services if s.primary_line == "E3-L3" and s.direction == "Kukullaga-Matiko" and s.calendar == "FN"]
-    l3snr = [s for s in services if s.primary_line == "E3-L3" and s.direction == "Kukullaga-Matiko" and s.calendar == "SN"]
-    e3sn = [s for s in services if s.primary_line == "E3-L3" and s.direction == "Lezama-Kukullaga" and s.calendar == "SN"]
-    e3snr = [s for s in services if s.primary_line == "E3-L3" and s.direction == "Kukullaga-Lezama" and s.calendar == "SN"]
+    e4e = [
+        s
+        for s in services
+        if s.primary_line == "E4"
+        and s.direction == "Matiko-Bermeo"
+        and s.calendar == "WD"
+        and s.origin != "Gernika"
+    ]
+    e4w = [
+        s
+        for s in services
+        if s.primary_line == "E4"
+        and s.direction == "Bermeo-Matiko"
+        and s.calendar == "WD"
+        and s.origin != "Gernika"
+    ]
+    e4we = [
+        s
+        for s in services
+        if s.primary_line == "E4"
+        and s.direction == "Matiko-Bermeo"
+        and s.calendar == "WE"
+        and s.origin != "Gernika"
+    ]
+    e4su = [
+        s
+        for s in services
+        if s.primary_line == "E4" and s.direction == "Matiko-Bermeo" and s.calendar == "SU"
+    ]
+    e4ww = [
+        s
+        for s in services
+        if s.primary_line == "E4"
+        and s.direction == "Bermeo-Matiko"
+        and s.calendar == "WE"
+        and s.origin != "Gernika"
+    ]
+    e4snw = [
+        s
+        for s in services
+        if s.primary_line == "E4" and s.direction == "Matiko-Bermeo" and s.calendar == "SN"
+    ]
+    e4sne = [
+        s
+        for s in services
+        if s.primary_line == "E4" and s.direction == "Bermeo-Matiko" and s.calendar == "SN"
+    ]
+    e4ger_wd = [
+        s
+        for s in services
+        if s.primary_line == "E4" and s.origin == "Gernika" and s.calendar == "WD"
+    ]
+    e4ger_we = [
+        s
+        for s in services
+        if s.primary_line == "E4" and s.origin == "Gernika" and s.calendar == "WE"
+    ]
+    e3e = [
+        s
+        for s in services
+        if s.primary_line == "E3-L3" and s.direction == "Lezama-Kukullaga" and s.calendar == "WD"
+    ]
+    e3w = [
+        s
+        for s in services
+        if s.primary_line == "E3-L3" and s.direction == "Kukullaga-Lezama" and s.calendar == "WD"
+    ]
+    e3we = [
+        s
+        for s in services
+        if s.primary_line == "E3-L3" and s.direction == "Lezama-Kukullaga" and s.calendar == "WE"
+    ]
+    e3ww = [
+        s
+        for s in services
+        if s.primary_line == "E3-L3" and s.direction == "Kukullaga-Lezama" and s.calendar == "WE"
+    ]
+    l3e = [
+        s
+        for s in services
+        if s.primary_line == "E3-L3" and s.direction == "Matiko-Kukullaga" and s.calendar == "WD"
+    ]
+    l3w = [
+        s
+        for s in services
+        if s.primary_line == "E3-L3" and s.direction == "Kukullaga-Matiko" and s.calendar == "WD"
+    ]
+    l3we = [
+        s
+        for s in services
+        if s.primary_line == "E3-L3" and s.direction == "Matiko-Kukullaga" and s.calendar == "WE"
+    ]
+    l3ww = [
+        s
+        for s in services
+        if s.primary_line == "E3-L3" and s.direction == "Kukullaga-Matiko" and s.calendar == "WE"
+    ]
+    l3fn = [
+        s
+        for s in services
+        if s.primary_line == "E3-L3" and s.direction == "Matiko-Kukullaga" and s.calendar == "FN"
+    ]
+    l3sn = [
+        s
+        for s in services
+        if s.primary_line == "E3-L3" and s.direction == "Matiko-Kukullaga" and s.calendar == "SN"
+    ]
+    l3fnr = [
+        s
+        for s in services
+        if s.primary_line == "E3-L3" and s.direction == "Kukullaga-Matiko" and s.calendar == "FN"
+    ]
+    l3snr = [
+        s
+        for s in services
+        if s.primary_line == "E3-L3" and s.direction == "Kukullaga-Matiko" and s.calendar == "SN"
+    ]
+    e3sn = [
+        s
+        for s in services
+        if s.primary_line == "E3-L3" and s.direction == "Lezama-Kukullaga" and s.calendar == "SN"
+    ]
+    e3snr = [
+        s
+        for s in services
+        if s.primary_line == "E3-L3" and s.direction == "Kukullaga-Lezama" and s.calendar == "SN"
+    ]
 
     checks.append(_check("e1_west_count", len(e1w) == 16, f"found {len(e1w)}, expected 16"))
     checks.append(_check("e1_east_count", len(e1e) == 15, f"found {len(e1e)}, expected 15"))
-    checks.append(_check("e1_weekend_west_count", len(e1we) == 14, f"found {len(e1we)}, expected 14"))
-    checks.append(_check("e1_weekend_east_count", len(e1ww) == 14, f"found {len(e1ww)}, expected 14"))
-    checks.append(_check("e1_saturday_night_west_count", len(e1snw) == 4, f"found {len(e1snw)}, expected 4"))
-    checks.append(_check("e1_saturday_night_east_count", len(e1sne) == 4, f"found {len(e1sne)}, expected 4"))
-    checks.append(_check("e1_partial_west_weekday_count", len(e1p_wd) == 17, f"found {len(e1p_wd)}, expected 17"))
-    checks.append(_check("e1_partial_west_saturday_count", len(e1p_sa) == 17, f"found {len(e1p_sa)}, expected 17"))
-    checks.append(_check("e1_partial_west_sunday_count", len(e1p_su) == 11, f"found {len(e1p_su)}, expected 11"))
-    checks.append(_check("e1_partial_east_weekday_count", len(e1pr_wd) == 19, f"found {len(e1pr_wd)}, expected 19"))
-    checks.append(_check("e1_partial_east_saturday_count", len(e1pr_sa) == 18, f"found {len(e1pr_sa)}, expected 18"))
-    checks.append(_check("e1_partial_east_sunday_count", len(e1pr_su) == 10, f"found {len(e1pr_su)}, expected 10"))
+    checks.append(
+        _check("e1_weekend_west_count", len(e1we) == 14, f"found {len(e1we)}, expected 14")
+    )
+    checks.append(
+        _check("e1_weekend_east_count", len(e1ww) == 14, f"found {len(e1ww)}, expected 14")
+    )
+    checks.append(
+        _check("e1_saturday_night_west_count", len(e1snw) == 4, f"found {len(e1snw)}, expected 4")
+    )
+    checks.append(
+        _check("e1_saturday_night_east_count", len(e1sne) == 4, f"found {len(e1sne)}, expected 4")
+    )
+    checks.append(
+        _check(
+            "e1_partial_west_weekday_count", len(e1p_wd) == 17, f"found {len(e1p_wd)}, expected 17"
+        )
+    )
+    checks.append(
+        _check(
+            "e1_partial_west_saturday_count", len(e1p_sa) == 17, f"found {len(e1p_sa)}, expected 17"
+        )
+    )
+    checks.append(
+        _check(
+            "e1_partial_west_sunday_count", len(e1p_su) == 11, f"found {len(e1p_su)}, expected 11"
+        )
+    )
+    checks.append(
+        _check(
+            "e1_partial_east_weekday_count",
+            len(e1pr_wd) == 19,
+            f"found {len(e1pr_wd)}, expected 19",
+        )
+    )
+    checks.append(
+        _check(
+            "e1_partial_east_saturday_count",
+            len(e1pr_sa) == 18,
+            f"found {len(e1pr_sa)}, expected 18",
+        )
+    )
+    checks.append(
+        _check(
+            "e1_partial_east_sunday_count", len(e1pr_su) == 10, f"found {len(e1pr_su)}, expected 10"
+        )
+    )
     checks.append(_check("e1_refuerzo_count", len(e1_ref) == 5, f"found {len(e1_ref)}, expected 5"))
-    checks.append(_check("e1_elgoibar_weekday_west_count", len(e1elg_wd) == 26, f"found {len(e1elg_wd)}, expected 26"))
-    checks.append(_check("e1_elgoibar_weekend_west_count", len(e1elg_we) == 14, f"found {len(e1elg_we)}, expected 14"))
-    checks.append(_check("e1_elgoibar_weekday_east_count", len(e1elgr_wd) == 25, f"found {len(e1elgr_wd)}, expected 25"))
-    checks.append(_check("e1_elgoibar_weekend_east_count", len(e1elgr_we) == 14, f"found {len(e1elgr_we)}, expected 14"))
-    checks.append(_check("e1_eibar_weekday_west_count", len(e1eib_wd) == 64, f"found {len(e1eib_wd)}, expected 64"))
-    checks.append(_check("e1_eibar_weekend_west_count", len(e1eib_we) == 44, f"found {len(e1eib_we)}, expected 44"))
-    checks.append(_check("e1_eibar_weekday_east_count", len(e1eibr_wd) == 63, f"found {len(e1eibr_wd)}, expected 63"))
-    checks.append(_check("e1_eibar_weekend_east_count", len(e1eibr_we) == 43, f"found {len(e1eibr_we)}, expected 43"))
-    checks.append(_check("e2_west_full_count", len(e2w_full) == 35, f"found {len(e2w_full)}, expected 35"))
-    checks.append(_check("e2_west_partial_count", len(e2w_partial) == 139, f"found {len(e2w_partial)}, expected 139"))
-    checks.append(_check("e2_weekend_west_count", len(e2ww) == 33, f"found {len(e2ww)}, expected 33"))
-    checks.append(_check("e2_weekend_east_count", len(e2we) == 33, f"found {len(e2we)}, expected 33"))
-    checks.append(_check("e2_east_full_count", len(e2e_full) == 34, f"found {len(e2e_full)}, expected 34"))
-    checks.append(_check("e2_east_partial_count", len(e2e_partial) == 136, f"found {len(e2e_partial)}, expected 136"))
-    checks.append(_check("e2_saturday_shuttle_count", len(e2sa) == 254, f"found {len(e2sa)}, expected 254"))
-    checks.append(_check("e2_sunday_shuttle_count", len(e2su) == 215, f"found {len(e2su)}, expected 215"))
-    checks.append(_check("e2_saturday_night_west_count", len(e2snw) == 8, f"found {len(e2snw)}, expected 8"))
-    checks.append(_check("e2_saturday_night_east_count", len(e2sne) == 8, f"found {len(e2sne)}, expected 8"))
+    checks.append(
+        _check(
+            "e1_elgoibar_weekday_west_count",
+            len(e1elg_wd) == 26,
+            f"found {len(e1elg_wd)}, expected 26",
+        )
+    )
+    checks.append(
+        _check(
+            "e1_elgoibar_weekend_west_count",
+            len(e1elg_we) == 14,
+            f"found {len(e1elg_we)}, expected 14",
+        )
+    )
+    checks.append(
+        _check(
+            "e1_elgoibar_weekday_east_count",
+            len(e1elgr_wd) == 25,
+            f"found {len(e1elgr_wd)}, expected 25",
+        )
+    )
+    checks.append(
+        _check(
+            "e1_elgoibar_weekend_east_count",
+            len(e1elgr_we) == 14,
+            f"found {len(e1elgr_we)}, expected 14",
+        )
+    )
+    checks.append(
+        _check(
+            "e1_eibar_weekday_west_count",
+            len(e1eib_wd) == 64,
+            f"found {len(e1eib_wd)}, expected 64",
+        )
+    )
+    checks.append(
+        _check(
+            "e1_eibar_weekend_west_count",
+            len(e1eib_we) == 44,
+            f"found {len(e1eib_we)}, expected 44",
+        )
+    )
+    checks.append(
+        _check(
+            "e1_eibar_weekday_east_count",
+            len(e1eibr_wd) == 63,
+            f"found {len(e1eibr_wd)}, expected 63",
+        )
+    )
+    checks.append(
+        _check(
+            "e1_eibar_weekend_east_count",
+            len(e1eibr_we) == 43,
+            f"found {len(e1eibr_we)}, expected 43",
+        )
+    )
+    checks.append(
+        _check("e2_west_full_count", len(e2w_full) == 35, f"found {len(e2w_full)}, expected 35")
+    )
+    checks.append(
+        _check(
+            "e2_west_partial_count",
+            len(e2w_partial) == 139,
+            f"found {len(e2w_partial)}, expected 139",
+        )
+    )
+    checks.append(
+        _check("e2_weekend_west_count", len(e2ww) == 33, f"found {len(e2ww)}, expected 33")
+    )
+    checks.append(
+        _check("e2_weekend_east_count", len(e2we) == 33, f"found {len(e2we)}, expected 33")
+    )
+    checks.append(
+        _check("e2_east_full_count", len(e2e_full) == 34, f"found {len(e2e_full)}, expected 34")
+    )
+    checks.append(
+        _check(
+            "e2_east_partial_count",
+            len(e2e_partial) == 136,
+            f"found {len(e2e_partial)}, expected 136",
+        )
+    )
+    checks.append(
+        _check("e2_saturday_shuttle_count", len(e2sa) == 254, f"found {len(e2sa)}, expected 254")
+    )
+    checks.append(
+        _check("e2_sunday_shuttle_count", len(e2su) == 215, f"found {len(e2su)}, expected 215")
+    )
+    checks.append(
+        _check("e2_saturday_night_west_count", len(e2snw) == 8, f"found {len(e2snw)}, expected 8")
+    )
+    checks.append(
+        _check("e2_saturday_night_east_count", len(e2sne) == 8, f"found {len(e2sne)}, expected 8")
+    )
     checks.append(_check("e4_west_count", len(e4w) == 32, f"found {len(e4w)}, expected 32"))
     checks.append(_check("e4_east_count", len(e4e) == 33, f"found {len(e4e)}, expected 33"))
-    checks.append(_check("e4_weekend_west_count", len(e4ww) == 16, f"found {len(e4ww)}, expected 16"))
-    checks.append(_check("e4_weekend_east_count", len(e4we) == 15, f"found {len(e4we)}, expected 15"))
-    checks.append(_check("e4_sunday_variant_count", len(e4su) == 1, f"found {len(e4su)}, expected 1"))
-    checks.append(_check("e4_saturday_night_west_count", len(e4snw) == 5, f"found {len(e4snw)}, expected 5"))
-    checks.append(_check("e4_saturday_night_east_count", len(e4sne) == 5, f"found {len(e4sne)}, expected 5"))
-    checks.append(_check("e4_gernika_weekday_count", len(e4ger_wd) == 4, f"found {len(e4ger_wd)}, expected 4"))
-    checks.append(_check("e4_gernika_weekend_count", len(e4ger_we) == 3, f"found {len(e4ger_we)}, expected 3"))
+    checks.append(
+        _check("e4_weekend_west_count", len(e4ww) == 16, f"found {len(e4ww)}, expected 16")
+    )
+    checks.append(
+        _check("e4_weekend_east_count", len(e4we) == 15, f"found {len(e4we)}, expected 15")
+    )
+    checks.append(
+        _check("e4_sunday_variant_count", len(e4su) == 1, f"found {len(e4su)}, expected 1")
+    )
+    checks.append(
+        _check("e4_saturday_night_west_count", len(e4snw) == 5, f"found {len(e4snw)}, expected 5")
+    )
+    checks.append(
+        _check("e4_saturday_night_east_count", len(e4sne) == 5, f"found {len(e4sne)}, expected 5")
+    )
+    checks.append(
+        _check("e4_gernika_weekday_count", len(e4ger_wd) == 4, f"found {len(e4ger_wd)}, expected 4")
+    )
+    checks.append(
+        _check("e4_gernika_weekend_count", len(e4ger_we) == 3, f"found {len(e4ger_we)}, expected 3")
+    )
     checks.append(_check("e3_west_count", len(e3w) == 64, f"found {len(e3w)}, expected 64"))
     checks.append(_check("e3_east_count", len(e3e) == 62, f"found {len(e3e)}, expected 62"))
-    checks.append(_check("e3_weekend_west_count", len(e3ww) == 31, f"found {len(e3ww)}, expected 31"))
-    checks.append(_check("e3_weekend_east_count", len(e3we) == 32, f"found {len(e3we)}, expected 32"))
+    checks.append(
+        _check("e3_weekend_west_count", len(e3ww) == 31, f"found {len(e3ww)}, expected 31")
+    )
+    checks.append(
+        _check("e3_weekend_east_count", len(e3we) == 32, f"found {len(e3we)}, expected 32")
+    )
     checks.append(_check("l3_west_count", len(l3w) == 140, f"found {len(l3w)}, expected 140"))
     checks.append(_check("l3_east_count", len(l3e) == 138, f"found {len(l3e)}, expected 138"))
-    checks.append(_check("l3_weekend_west_count", len(l3ww) == 103, f"found {len(l3ww)}, expected 103"))
-    checks.append(_check("l3_weekend_east_count", len(l3we) == 101, f"found {len(l3we)}, expected 101"))
+    checks.append(
+        _check("l3_weekend_west_count", len(l3ww) == 103, f"found {len(l3ww)}, expected 103")
+    )
+    checks.append(
+        _check("l3_weekend_east_count", len(l3we) == 101, f"found {len(l3we)}, expected 101")
+    )
     invalid_departures = [
         service.service_id
         for service in services
@@ -226,12 +579,24 @@ def validate(services: list[Service], rules: list[FrequencyRule]) -> list[Check]
             f"{len(invalid_sort_values)} invalid: {'; '.join(invalid_sort_values[:3])}",
         )
     )
-    checks.append(_check("l3_friday_night_west_count", len(l3fn) == 14, f"found {len(l3fn)}, expected 14"))
-    checks.append(_check("l3_saturday_night_west_count", len(l3sn) == 27, f"found {len(l3sn)}, expected 27"))
-    checks.append(_check("l3_friday_night_east_count", len(l3fnr) == 12, f"found {len(l3fnr)}, expected 12"))
-    checks.append(_check("l3_saturday_night_east_count", len(l3snr) == 26, f"found {len(l3snr)}, expected 26"))
-    checks.append(_check("e3_saturday_night_west_count", len(e3sn) == 6, f"found {len(e3sn)}, expected 6"))
-    checks.append(_check("e3_saturday_night_east_count", len(e3snr) == 5, f"found {len(e3snr)}, expected 5"))
+    checks.append(
+        _check("l3_friday_night_west_count", len(l3fn) == 14, f"found {len(l3fn)}, expected 14")
+    )
+    checks.append(
+        _check("l3_saturday_night_west_count", len(l3sn) == 27, f"found {len(l3sn)}, expected 27")
+    )
+    checks.append(
+        _check("l3_friday_night_east_count", len(l3fnr) == 12, f"found {len(l3fnr)}, expected 12")
+    )
+    checks.append(
+        _check("l3_saturday_night_east_count", len(l3snr) == 26, f"found {len(l3snr)}, expected 26")
+    )
+    checks.append(
+        _check("e3_saturday_night_west_count", len(e3sn) == 6, f"found {len(e3sn)}, expected 6")
+    )
+    checks.append(
+        _check("e3_saturday_night_east_count", len(e3snr) == 5, f"found {len(e3snr)}, expected 5")
+    )
 
     checks.append(_first_last(e1w, "5:35", "20:35", "e1_west_first_last"))
     checks.append(_first_last(e1e, "5:55", "19:55", "e1_east_first_last"))
@@ -255,16 +620,22 @@ def validate(services: list[Service], rules: list[FrequencyRule]) -> list[Check]
     checks.append(_first_last(e1eib_we, "8:00", "22:11", "e1_eibar_weekend_west_first_last"))
     checks.append(_first_last(e1eibr_wd, "6:01", "22:01", "e1_eibar_weekday_east_first_last"))
     checks.append(_first_last(e1eibr_we, "8:01", "22:02", "e1_eibar_weekend_east_first_last"))
-    checks.append(_check(
-        "e1_refuerzo_zaldibar_destination",
-        e1_ref_fwd_by.get("7:12") is not None and e1_ref_fwd_by["7:12"].destination == "Matiko-Bilbao",
-        "Zaldibar refuerzo should reach Matiko",
-    ))
-    checks.append(_check(
-        "e1_refuerzo_trana_destination",
-        e1_ref_rev_by.get("8:32") is not None and e1_ref_rev_by["8:32"].destination == "Traña Abadiño",
-        "08:32 refuerzo should reach Traña",
-    ))
+    checks.append(
+        _check(
+            "e1_refuerzo_zaldibar_destination",
+            e1_ref_fwd_by.get("7:12") is not None
+            and e1_ref_fwd_by["7:12"].destination == "Matiko-Bilbao",
+            "Zaldibar refuerzo should reach Matiko",
+        )
+    )
+    checks.append(
+        _check(
+            "e1_refuerzo_trana_destination",
+            e1_ref_rev_by.get("8:32") is not None
+            and e1_ref_rev_by["8:32"].destination == "Traña Abadiño",
+            "08:32 refuerzo should reach Traña",
+        )
+    )
     checks.append(_first_last(e2w_full, "5:34", "22:34", "e2_west_full_first_last"))
     checks.append(_first_last(e2w_partial, "5:28", "22:58", "e2_west_partial_first_last"))
     checks.append(_first_last(e2we, "6:34", "22:34", "e2_weekend_east_first_last"))
@@ -336,33 +707,61 @@ def validate(services: list[Service], rules: list[FrequencyRule]) -> list[Check]
     checks.append(_stop_time(e1w_by.get("5:35"), "Usurbil", "6:04", "e1_west_usurbil"))
     checks.append(_stop_time(e1e_by.get("5:55"), "Usurbil", "8:26", "e1_east_usurbil"))
     checks.append(_stop_time(e1e_by.get("5:55"), "Altza (Donostia)", "8:53", "e1_east_altza"))
-    checks.append(_stop_time(e1we_by.get("7:35"), "Añorga (Donostia)", "7:56", "e1_weekend_west_anorga"))
-    checks.append(_stop_time(e1ww_by.get("6:52"), "Añorga (Donostia)", "9:34", "e1_weekend_east_anorga"))
+    checks.append(
+        _stop_time(e1we_by.get("7:35"), "Añorga (Donostia)", "7:56", "e1_weekend_west_anorga")
+    )
+    checks.append(
+        _stop_time(e1ww_by.get("6:52"), "Añorga (Donostia)", "9:34", "e1_weekend_east_anorga")
+    )
     checks.append(_day_offset(e1snw_by.get("25:37"), "Deba", 1, "e1_night_west_deba_offset"))
-    checks.append(_day_offset(e1sne_by.get("23:45"), "Matiko-Bilbao", 0, "e1_night_east_matiko_offset"))
+    checks.append(
+        _day_offset(e1sne_by.get("23:45"), "Matiko-Bilbao", 0, "e1_night_east_matiko_offset")
+    )
     checks.append(_day_offset(e1sne_by.get("23:45"), "Deba", 1, "e1_night_east_deba_offset"))
     checks.append(_day_offset(e2snw_by.get("23:34"), "Hendaia", 0, "e2_night_west_hendaia_offset"))
-    checks.append(_day_offset(e2snw_by.get("23:34"), "Lasarte-Oria", 1, "e2_night_west_lasarte_offset"))
-    checks.append(_day_offset(e2sne_by.get("23:35"), "Lasarte-Oria", 0, "e2_night_east_lasarte_offset"))
+    checks.append(
+        _day_offset(e2snw_by.get("23:34"), "Lasarte-Oria", 1, "e2_night_west_lasarte_offset")
+    )
+    checks.append(
+        _day_offset(e2sne_by.get("23:35"), "Lasarte-Oria", 0, "e2_night_east_lasarte_offset")
+    )
     checks.append(_day_offset(e4snw_by.get("22:12"), "Bermeo", 0, "e4_night_west_bermeo_offset"))
-    checks.append(_day_offset(e4sne_by.get("23:34"), "Amorebieta Geralekua", 1, "e4_night_east_amorebieta_offset"))
-    checks.append(_check(
-        "e4_night_west_2212_destination",
-        e4snw_by.get("22:12") is not None and e4snw_by["22:12"].destination == "Bermeo",
-        "22:12 should terminate at Bermeo on Saturday night",
-    ))
-    checks.append(_check(
-        "e4_night_east_3125_destination",
-        e4sne_by.get("31:25") is not None and e4sne_by["31:25"].destination == "Gernika",
-        "31:25 should terminate at Gernika",
-    ))
+    checks.append(
+        _day_offset(
+            e4sne_by.get("23:34"), "Amorebieta Geralekua", 1, "e4_night_east_amorebieta_offset"
+        )
+    )
+    checks.append(
+        _check(
+            "e4_night_west_2212_destination",
+            e4snw_by.get("22:12") is not None and e4snw_by["22:12"].destination == "Bermeo",
+            "22:12 should terminate at Bermeo on Saturday night",
+        )
+    )
+    checks.append(
+        _check(
+            "e4_night_east_3125_destination",
+            e4sne_by.get("31:25") is not None and e4sne_by["31:25"].destination == "Gernika",
+            "31:25 should terminate at Gernika",
+        )
+    )
     l3fn_by = {s.departure: s for s in l3fn}
     l3sn_by = {s.departure: s for s in l3sn}
     e3sn_by = {s.departure: s for s in e3sn}
-    checks.append(_day_offset(l3fn_by.get("24:00"), "Matiko-Bilbao", 1, "l3_night_west_matiko_offset"))
-    checks.append(_day_offset(l3sn_by.get("29:45"), "Kukullaga-Etxebarri", 1, "l3_night_west_kukullaga_offset"))
+    checks.append(
+        _day_offset(l3fn_by.get("24:00"), "Matiko-Bilbao", 1, "l3_night_west_matiko_offset")
+    )
+    checks.append(
+        _day_offset(
+            l3sn_by.get("29:45"), "Kukullaga-Etxebarri", 1, "l3_night_west_kukullaga_offset"
+        )
+    )
     checks.append(_day_offset(e3sn_by.get("23:50"), "Lezama", 0, "e3_night_west_lezama_offset"))
-    checks.append(_day_offset(e3sn_by.get("23:50"), "Kukullaga-Etxebarri", 1, "e3_night_west_kukullaga_offset"))
+    checks.append(
+        _day_offset(
+            e3sn_by.get("23:50"), "Kukullaga-Etxebarri", 1, "e3_night_west_kukullaga_offset"
+        )
+    )
     checks.append(_complete(e2w_full_by.get("5:34"), 23, 0, "e2_west_0534_complete"))
     checks.append(_complete(e2w_partial_by.get("5:28"), 11, 0, "e2_west_0528_complete"))
     checks.append(_complete(e2we_by.get("6:34"), 23, 0, "e2_weekend_east_0634_complete"))
@@ -377,21 +776,27 @@ def validate(services: list[Service], rules: list[FrequencyRule]) -> list[Check]
     checks.append(_complete(e2sne_by.get("23:05"), 23, 0, "e2_night_east_2305_complete"))
     checks.append(_complete(e4snw_by.get("22:12"), 26, 0, "e4_night_west_2212_complete"))
     checks.append(_complete(e4sne_by.get("23:34"), 26, 0, "e4_night_east_2334_complete"))
-    checks.append(_check(
-        "e4_weekend_sunday_2212_gernika",
-        e4su_by.get("22:12") is not None and e4su_by["22:12"].destination == "Gernika",
-        "22:12 Sunday/holiday variant should terminate at Gernika",
-    ))
-    checks.append(_check(
-        "e4_weekend_east_2252_gernika",
-        e4we_by.get("22:52") is not None and e4we_by["22:52"].destination == "Gernika",
-        "22:52 should terminate at Gernika",
-    ))
-    checks.append(_check(
-        "e4_weekend_west_2245_gernika",
-        e4ww_by.get("22:45") is not None and e4ww_by["22:45"].destination == "Gernika",
-        "22:45 should terminate at Gernika",
-    ))
+    checks.append(
+        _check(
+            "e4_weekend_sunday_2212_gernika",
+            e4su_by.get("22:12") is not None and e4su_by["22:12"].destination == "Gernika",
+            "22:12 Sunday/holiday variant should terminate at Gernika",
+        )
+    )
+    checks.append(
+        _check(
+            "e4_weekend_east_2252_gernika",
+            e4we_by.get("22:52") is not None and e4we_by["22:52"].destination == "Gernika",
+            "22:52 should terminate at Gernika",
+        )
+    )
+    checks.append(
+        _check(
+            "e4_weekend_west_2245_gernika",
+            e4ww_by.get("22:45") is not None and e4ww_by["22:45"].destination == "Gernika",
+            "22:45 should terminate at Gernika",
+        )
+    )
     checks.append(_complete(e3w_by.get("6:06"), 16, 0, "e3_west_0606_complete"))
     checks.append(_complete(e3e_by.get("6:37"), 16, 0, "e3_east_0637_complete"))
     checks.append(_complete(e3ww_by.get("7:24"), 16, 0, "e3_weekend_west_0724_complete"))
@@ -401,19 +806,39 @@ def validate(services: list[Service], rules: list[FrequencyRule]) -> list[Check]
     checks.append(_complete(l3ww_by.get("6:54"), 7, 0, "l3_weekend_west_0654_complete"))
     checks.append(_complete(l3we_by.get("6:52"), 7, 0, "l3_weekend_east_0652_complete"))
 
-    for departure, expected in {"7:35": "8:56", "11:35": "12:56", "18:35": "19:56", "20:35": "21:56"}.items():
-        checks.append(_altzola(e1w_by.get(departure), expected, f"altzola_west_{departure.replace(':', '')}"))
+    for departure, expected in {
+        "7:35": "8:56",
+        "11:35": "12:56",
+        "18:35": "19:56",
+        "20:35": "21:56",
+    }.items():
+        checks.append(
+            _altzola(e1w_by.get(departure), expected, f"altzola_west_{departure.replace(':', '')}")
+        )
     # The other reverse footnote times belong to deferred partial services.
-    for departure, expected in {"5:55": None, "9:55": None, "12:55": None, "19:55": "21:26"}.items():
-        checks.append(_altzola(e1e_by.get(departure), expected, f"altzola_east_{departure.replace(':', '')}"))
+    for departure, expected in {
+        "5:55": None,
+        "9:55": None,
+        "12:55": None,
+        "19:55": "21:26",
+    }.items():
+        checks.append(
+            _altzola(e1e_by.get(departure), expected, f"altzola_east_{departure.replace(':', '')}")
+        )
 
     gaintxurizketa = None
     if e2w_full_by.get("5:34"):
         gaintxurizketa = next(
-            (st.time for st in e2w_full_by["5:34"].stop_times if st.stop_name == "Gaintxurizketa (Lezo)"),
+            (
+                st.time
+                for st in e2w_full_by["5:34"].stop_times
+                if st.stop_name == "Gaintxurizketa (Lezo)"
+            ),
             None,
         )
-    checks.append(_check("gaintxurizketa", gaintxurizketa == "5:47", f"expected 5:47, got {gaintxurizketa}"))
+    checks.append(
+        _check("gaintxurizketa", gaintxurizketa == "5:47", f"expected 5:47, got {gaintxurizketa}")
+    )
 
     rules_by_id = {rule.rule_id: rule for rule in rules}
     rule_expectations = [
@@ -457,8 +882,16 @@ def validate(services: list[Service], rules: list[FrequencyRule]) -> list[Check]
     ]
     for rule_id, interval, count, name in rule_expectations:
         rule = rules_by_id.get(rule_id)
-        ok = rule is not None and rule.interval_minutes == interval and len(rule.expanded_service_ids) == count
-        detail = "rule missing" if rule is None else f"interval={rule.interval_minutes}, expanded={len(rule.expanded_service_ids)}"
+        ok = (
+            rule is not None
+            and rule.interval_minutes == interval
+            and len(rule.expanded_service_ids) == count
+        )
+        detail = (
+            "rule missing"
+            if rule is None
+            else f"interval={rule.interval_minutes}, expanded={len(rule.expanded_service_ids)}"
+        )
         checks.append(_check(name, ok, detail))
 
     stray = []
@@ -471,9 +904,7 @@ def validate(services: list[Service], rules: list[FrequencyRule]) -> list[Check]
     broken = []
     for service in services:
         times = [
-            to_minutes(st.time)
-            for st in service.stop_times
-            if st.time and TIME_RE.match(st.time)
+            to_minutes(st.time) for st in service.stop_times if st.time and TIME_RE.match(st.time)
         ]
         if times != sorted(times):
             broken.append(service.service_id)
@@ -489,10 +920,16 @@ def validate(services: list[Service], rules: list[FrequencyRule]) -> list[Check]
 
     missing_membership = []
     for service in services:
-        expected = {corridor.sheet for corridor in CORRIDORS if corridor_appears_in(service, corridor)}
+        expected = {
+            corridor.sheet for corridor in CORRIDORS if corridor_appears_in(service, corridor)
+        }
         if set(service.appears_in) != expected:
             missing_membership.append(service.service_id)
-    checks.append(_check("appears_in", not missing_membership, ", ".join(missing_membership[:5]) or "all present"))
+    checks.append(
+        _check(
+            "appears_in", not missing_membership, ", ".join(missing_membership[:5]) or "all present"
+        )
+    )
     return checks
 
 

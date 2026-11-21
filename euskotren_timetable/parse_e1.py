@@ -62,11 +62,7 @@ def parse_frequency_note(words: list[tuple[float, float, str]]) -> tuple[str, st
     """Read the full-line weekday frequency note: start, end, interval minutes."""
     for x, y, word in words:
         if word == "MAIZTASUNA" and 470 <= y <= 510 and 680 <= x <= 700:
-            near = [
-                (x2, w2)
-                for x2, y2, w2 in words
-                if abs(y2 - y) <= 12 and 600 <= x2 <= 870
-            ]
+            near = [(x2, w2) for x2, y2, w2 in words if abs(y2 - y) <= 12 and 600 <= x2 <= 870]
             near.sort()
             times = [w2 for _x2, w2 in near if TIME_RE.match(w2)]
             interval = None

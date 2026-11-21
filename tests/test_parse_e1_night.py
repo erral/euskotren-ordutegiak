@@ -35,7 +35,9 @@ class ParseE1NightTests(unittest.TestCase):
 
     def test_day_offsets(self):
         forward = self.forward_by["25:37"]
-        self.assertTrue(all(st.day_offset == 1 for st in forward.stop_times if st.disposition == "stop"))
+        self.assertTrue(
+            all(st.day_offset == 1 for st in forward.stop_times if st.disposition == "stop")
+        )
         midnight = self.reverse_by["23:45"]
         matiko = next(st for st in midnight.stop_times if st.stop_name == "Matiko-Bilbao")
         deba = next(st for st in midnight.stop_times if st.stop_name == "Deba")
@@ -53,9 +55,7 @@ class ParseE1NightTests(unittest.TestCase):
     def test_monotonic_extended(self):
         for service in self.forward + self.reverse:
             minutes = [
-                to_minutes(st.time)
-                for st in service.stop_times
-                if st.time and st.time != "?"
+                to_minutes(st.time) for st in service.stop_times if st.time and st.time != "?"
             ]
             self.assertEqual(minutes, sorted(minutes), service.service_id)
 

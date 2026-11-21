@@ -124,9 +124,11 @@ def _build_service(
     timed = [(stop, record[stop]) for stop in config.stops if is_time(record.get(stop))]
     origin, origin_time = timed[0]
     destination, arrival = timed[-1]
-    notes = [f"15-minute frequency {frequency_rule_id}"] if frequency_rule_id else [
-        "Explicit service outside the frequency range"
-    ]
+    notes = (
+        [f"15-minute frequency {frequency_rule_id}"]
+        if frequency_rule_id
+        else ["Explicit service outside the frequency range"]
+    )
     if config.calendar == "WE":
         notes.insert(0, "Weekend (Saturday, Sunday + holiday)")
 
@@ -198,7 +200,9 @@ def parse_e3_direction(
     for departure in generated:
         offset = to_minutes(departure) - to_minutes(start)
         record = {
-            stop: add_minutes(template[stop], offset) if is_time(template.get(stop)) else template.get(stop, "")
+            stop: add_minutes(template[stop], offset)
+            if is_time(template.get(stop))
+            else template.get(stop, "")
             for stop in config.stops
         }
         source = {stop: "frequency" for stop in config.stops}

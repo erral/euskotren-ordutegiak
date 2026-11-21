@@ -36,7 +36,5 @@ class StopTests(unittest.TestCase):
         self.assertNotIn("City", STOP_REGISTRY)
 
 
-
-
 if __name__ == "__main__":
     unittest.main()

@@ -215,17 +215,44 @@ E1_TOP0_MISSING = [stop for stop in E1_STOPS if stop not in E1_FULL_42]
 assert len(E1_TOP0_MISSING) == 8
 
 SHARED_TRUNKS = {
-    "E1-E2": ["Pasaia", "Altza (Donostia)", "Herrera (Donostia)", "Intxaurrondo (Donostia)",
-              "Loiola (Donostia)", "Anoeta (Donostia)", "Amara Donostia",
-              "Kontxa-Zentroa (Donostia)", "Benta-Berri (Donostia)", "Lugaritz (Donostia)",
-              "Añorga (Donostia)", "Errekalde (Donostia)"],
-    "E1-E4": ["Lemoa", "Bedia", "Usansolo", "Zuhatzu (Galdakao)", "Ariz (Basauri)",
-              "Etxebarri", "Kukullaga-Etxebarri", "Otxarkoaga (Bilbao)",
-              "Txurdinaga (Bilbao)", "Zurbaranbarri (Bilbao)",
-              "Zazpikaleak/Casco Viejo (Bilbao)", "Uribarri (Bilbao)", "Matiko-Bilbao"],
-    "E1-E3L3-E4": ["Matiko-Bilbao", "Uribarri (Bilbao)",
-                   "Zazpikaleak/Casco Viejo (Bilbao)", "Zurbaranbarri (Bilbao)",
-                   "Txurdinaga (Bilbao)", "Otxarkoaga (Bilbao)", "Kukullaga-Etxebarri"],
+    "E1-E2": [
+        "Pasaia",
+        "Altza (Donostia)",
+        "Herrera (Donostia)",
+        "Intxaurrondo (Donostia)",
+        "Loiola (Donostia)",
+        "Anoeta (Donostia)",
+        "Amara Donostia",
+        "Kontxa-Zentroa (Donostia)",
+        "Benta-Berri (Donostia)",
+        "Lugaritz (Donostia)",
+        "Añorga (Donostia)",
+        "Errekalde (Donostia)",
+    ],
+    "E1-E4": [
+        "Lemoa",
+        "Bedia",
+        "Usansolo",
+        "Zuhatzu (Galdakao)",
+        "Ariz (Basauri)",
+        "Etxebarri",
+        "Kukullaga-Etxebarri",
+        "Otxarkoaga (Bilbao)",
+        "Txurdinaga (Bilbao)",
+        "Zurbaranbarri (Bilbao)",
+        "Zazpikaleak/Casco Viejo (Bilbao)",
+        "Uribarri (Bilbao)",
+        "Matiko-Bilbao",
+    ],
+    "E1-E3L3-E4": [
+        "Matiko-Bilbao",
+        "Uribarri (Bilbao)",
+        "Zazpikaleak/Casco Viejo (Bilbao)",
+        "Zurbaranbarri (Bilbao)",
+        "Txurdinaga (Bilbao)",
+        "Otxarkoaga (Bilbao)",
+        "Kukullaga-Etxebarri",
+    ],
 }
 
 
@@ -247,8 +274,7 @@ def _build_registry() -> dict[str, Stop]:
             if line not in memberships[stop]:
                 memberships[stop].append(line)
     return {
-        name: Stop(f"S{i:03d}", name, tuple(memberships[name]))
-        for i, name in enumerate(order, 1)
+        name: Stop(f"S{i:03d}", name, tuple(memberships[name])) for i, name in enumerate(order, 1)
     }
 
 

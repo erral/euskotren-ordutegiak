@@ -213,7 +213,10 @@ def parse_e2_direction(
         for row in full_rows
     ]
     partial = [
-        (row_to_dict(row, partial_grid).get(config.partial_origin, "?"), row_to_dict(row, partial_grid))
+        (
+            row_to_dict(row, partial_grid).get(config.partial_origin, "?"),
+            row_to_dict(row, partial_grid),
+        )
         for row in partial_rows
     ]
     full_explicit = {departure: values for departure, values in full}
@@ -239,7 +242,9 @@ def parse_e2_direction(
     partial_template = partial_explicit.get(partial_start)
     if partial_template is None:
         partial_template = next(
-            values for departure, values in partial if to_minutes(departure) >= to_minutes(partial_start)
+            values
+            for departure, values in partial
+            if to_minutes(departure) >= to_minutes(partial_start)
         )
 
     services: list[Service] = []
@@ -328,7 +333,9 @@ def parse_e2_direction(
         if departure in partial_departures:
             continue
         record = {stop: values.get(stop, "") for stop in config.partial_stops}
-        source = {stop: ("full" if stop in values else "not_served") for stop in config.partial_stops}
+        source = {
+            stop: ("full" if stop in values else "not_served") for stop in config.partial_stops
+        }
         services.append(
             _build_service(
                 departure,
@@ -356,9 +363,7 @@ def parse_e2_direction(
         interval_minutes=full_interval,
         calendar="WD",
         expanded_service_ids=[
-            service.service_id
-            for service in services
-            if full_rule_id in service.frequency_rule_ids
+            service.service_id for service in services if full_rule_id in service.frequency_rule_ids
         ],
     )
     partial_rule = FrequencyRule(

@@ -4,7 +4,7 @@ import hashlib
 import html as html_module
 import json
 import re
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from pathlib import Path
 from urllib.parse import urljoin
 
@@ -64,9 +64,7 @@ def download(url: str, path: Path) -> None:
 def page_count(path: Path) -> int:
     import subprocess
 
-    out = subprocess.run(
-        ["pdfinfo", str(path)], check=True, capture_output=True, text=True
-    ).stdout
+    out = subprocess.run(["pdfinfo", str(path)], check=True, capture_output=True, text=True).stdout
     match = re.search(r"^Pages:\s+(\d+)", out, re.MULTILINE)
     return int(match.group(1)) if match else 0
 
@@ -74,15 +72,35 @@ def page_count(path: Path) -> int:
 def build_manifest() -> dict:
     page = fetch_html()
     targets = [
-        ("e1_pasaia_matiko", find_link_by_text(page, "E1 Pasaia"), PDF_DIR / "e1_pasaia_matiko.pdf"),
-        ("e1_matiko_pasaia", find_link_by_text(page, "E1 Matiko - Pasaia"), PDF_DIR / "e1_matiko_pasaia.pdf"),
-        ("e2_t1_hendaia_lasarte", find_link_by_text(page, "T1 Hendaia"), PDF_DIR / "e2_t1_hendaia_lasarte.pdf"),
-        ("e2_t1_lasarte_hendaia", find_link_by_text(page, "T1 Lasarte"), PDF_DIR / "e2_t1_lasarte_hendaia.pdf"),
-        ("e4_bilbao_bermeo", find_link_by_text(page, "E4 Bermeo"), PDF_DIR / "e4_bilbao_bermeo.pdf"),
+        (
+            "e1_pasaia_matiko",
+            find_link_by_text(page, "E1 Pasaia"),
+            PDF_DIR / "e1_pasaia_matiko.pdf",
+        ),
+        (
+            "e1_matiko_pasaia",
+            find_link_by_text(page, "E1 Matiko - Pasaia"),
+            PDF_DIR / "e1_matiko_pasaia.pdf",
+        ),
+        (
+            "e2_t1_hendaia_lasarte",
+            find_link_by_text(page, "T1 Hendaia"),
+            PDF_DIR / "e2_t1_hendaia_lasarte.pdf",
+        ),
+        (
+            "e2_t1_lasarte_hendaia",
+            find_link_by_text(page, "T1 Lasarte"),
+            PDF_DIR / "e2_t1_lasarte_hendaia.pdf",
+        ),
+        (
+            "e4_bilbao_bermeo",
+            find_link_by_text(page, "E4 Bermeo"),
+            PDF_DIR / "e4_bilbao_bermeo.pdf",
+        ),
         ("e3_l3", find_link_by_text(page, "E3 - L3"), PDF_DIR / "e3_l3.pdf"),
     ]
     entries = []
-    now = datetime.now(timezone.utc).isoformat()
+    now = datetime.now(UTC).isoformat()
     for label, url, path in targets:
         download(url, path)
         entries.append(

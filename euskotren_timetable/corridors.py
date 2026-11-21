@@ -53,7 +53,9 @@ def appears_in(service: Service, corridor: Corridor) -> bool:
 
 def assign_membership(services: list[Service]) -> None:
     for service in services:
-        service.appears_in = [corridor.sheet for corridor in CORRIDORS if appears_in(service, corridor)]
+        service.appears_in = [
+            corridor.sheet for corridor in CORRIDORS if appears_in(service, corridor)
+        ]
 
 
 def services_for_corridor(services: list[Service], corridor: Corridor) -> list[Service]:

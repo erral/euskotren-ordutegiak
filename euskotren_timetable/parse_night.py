@@ -46,9 +46,7 @@ def extend_times(values: list[tuple[str, str]]) -> list[tuple[str, int, str]]:
     return out
 
 
-def parse_night_table(
-    pdf: str | Path, source_url: str, config: NightTableConfig
-) -> list[Service]:
+def parse_night_table(pdf: str | Path, source_url: str, config: NightTableConfig) -> list[Service]:
     words = words_from_pdf(pdf, page=1)
     grid_rows = cluster_rows(words, *config.grid_rows)
     complete = [row for row in grid_rows if len(row) == len(config.grid_stops)]
@@ -60,11 +58,7 @@ def parse_night_table(
     services: list[Service] = []
     for row in rows:
         values = row_to_dict(row, grid)
-        timed = [
-            (stop, values[stop])
-            for stop in config.grid_stops
-            if is_time(values.get(stop))
-        ]
+        timed = [(stop, values[stop]) for stop in config.grid_stops if is_time(values.get(stop))]
         if len(timed) < 2:
             continue
         extended = extend_times(timed)
@@ -81,9 +75,7 @@ def parse_night_table(
                     StopTime(stop_id(stop), stop, sequence, time, "stop", "night", offset)
                 )
             elif value == ">":
-                stop_times.append(
-                    StopTime(stop_id(stop), stop, sequence, None, "pass", "night", 0)
-                )
+                stop_times.append(StopTime(stop_id(stop), stop, sequence, None, "pass", "night", 0))
             elif value == "-":
                 stop_times.append(
                     StopTime(stop_id(stop), stop, sequence, None, "not_served", "night", 0)
@@ -96,8 +88,7 @@ def parse_night_table(
         services.append(
             Service(
                 service_id=(
-                    f"{config.primary_line}-{config.slug}-SN-"
-                    f"{departure.replace(':', '').zfill(4)}"
+                    f"{config.primary_line}-{config.slug}-SN-{departure.replace(':', '').zfill(4)}"
                 ),
                 primary_line=config.primary_line,
                 pattern=["night"],

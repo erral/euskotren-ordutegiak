@@ -18,10 +18,26 @@ class ParseE1ElgoibarTests(unittest.TestCase):
         self.assertEqual(len(self.services), 79)
 
     def test_first_last(self):
-        wd = [s for s in self.services if s.service_id.startswith("E1-ELGOIBAR-MATIKO") and s.calendar == "WD"]
-        we = [s for s in self.services if s.service_id.startswith("E1-ELGOIBAR-MATIKO") and s.calendar == "WE"]
-        rwd = [s for s in self.services if s.service_id.startswith("E1-MATIKO-ELGOIBAR") and s.calendar == "WD"]
-        rwe = [s for s in self.services if s.service_id.startswith("E1-MATIKO-ELGOIBAR") and s.calendar == "WE"]
+        wd = [
+            s
+            for s in self.services
+            if s.service_id.startswith("E1-ELGOIBAR-MATIKO") and s.calendar == "WD"
+        ]
+        we = [
+            s
+            for s in self.services
+            if s.service_id.startswith("E1-ELGOIBAR-MATIKO") and s.calendar == "WE"
+        ]
+        rwd = [
+            s
+            for s in self.services
+            if s.service_id.startswith("E1-MATIKO-ELGOIBAR") and s.calendar == "WD"
+        ]
+        rwe = [
+            s
+            for s in self.services
+            if s.service_id.startswith("E1-MATIKO-ELGOIBAR") and s.calendar == "WE"
+        ]
         self.assertEqual((wd[0].departure, wd[-1].departure), ("7:01", "22:01"))
         self.assertEqual((we[0].departure, we[-1].departure), ("9:01", "22:01"))
         self.assertEqual((rwd[0].departure, rwd[-1].departure), ("5:55", "19:55"))

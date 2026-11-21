@@ -122,7 +122,8 @@ def parse_e2_weekend_direction(
 
     start, end, interval = parse_frequency_note(words, *config.note)
     template_departure = next(
-        departure for departure in sorted(explicit, key=to_minutes)
+        departure
+        for departure in sorted(explicit, key=to_minutes)
         if to_minutes(departure) >= to_minutes(start)
     )
     template = explicit[template_departure]
@@ -136,7 +137,9 @@ def parse_e2_weekend_direction(
     for departure in generated:
         offset = to_minutes(departure) - to_minutes(template_departure)
         record = {
-            stop: add_minutes(template[stop], offset) if is_time(template.get(stop)) else template.get(stop, "")
+            stop: add_minutes(template[stop], offset)
+            if is_time(template.get(stop))
+            else template.get(stop, "")
             for stop in config.stops
         }
         source = {stop: "frequency" for stop in config.stops}

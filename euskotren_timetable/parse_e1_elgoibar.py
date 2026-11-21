@@ -115,17 +115,13 @@ def _build(
         )
 
     notes = (
-        [f"Frequency {rule_id}"] if rule_id
-        else ["Explicit partial outside the frequency range"]
+        [f"Frequency {rule_id}"] if rule_id else ["Explicit partial outside the frequency range"]
     )
     if config.calendar == "WE":
         notes.insert(0, "Weekend (Saturday, Sunday + holiday)")
 
     return Service(
-        service_id=(
-            f"E1-{config.slug}-{config.calendar}-"
-            f"{departure.replace(':', '').zfill(4)}"
-        ),
+        service_id=(f"E1-{config.slug}-{config.calendar}-{departure.replace(':', '').zfill(4)}"),
         primary_line="E1",
         pattern=["short-turn"],
         direction=config.direction,
@@ -144,9 +140,7 @@ def _build(
     )
 
 
-def parse_elgoibar_table(
-    pdf: str | Path, source_url: str, config: ElgoibarConfig
-) -> list[Service]:
+def parse_elgoibar_table(pdf: str | Path, source_url: str, config: ElgoibarConfig) -> list[Service]:
     words = words_from_pdf(pdf, page=1)
     rows = cluster_rows(words, *config.rows)
     explicit: dict[str, dict[str, str]] = {}

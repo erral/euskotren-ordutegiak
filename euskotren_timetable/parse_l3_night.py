@@ -109,10 +109,7 @@ def _extended_end(start: str, end: str) -> int:
 
 
 def _service_id(config: L3NightTable, departure: str) -> str:
-    return (
-        f"E3-L3-{config.slug}-{config.calendar}-"
-        f"{departure.replace(':', '').zfill(4)}"
-    )
+    return f"E3-L3-{config.slug}-{config.calendar}-{departure.replace(':', '').zfill(4)}"
 
 
 def _build_service(
@@ -170,7 +167,9 @@ def _build_service(
     )
 
 
-def _explicit_extended(record: dict[str, str], stops: list[str]) -> tuple[dict[str, str], dict[str, int]]:
+def _explicit_extended(
+    record: dict[str, str], stops: list[str]
+) -> tuple[dict[str, str], dict[str, int]]:
     timed = [(stop, record[stop]) for stop in stops if is_time(record.get(stop))]
     extended = extend_times(timed)
     return (
@@ -216,7 +215,8 @@ def parse_l3_night_table(
     template_key = from_minutes_extended(start_extended)
     if template_key not in explicit:
         template_key = next(
-            departure for departure in sorted(explicit, key=to_minutes)
+            departure
+            for departure in sorted(explicit, key=to_minutes)
             if to_minutes(departure) >= start_extended
         )
     template_times, _template_offsets = explicit[template_key]
@@ -253,9 +253,7 @@ def parse_l3_night_table(
     services.sort(key=lambda service: to_minutes(service.departure))
     rule = FrequencyRule(
         rule_id=rule_id,
-        source_text=(
-            f"{start} > {end} MAIZTASUNA FRECUENCIA {int(interval)} min"
-        ),
+        source_text=(f"{start} > {end} MAIZTASUNA FRECUENCIA {int(interval)} min"),
         source_pdf=source_url,
         page=1,
         block=config.block,
@@ -264,9 +262,7 @@ def parse_l3_night_table(
         end=end,
         interval_minutes=interval,
         calendar=config.calendar,
-        expanded_service_ids=[
-            _service_id(config, departure) for departure in generated
-        ],
+        expanded_service_ids=[_service_id(config, departure) for departure in generated],
     )
     return services, rule
 
@@ -289,9 +285,7 @@ def parse_l3_night(
     return services, rules
 
 
-def parse_e3_night(
-    pdf: str | Path, source_url: str = "E3 night"
-) -> list[Service]:
+def parse_e3_night(pdf: str | Path, source_url: str = "E3 night") -> list[Service]:
     services: list[Service] = []
     for config in (E3_FORWARD, E3_REVERSE):
         block_services, _rule = parse_l3_night_table(pdf, source_url, config)

@@ -16,9 +16,7 @@ LINE_CODES = {"E1", "E2-T1", "E4", "E3-L3"}
 
 def service_rows(ws) -> list[int]:
     return [
-        row
-        for row in range(1, ws.max_row + 1)
-        if ws.cell(row=row, column=2).value in LINE_CODES
+        row for row in range(1, ws.max_row + 1) if ws.cell(row=row, column=2).value in LINE_CODES
     ]
 
 
@@ -30,9 +28,7 @@ def make_service(
     departure: str,
     stops: tuple[str, ...] = ("Pasaia", "Altza (Donostia)"),
 ):
-    return _make_service(
-        service_id, calendar, line, direction, departure, stops=stops
-    )
+    return _make_service(service_id, calendar, line, direction, departure, stops=stops)
 
 
 class WorkbookSortingTests(unittest.TestCase):
@@ -135,11 +131,14 @@ class WorkbookSortingTests(unittest.TestCase):
             for row in range(1, ws.max_row + 1)
             if ws.cell(row=row, column=1).value in CALENDAR_LABELS.values()
         ]
-        self.assertEqual(group_headers, [
-            CALENDAR_LABELS["WD"],
-            CALENDAR_LABELS["SA"],
-            CALENDAR_LABELS["WE"],
-        ])
+        self.assertEqual(
+            group_headers,
+            [
+                CALENDAR_LABELS["WD"],
+                CALENDAR_LABELS["SA"],
+                CALENDAR_LABELS["WE"],
+            ],
+        )
 
     def test_corridor_has_no_autofilter(self):
         wb = Workbook()
@@ -175,8 +174,7 @@ class WorkbookSortingTests(unittest.TestCase):
         master_ws = master_wb.active
         _master(master_ws, services)
         master_ids = [
-            master_ws.cell(row=row, column=1).value
-            for row in range(2, master_ws.max_row + 1)
+            master_ws.cell(row=row, column=1).value for row in range(2, master_ws.max_row + 1)
         ]
         master_keys = [master_sort_key(by_id[sid]) for sid in master_ids]
         self.assertEqual(master_keys, sorted(master_keys))
@@ -193,12 +191,9 @@ class WorkbookSortingTests(unittest.TestCase):
             "E1",
         )
         corridor_ids = [
-            corridor_ws.cell(row=row, column=1).value
-            for row in service_rows(corridor_ws)
+            corridor_ws.cell(row=row, column=1).value for row in service_rows(corridor_ws)
         ]
-        corridor_keys = [
-            corridor_sort_key(by_id[sid], "E1") for sid in corridor_ids
-        ]
+        corridor_keys = [corridor_sort_key(by_id[sid], "E1") for sid in corridor_ids]
         self.assertEqual(corridor_keys, sorted(corridor_keys))
 
     def test_readme_documents_sort_order(self):

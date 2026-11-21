@@ -50,9 +50,7 @@ def from_minutes_extended(value: int) -> str:
     return f"{value // 60}:{value % 60:02d}"
 
 
-def _extend_times(
-    values: list[tuple[str, str]]
-) -> list[tuple[str, int, str]]:
+def _extend_times(values: list[tuple[str, str]]) -> list[tuple[str, int, str]]:
     """Return (stop, day_offset, extended_time) for one night row."""
     if not values:
         return []
@@ -84,11 +82,7 @@ def parse_e1_night_direction(
     services: list[Service] = []
     for row in night_rows:
         values = row_to_dict(row, grid)
-        timed = [
-            (stop, values[stop])
-            for stop in config.stops_42
-            if is_time(values.get(stop))
-        ]
+        timed = [(stop, values[stop]) for stop in config.stops_42 if is_time(values.get(stop))]
         if not timed:
             continue
         extended = _extend_times(timed)
@@ -126,10 +120,7 @@ def parse_e1_night_direction(
 
         services.append(
             Service(
-                service_id=(
-                    f"E1-{config.slug}-SN-"
-                    f"{departure.replace(':', '').zfill(4)}"
-                ),
+                service_id=(f"E1-{config.slug}-SN-{departure.replace(':', '').zfill(4)}"),
                 primary_line="E1",
                 pattern=["night"],
                 direction=config.direction,
@@ -152,9 +143,7 @@ def parse_e1_night_direction(
     return services
 
 
-def parse_e1_night(
-    pdf: str | Path, source_url: str = "E1 Pasaia - Matiko night"
-) -> list[Service]:
+def parse_e1_night(pdf: str | Path, source_url: str = "E1 Pasaia - Matiko night") -> list[Service]:
     return parse_e1_night_direction(pdf, source_url, FORWARD)
 
 

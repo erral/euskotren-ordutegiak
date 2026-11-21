@@ -53,6 +53,18 @@ python3 -m euskotren_timetable.cli build-weekday
 python3 -m unittest discover -s tests
 ```
 
+## Formatting and linting
+
+Ruff is the formatter and linter; its configuration lives in `pyproject.toml`.
+
+```bash
+python3 -m pip install -e ".[dev]"
+make format   # ruff format . && ruff check --fix .
+make lint     # ruff format --check . && ruff check .
+```
+
+The GitHub Actions workflow runs `make lint` (equivalently, both Ruff checks) before the tests.
+
 ## Layout
 
 - `euskotren_timetable/stops.py` — canonical stops and shared trunks.

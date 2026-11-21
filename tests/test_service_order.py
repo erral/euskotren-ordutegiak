@@ -65,12 +65,8 @@ class ServiceOrderTests(unittest.TestCase):
         self.assertEqual([s.service_id for s in in_e2], ["E2-SERVICE", "E1-SERVICE"])
 
     def test_corridor_departure_beats_own_line(self):
-        early_cross_line = make_service(
-            "E2-EARLY", "WD", "E2-T1", "Hendaia-Lasarte", "5:28"
-        )
-        later_own_line = make_service(
-            "E1-LATER", "WD", "E1", "Pasaia-Matiko", "5:35"
-        )
+        early_cross_line = make_service("E2-EARLY", "WD", "E2-T1", "Hendaia-Lasarte", "5:28")
+        later_own_line = make_service("E1-LATER", "WD", "E1", "Pasaia-Matiko", "5:35")
         ordered = sorted(
             [later_own_line, early_cross_line],
             key=lambda s: corridor_sort_key(s, "E1"),

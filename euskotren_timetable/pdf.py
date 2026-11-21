@@ -67,7 +67,7 @@ def cluster_rows(
 def build_grid(row: list[tuple[float, float, str]], stops: list[str]) -> list[tuple[float, str]]:
     """Use a complete row to fix each stop's x position."""
     assert len(row) == len(stops), f"{len(row)} cells for {len(stops)} stops"
-    return [(cell[0], stop) for cell, stop in zip(row, stops)]
+    return [(cell[0], stop) for cell, stop in zip(row, stops, strict=True)]
 
 
 def row_to_dict(

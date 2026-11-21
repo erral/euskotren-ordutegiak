@@ -113,10 +113,7 @@ def _build(
         notes.insert(0, "Weekend (Saturday, Sunday + holiday)")
 
     return Service(
-        service_id=(
-            f"E1-{config.slug}-{config.calendar}-"
-            f"{departure.replace(':', '').zfill(4)}"
-        ),
+        service_id=(f"E1-{config.slug}-{config.calendar}-{departure.replace(':', '').zfill(4)}"),
         primary_line="E1",
         pattern=["short-turn"],
         direction=config.direction,
@@ -203,9 +200,7 @@ def parse_eibar_table(
         source = {stop: ("full" if stop in values else "not_served") for stop in config.stops}
         service = _build(departure, record, source, source_url, config, rule_id)
         service.frequency_rule_ids = []
-        service.notes = [
-            note for note in service.notes if not note.startswith("Hourly-repeat")
-        ]
+        service.notes = [note for note in service.notes if not note.startswith("Hourly-repeat")]
         service.notes.append("Explicit service outside the hourly range")
         services.append(service)
 

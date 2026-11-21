@@ -40,7 +40,9 @@ class ParseE1ReverseTests(unittest.TestCase):
         expected = {"5:55": None, "9:55": None, "12:55": None, "19:55": "21:26"}
         for departure, value in expected.items():
             service = self.by_departure[departure]
-            actual = next(st.time for st in service.stop_times if st.stop_name == "Altzola (Elgoibar)")
+            actual = next(
+                st.time for st in service.stop_times if st.stop_name == "Altzola (Elgoibar)"
+            )
             self.assertEqual(actual, value, departure)
 
     def test_rule(self):
@@ -50,11 +52,7 @@ class ParseE1ReverseTests(unittest.TestCase):
 
     def test_monotonic(self):
         for service in self.services:
-            times = [
-                st.time
-                for st in service.stop_times
-                if st.time and st.time != "?"
-            ]
+            times = [st.time for st in service.stop_times if st.time and st.time != "?"]
             minutes = [int(t.split(":")[0]) * 60 + int(t.split(":")[1]) for t in times]
             self.assertEqual(minutes, sorted(minutes), service.service_id)
 

@@ -271,7 +271,9 @@ def parse_e4_direction(
     for departure in generated:
         offset = to_minutes(departure) - to_minutes(start)
         record = {
-            stop: add_minutes(template[stop], offset) if is_time(template.get(stop)) else template.get(stop, "")
+            stop: add_minutes(template[stop], offset)
+            if is_time(template.get(stop))
+            else template.get(stop, "")
             for stop in config.stops
         }
         source = {stop: "frequency" for stop in config.stops}
@@ -298,9 +300,7 @@ def parse_e4_direction(
         if departure in inferred_origin:
             # The source note restricts the Gernika variant to Sundays/holidays.
             service.calendar = "SU"
-            service.service_id = (
-                f"E4-{config.slug}-SU-{departure.replace(':', '').zfill(4)}"
-            )
+            service.service_id = f"E4-{config.slug}-SU-{departure.replace(':', '').zfill(4)}"
             service.notes = [
                 "Sunday + holiday" if note == "Weekend (Saturday, Sunday + holiday)" else note
                 for note in service.notes
@@ -326,9 +326,7 @@ def parse_e4_direction(
     return services, rule
 
 
-def parse_e4_gernika_turns(
-    pdf: str | Path, source_url: str, config: E4Config
-) -> list[Service]:
+def parse_e4_gernika_turns(pdf: str | Path, source_url: str, config: E4Config) -> list[Service]:
     """Include the Gernika-origin rows (leading ``-`` at Matiko/Bermeo)."""
     words = words_from_pdf(pdf, page=1)
     rows = cluster_rows(words, *config.rows)
@@ -342,26 +340,15 @@ def parse_e4_gernika_turns(
         values = row_to_dict(row, grid)
         if is_time(values.get(config.origin)):
             continue
-        timed = [
-            (stop, values[stop])
-            for stop in config.stops
-            if is_time(values.get(stop))
-        ]
+        timed = [(stop, values[stop]) for stop in config.stops if is_time(values.get(stop))]
         if not timed or timed[0][0] != "Gernika":
             continue
         record = {stop: values.get(stop, "") for stop in config.stops}
-        source = {
-            stop: ("full" if stop in values else "not_served")
-            for stop in config.stops
-        }
-        service = _build_service(
-            timed[0][1], record, source, source_url, config, None
-        )
+        source = {stop: ("full" if stop in values else "not_served") for stop in config.stops}
+        service = _build_service(timed[0][1], record, source, source_url, config, None)
         service.pattern = ["short-turn"]
         service.notes = [
-            "Weekend (Saturday, Sunday + holiday)"
-            if config.calendar == "WE"
-            else "Weekday",
+            "Weekend (Saturday, Sunday + holiday)" if config.calendar == "WE" else "Weekday",
             "Gernika short-turn",
         ]
         services.append(service)

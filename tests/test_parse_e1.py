@@ -41,11 +41,7 @@ class ParseE1Tests(unittest.TestCase):
 
     def test_monotonic(self):
         for service in self.services:
-            times = [
-                st.time
-                for st in service.stop_times
-                if st.time and st.time != "?"
-            ]
+            times = [st.time for st in service.stop_times if st.time and st.time != "?"]
             minutes = [int(t.split(":")[0]) * 60 + int(t.split(":")[1]) for t in times]
             self.assertEqual(minutes, sorted(minutes), service.service_id)
 

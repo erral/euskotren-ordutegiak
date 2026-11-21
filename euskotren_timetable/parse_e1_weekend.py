@@ -125,7 +125,9 @@ def parse_e1_weekend_direction(
     if not rows:
         raise ValueError("E1 weekend rows not found")
 
-    grid = build_grid(next(row for row in rows if len(row) == len(config.stops_42)), config.stops_42)
+    grid = build_grid(
+        next(row for row in rows if len(row) == len(config.stops_42)), config.stops_42
+    )
     explicit = {}
     for row in rows:
         values = row_to_dict(row, grid)
@@ -135,7 +137,9 @@ def parse_e1_weekend_direction(
         raise ValueError("E1 weekend full-line row not found")
 
     start, end, interval = parse_frequency_note(words, *config.note)
-    rule_id = f"E1-WE-{start.replace(':', '').zfill(4)}-{end.replace(':', '').zfill(4)}-{int(interval)}"
+    rule_id = (
+        f"E1-WE-{start.replace(':', '').zfill(4)}-{end.replace(':', '').zfill(4)}-{int(interval)}"
+    )
     template = explicit[start]
     generated = generate_fixed(start, end, interval)
 
@@ -143,7 +147,9 @@ def parse_e1_weekend_direction(
     for departure in generated:
         offset = to_minutes(departure) - to_minutes(start)
         record_42 = {
-            stop: add_minutes(template[stop], offset) if is_time(template.get(stop)) else template.get(stop, "")
+            stop: add_minutes(template[stop], offset)
+            if is_time(template.get(stop))
+            else template.get(stop, "")
             for stop in config.stops_42
         }
         source_42 = {stop: "frequency" for stop in config.stops_42}
@@ -197,9 +203,7 @@ def parse_e1_weekend_direction(
     partial = dict(sunday)
     partial.update(saturday)
     for service in services:
-        fill_service_from_partial(
-            service, partial, key_stop, E1_TOP0_MISSING, note
-        )
+        fill_service_from_partial(service, partial, key_stop, E1_TOP0_MISSING, note)
 
     services.sort(key=lambda service: to_minutes(service.departure))
     rule = FrequencyRule(

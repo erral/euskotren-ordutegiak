@@ -44,15 +44,11 @@ REVERSE = RefuerzoConfig(
 )
 
 
-def parse_refuerzo(
-    pdf: str | Path, source_url: str, config: RefuerzoConfig
-) -> list[Service]:
+def parse_refuerzo(pdf: str | Path, source_url: str, config: RefuerzoConfig) -> list[Service]:
     words = words_from_pdf(pdf, page=1)
     rows = cluster_rows(words, *config.rows)
     complete = [row for row in rows if len(row) <= len(config.stops)]
-    grid_row = next(
-        (row for row in complete if len(row) == len(config.stops)), None
-    )
+    grid_row = next((row for row in complete if len(row) == len(config.stops)), None)
     if grid_row is None:
         raise ValueError(f"{config.block}: no complete rows")
 
@@ -60,11 +56,7 @@ def parse_refuerzo(
     services: list[Service] = []
     for row in complete:
         record = row_to_dict(row, grid)
-        timed = [
-            (stop, record[stop])
-            for stop in config.stops
-            if is_time(record.get(stop))
-        ]
+        timed = [(stop, record[stop]) for stop in config.stops if is_time(record.get(stop))]
         if len(timed) < 2:
             continue
         origin, departure = timed[0]
@@ -89,10 +81,7 @@ def parse_refuerzo(
 
         services.append(
             Service(
-                service_id=(
-                    f"E1-{config.slug}-WD-"
-                    f"{departure.replace(':', '').zfill(4)}"
-                ),
+                service_id=(f"E1-{config.slug}-WD-{departure.replace(':', '').zfill(4)}"),
                 primary_line="E1",
                 pattern=["refuerzo"],
                 direction=config.direction,
@@ -121,7 +110,6 @@ def parse_e1_refuerzos(
     forward_url: str = "E1 refuerzos",
     reverse_url: str = "E1 refuerzos",
 ) -> list[Service]:
-    return (
-        parse_refuerzo(forward_pdf, forward_url, FORWARD)
-        + parse_refuerzo(reverse_pdf, reverse_url, REVERSE)
+    return parse_refuerzo(forward_pdf, forward_url, FORWARD) + parse_refuerzo(
+        reverse_pdf, reverse_url, REVERSE
     )

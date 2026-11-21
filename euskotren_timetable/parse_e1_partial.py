@@ -116,8 +116,7 @@ def expand_partial_block(
         template_departure = start
         if template_departure not in explicit:
             template_departure = next(
-                departure for departure in ordered
-                if to_minutes(departure) >= to_minutes(start)
+                departure for departure in ordered if to_minutes(departure) >= to_minutes(start)
             )
         template = explicit[template_departure]
         for departure in generate_fixed(start, end, interval):
@@ -149,9 +148,7 @@ def expand_partial_block(
     return out
 
 
-def partial_map(
-    pdf: str | Path, config: PartialBlockConfig
-) -> dict[str, dict[str, str]]:
+def partial_map(pdf: str | Path, config: PartialBlockConfig) -> dict[str, dict[str, str]]:
     return expand_partial_block(words_from_pdf(pdf, page=1), config)
 
 
@@ -174,11 +171,7 @@ def build_partial_services(
     for departure, record in records.items():
         if departure in full_line_times:
             continue
-        timed = [
-            (stop, record[stop])
-            for stop in config.stops
-            if is_time(record.get(stop))
-        ]
+        timed = [(stop, record[stop]) for stop in config.stops if is_time(record.get(stop))]
         if len(timed) < 2:
             continue
         origin, origin_time = timed[0]
@@ -197,16 +190,11 @@ def build_partial_services(
                 disposition, time = "unpublished", "?"
             else:
                 disposition, time = "not_served", None
-            stop_times.append(
-                StopTime(stop_id(stop), stop, sequence, time, disposition, "partial")
-            )
+            stop_times.append(StopTime(stop_id(stop), stop, sequence, time, disposition, "partial"))
 
         services.append(
             Service(
-                service_id=(
-                    f"E1-{slug}-{config.calendar}-"
-                    f"{departure.replace(':', '').zfill(4)}"
-                ),
+                service_id=(f"E1-{slug}-{config.calendar}-{departure.replace(':', '').zfill(4)}"),
                 primary_line="E1",
                 pattern=["short-turn"],
                 direction=direction,

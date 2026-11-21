@@ -58,9 +58,7 @@ class ParseNightTests(unittest.TestCase):
         self.assertEqual(len([st for st in bermeo.stop_times if st.disposition == "stop"]), 25)
         amorebieta = self.e4_reverse_by["23:34"]
         self.assertEqual(amorebieta.destination, "Amorebieta Geltokia")
-        geltokia = next(
-            st for st in bermeo.stop_times if st.stop_name == "Amorebieta Geltokia"
-        )
+        geltokia = next(st for st in bermeo.stop_times if st.stop_name == "Amorebieta Geltokia")
         self.assertEqual(geltokia.disposition, "pass")
         gernika = self.e4_reverse_by["31:25"]
         self.assertEqual(gernika.destination, "Gernika")
@@ -84,9 +82,7 @@ class ParseNightTests(unittest.TestCase):
         ):
             for service in services:
                 minutes = [
-                    to_minutes(st.time)
-                    for st in service.stop_times
-                    if st.time and st.time != "?"
+                    to_minutes(st.time) for st in service.stop_times if st.time and st.time != "?"
                 ]
                 self.assertEqual(minutes, sorted(minutes), service.service_id)
 

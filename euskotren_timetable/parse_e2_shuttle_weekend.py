@@ -154,10 +154,7 @@ def _rule_id(config: ShuttleBlock, start: str, end: str, interval: float) -> str
 
 
 def _service_id(config: ShuttleBlock, departure: str) -> str:
-    return (
-        f"E2-T1-{config.slug}-{config.calendar}-"
-        f"{departure.replace(':', '').zfill(4)}"
-    )
+    return f"E2-T1-{config.slug}-{config.calendar}-{departure.replace(':', '').zfill(4)}"
 
 
 def _build_service(
@@ -240,7 +237,7 @@ def parse_e2_shuttle_block(
             {"record": {}, "source": {}, "rules": [], "notes": []},
         )
         entry["record"].update(record)
-        for stop, value in record.items():
+        for stop in record:
             entry["source"][stop] = "frequency"
         if rule_id not in entry["rules"]:
             entry["rules"].append(rule_id)
@@ -265,8 +262,7 @@ def parse_e2_shuttle_block(
             template_departure = start
             if template_departure not in explicit:
                 template_departure = next(
-                    departure for departure in ordered
-                    if to_minutes(departure) >= to_minutes(start)
+                    departure for departure in ordered if to_minutes(departure) >= to_minutes(start)
                 )
             template = explicit[template_departure]
             for departure in departures:
@@ -277,15 +273,19 @@ def parse_e2_shuttle_block(
                     else template.get(stop, "")
                     for stop in config.stops
                 }
-                add(departure, record, rule_id, f"{_format_interval(interval)}-minute frequency {rule_id}")
+                add(
+                    departure,
+                    record,
+                    rule_id,
+                    f"{_format_interval(interval)}-minute frequency {rule_id}",
+                )
                 generated.append(departure)
         elif shuttle_range.mode == "cycle":
             departures = generate_cyclic(start, end, list(shuttle_range.cycle))
             template_departure = start
             if template_departure not in explicit:
                 template_departure = next(
-                    departure for departure in ordered
-                    if to_minutes(departure) >= to_minutes(start)
+                    departure for departure in ordered if to_minutes(departure) >= to_minutes(start)
                 )
             template = explicit[template_departure]
             for departure in departures:
@@ -325,9 +325,7 @@ def parse_e2_shuttle_block(
                     generated.append(departure)
                 cycle += 1
 
-        range_results.append(
-            (rule_id, start, end, interval, generated, config.block)
-        )
+        range_results.append((rule_id, start, end, interval, generated, config.block))
 
     for departure, record in explicit.items():
         entry = merged.setdefault(
@@ -335,7 +333,7 @@ def parse_e2_shuttle_block(
             {"record": {}, "source": {}, "rules": [], "notes": []},
         )
         entry["record"].update(record)
-        for stop, value in record.items():
+        for stop in record:
             entry["source"][stop] = "full"
         if not entry["rules"]:
             entry["notes"].append("Explicit service outside the frequency range")
@@ -360,8 +358,7 @@ def parse_e2_shuttle_block(
             FrequencyRule(
                 rule_id=rule_id,
                 source_text=(
-                    f"{start} > {end} MAIZTASUNA FRECUENCIA "
-                    f"{_format_interval(interval)} min"
+                    f"{start} > {end} MAIZTASUNA FRECUENCIA {_format_interval(interval)} min"
                 ),
                 source_pdf=source_url,
                 page=1,
@@ -371,10 +368,7 @@ def parse_e2_shuttle_block(
                 end=end,
                 interval_minutes=interval,
                 calendar=config.calendar,
-                expanded_service_ids=[
-                    _service_id(config, departure)
-                    for departure in generated
-                ],
+                expanded_service_ids=[_service_id(config, departure) for departure in generated],
             )
         )
     return services, rules
