@@ -28,6 +28,7 @@ A written specification for a generated HTML view of the timetables — index, p
 ## Decisions so far
 
 - [Decide the HTML site structure and URL scheme](issues/01-site-structure.md): static views with stable slugs; index, per-line/direction/calendar pages, Master, JSON and workbook download, all linked relatively.
+- [Decide the `services.json` data contract](issues/02-data-contract.md): one versioned `services.json` with meta, lines, calendars, stops, corridors and canonically ordered services with stop times; no PDFs or internal evidence.
 
 ## Not yet specified
 
