@@ -1,7 +1,7 @@
 # Write the HTML publishing specification
 
 Type: task
-Status: open
+Status: claimed
 Blocked by: 01, 02, 03, 04, 05, 06, 07
 Parent: [Publish the timetables as HTML on GitHub Pages](../map.md)
 
@@ -26,3 +26,4 @@ Resolved when the spec is written and reviewed. The task is AFK to draft and HIT
 ## Comments
 
 - Charted 2026-11-21. Blocked by the seven decision tickets.
+- 2026-11-21: claimed; spec drafted at [`spec.md`](../spec.md). Awaiting review before resolution.
