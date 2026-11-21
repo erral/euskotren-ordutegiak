@@ -1,6 +1,6 @@
 # Sort services in the output Excel timetable
 
-Status: charted — 3 decision tickets open, spec task blocked.
+Status: charted — 2 decision tickets open, spec task blocked.
 
 ## Destination
 
@@ -28,7 +28,7 @@ A written sorting specification for the workbook: one deterministic row order fo
 
 ## Decisions so far
 
-<!-- one line per closed ticket, added when the ticket resolves -->
+- [Decide line order in the service sort key](issues/01-line-order.md): published workbook/sheet order `E1 → E2-T1 → E4 → E3-L3`.
 
 ## Not yet specified
 
