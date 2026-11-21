@@ -1,6 +1,6 @@
 # Publish the timetables as HTML on GitHub Pages
 
-Status: charted — 4 decision tickets on the frontier, spec task blocked.
+Status: charted — 3 decision tickets on the frontier, spec task blocked.
 
 ## Destination
 
@@ -27,7 +27,7 @@ A written specification for a generated HTML view of the timetables — index, p
 
 ## Decisions so far
 
-<!-- one line per closed ticket, added when the ticket resolves -->
+- [Decide the HTML site structure and URL scheme](issues/01-site-structure.md): static views with stable slugs; index, per-line/direction/calendar pages, Master, JSON and workbook download, all linked relatively.
 
 ## Not yet specified
 
