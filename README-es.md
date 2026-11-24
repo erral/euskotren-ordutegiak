@@ -43,7 +43,8 @@ Los bloques de calendario se apilan en cada hoja de corredor. La hoja `Coverage`
 - un índice con enlaces de línea, sentido y calendario, vigencia y descargas;
 - una página por cada combinación no vacía de línea/sentido/calendario;
 - un selector de calendario, cabecera fija y desplazamiento horizontal; la primera columna se desplaza con la tabla;
-- un filtro de búsqueda de paradas con sugerencias de datalist, coincidencia sin distinción de acentos, filtrado de filas de servicio y resaltado de las columnas coincidentes;
+- un filtro de paradas Desde / Hasta que muestra solo los servicios que pasan por ambas paradas en orden de viaje, con las columnas de paradas intermedias plegadas tras un botón para expandirlas y un enlace pre-filtrado al sentido inverso cuando las paradas se seleccionan en orden inverso;
+- columnas de parada ordenables con un indicador visible de orden ascendente/descendente; la tabla se ordena por defecto por la primera parada (o por la parada Desde seleccionada) para que los horarios visibles queden en orden;
 - un conmutador de metadatos para ID de servicio, línea, patrón, origen, destino, salida y llegada;
 - una página Master con búsqueda de texto y filtros de línea, calendario, origen, destino y salida;
 - `data/services.json` (versión de esquema 1) y la descarga del libro;
@@ -130,7 +131,7 @@ La validación del sitio comprueba enlaces y anclas internas, IDs duplicados, la
 | `euskotren_timetable/workbook.py` | Renderizador de Excel |
 | `euskotren_timetable/site.py` | Generador del sitio HTML estático y validador de enlaces |
 | `euskotren_timetable/templates/` | Plantillas Jinja2 del sitio |
-| `euskotren_timetable/assets/` | Hoja de estilos y scripts de Master/filtro de paradas |
+| `euskotren_timetable/assets/` | Hoja de estilos y scripts de Master/tabla de corredor |
 | `euskotren_timetable/manifest.py`, `pdf.py` | Descarga, procedencia y extracción de PDF |
 | `euskotren_timetable/stops.py`, `source_notes.py` | Paradas canónicas y notas de carteles |
 | `data/manifest.json`, `data/corrections.yaml` | URL de origen y correcciones auxiliares |

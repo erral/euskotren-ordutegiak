@@ -26,22 +26,32 @@
   {% endfor %}
 </nav>
 
-<div class="stop-filter js-only" role="search" aria-label="Geltokia bilatu / Buscar parada">
-  <label for="stop-filter">Geltokia / <span lang="es">Parada</span></label>
-  <div class="stop-filter-row">
-    <input
-      id="stop-filter"
-      type="search"
-      list="corridor-stops"
-      placeholder="Idatzi geltokia / Escribe una parada"
-      autocomplete="off"
-    >
-    <button type="button" id="stop-filter-clear" hidden>Garbitu / <span lang="es">Limpiar</span></button>
+<div class="journey-filter js-only" role="search" aria-label="Bidaia iragazi / Filtrar viaje">
+  <label for="journey-from">
+    <span class="control-label">Nondik / <span lang="es">Desde</span></span>
+    <select id="journey-from">
+      <option value="">—</option>
+      {% for stop in stops %}<option value="{{ stop }}">{{ stop }}</option>{% endfor %}
+    </select>
+  </label>
+  <label for="journey-to">
+    <span class="control-label">Nora / <span lang="es">Hasta</span></span>
+    <select id="journey-to">
+      <option value="">—</option>
+      {% for stop in stops %}<option value="{{ stop }}">{{ stop }}</option>{% endfor %}
+    </select>
+  </label>
+  <div class="journey-actions">
+    <button type="button" id="journey-toggle" aria-expanded="false" aria-controls="timetable" hidden></button>
+    <button type="button" id="journey-clear" hidden>Garbitu / <span lang="es">Limpiar</span></button>
   </div>
-  <datalist id="corridor-stops">
-    {% for stop in stops %}<option value="{{ stop }}"></option>{% endfor %}
-  </datalist>
-  <p id="stop-filter-count" class="filter-count" aria-live="polite"></p>
+  <p id="journey-count" class="filter-count" aria-live="polite"></p>
+  <p id="journey-empty" class="filter-empty" hidden>Ez dago zerbitzu zuzenik / <span lang="es">No hay servicio directo</span></p>
+  {% if reverse_url %}
+  <p id="journey-reverse" class="journey-hint" role="status" hidden>
+    <a id="journey-reverse-link" href="{{ reverse_url }}">Begiratu alderantzizko noranzkoa: {{ reverse_direction }} / <span lang="es">Consulta el sentido inverso: {{ reverse_direction }}</span></a>
+  </p>
+  {% endif %}
 </div>
 
 <input type="checkbox" id="show-metadata" class="metadata-toggle">
@@ -51,7 +61,7 @@
 </label>
 
 <div class="table-scroll" tabindex="0" role="region" aria-label="{{ title }} taula / tabla">
-  <table class="timetable">
+  <table id="timetable" class="timetable">
     <caption>{{ title }}</caption>
     <thead>
       <tr>
@@ -63,13 +73,15 @@
         <th scope="col" class="metadata-col">Departure</th>
         <th scope="col" class="metadata-col">Arrival</th>
         {% for stop in stops %}
-        <th scope="col" data-stop="{{ stop }}">{{ stop }}</th>
+        <th scope="col" class="sortable" data-stop="{{ stop }}" aria-sort="none">
+          <button type="button" class="sort-button" disabled>{{ stop }}<span class="sort-arrow" aria-hidden="true"></span></button>
+        </th>
         {% endfor %}
       </tr>
     </thead>
     <tbody>
       {% for row in rows %}
-      <tr id="{{ row.service.service_id }}">
+      <tr id="{{ row.service.service_id }}" data-calls="{{ row.call_order | join(',') }}">
         <th scope="row" class="service-id metadata-col">
           <a href="#{{ row.service.service_id }}">{{ row.service.service_id }}</a>
           {% if row.notes %}<span class="notes" title="{{ row.notes }}" aria-label="{{ row.notes }}">i</span>{% endif %}

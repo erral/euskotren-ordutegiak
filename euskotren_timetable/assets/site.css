@@ -125,7 +125,7 @@ h3 {
 .page-head,
 .legend,
 .filters,
-.stop-filter {
+.journey-filter {
   background: var(--surface);
   border: 1px solid var(--border);
   border-radius: 0.5rem;
@@ -283,6 +283,62 @@ h3 {
   color: var(--ink);
 }
 
+.timetable thead th.sortable {
+  padding: 0;
+}
+
+.timetable thead th .sort-button {
+  display: flex;
+  align-items: center;
+  gap: 0.3rem;
+  width: 100%;
+  padding: 0.35rem 0.5rem;
+  border: 0;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  text-align: left;
+  cursor: default;
+}
+
+.timetable thead th .sort-button:disabled {
+  opacity: 1;
+  cursor: default;
+}
+
+.js .timetable thead th .sort-button {
+  cursor: pointer;
+}
+
+.js .timetable thead th .sort-button:hover {
+  background: var(--border);
+}
+
+.sort-arrow {
+  display: none;
+}
+
+.js .sort-arrow {
+  display: inline-block;
+  min-width: 0.8em;
+  color: var(--muted);
+  font-size: 0.8em;
+}
+
+.js .sort-arrow::after {
+  content: "↕";
+}
+
+.js .timetable thead th[aria-sort="ascending"] .sort-arrow::after {
+  content: "▲";
+  color: var(--brand-blue);
+}
+
+.js .timetable thead th[aria-sort="descending"] .sort-arrow::after {
+  content: "▼";
+  color: var(--brand-blue);
+}
+
 .timetable tbody th {
   font-weight: 400;
   text-align: left;
@@ -391,29 +447,22 @@ h3 {
   font: inherit;
 }
 
-.stop-filter {
+.journey-filter {
   display: grid;
-  grid-template-columns: minmax(9rem, 13rem) minmax(0, 1fr);
+  grid-template-columns: repeat(2, minmax(9rem, 1fr)) minmax(0, auto);
   align-items: end;
   gap: 0.5rem 0.75rem;
 }
 
-.stop-filter label {
+.journey-filter label {
   display: grid;
   gap: 0.2rem;
   font-weight: 600;
   font-size: 0.88rem;
 }
 
-.stop-filter-row {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.5rem;
-  align-items: center;
-}
-
-.stop-filter input,
-.stop-filter button {
+.journey-filter select {
+  width: 100%;
   padding: 0.4rem 0.5rem;
   border: 1px solid var(--border);
   border-radius: 0.3rem;
@@ -422,23 +471,52 @@ h3 {
   font: inherit;
 }
 
-.stop-filter input {
-  flex: 1 1 16rem;
-  min-width: 0;
+.journey-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  align-items: center;
 }
 
-.stop-filter button {
+.journey-filter button {
+  padding: 0.4rem 0.5rem;
+  border: 1px solid var(--border);
+  border-radius: 0.3rem;
   background: var(--surface-alt);
+  color: var(--ink);
+  font: inherit;
   cursor: pointer;
   white-space: nowrap;
 }
 
-.stop-filter button:hover {
+.journey-filter button:hover {
   background: var(--border);
 }
 
-.stop-filter .filter-count {
+.journey-filter .filter-count {
   grid-column: 1 / -1;
+}
+
+.filter-empty {
+  grid-column: 1 / -1;
+  margin: 0;
+  color: var(--danger);
+  font-weight: 600;
+}
+
+.journey-hint {
+  grid-column: 1 / -1;
+  margin: 0;
+  padding: 0.6rem 0.75rem;
+  border: 1px solid var(--border);
+  border-left: 4px solid var(--brand-green);
+  border-radius: 0.3rem;
+  background: var(--surface-alt);
+  font-size: 0.9rem;
+}
+
+.journey-hint a {
+  font-weight: 600;
 }
 
 .filter-count {
@@ -504,15 +582,23 @@ h3 {
   display: table-cell;
 }
 
-.timetable th.stop-match,
-.timetable td.stop-match {
+.timetable .journey-hidden {
+  display: none;
+}
+
+.timetable th.journey-end,
+.timetable td.journey-end {
   box-shadow:
     inset 2px 0 0 var(--brand-green),
     inset -2px 0 0 var(--brand-green);
 }
 
-.timetable thead th.stop-match {
+.timetable thead th.journey-end {
   box-shadow: inset 0 0 0 2px var(--brand-green);
+}
+
+.timetable thead th.journey-between {
+  color: var(--muted);
 }
 
 .js-only {
@@ -527,7 +613,7 @@ h3 {
   display: grid;
 }
 
-.js .stop-filter.js-only {
+.js .journey-filter.js-only {
   display: grid;
 }
 
@@ -556,7 +642,7 @@ h3 {
 }
 
 @media (max-width: 700px) {
-  .stop-filter {
+  .journey-filter {
     grid-template-columns: 1fr;
   }
 
@@ -591,7 +677,7 @@ h3 {
   .skip-link,
   .downloads,
   .filters,
-  .stop-filter,
+  .journey-filter,
   .noscript,
   .calendar-switcher,
   .legend,
@@ -630,6 +716,10 @@ h3 {
 
   .timetable thead {
     display: table-header-group;
+  }
+
+  .sort-arrow {
+    display: none !important;
   }
 
   .timetable tr {

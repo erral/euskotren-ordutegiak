@@ -18,6 +18,12 @@ Whether a service stops at a stop, passes without stopping, or does not serve it
 
 The scheduled time at which a given service calls at a given stop. A service that does not call at a stop has no stop time there.
 
+## From-stop / To-stop
+
+The two stops a reader selects on a corridor page to narrow the timetable to direct services between them. They are a journey filter, distinct from a Service's `origin` and `destination`, which are the endpoints of the service itself: a service may call at the from-stop after its own origin and at the to-stop before its own destination. The service must call at the from-stop before it calls at the to-stop.
+
+_Avoid_: origin / destination for the selected stops; those name service endpoints.
+
 ## Line
 
 A branded Euskotren train corridor published under a code: E1, E2/T1, E3/L3 or E4. A line has two extremes and a trunk between them.

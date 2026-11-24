@@ -101,10 +101,41 @@ class SiteTests(unittest.TestCase):
         self.assertIn('id="show-metadata"', page)
         self.assertIn('class="service-id metadata-col"', page)
         self.assertIn('class="metadata-col"', page)
-        self.assertIn('id="stop-filter"', page)
-        self.assertIn('id="corridor-stops"', page)
+        self.assertIn('id="journey-from"', page)
+        self.assertIn('id="journey-to"', page)
+        self.assertIn('id="journey-toggle"', page)
+        self.assertIn('id="journey-count"', page)
+        self.assertIn('id="timetable"', page)
+        self.assertNotIn('id="stop-filter"', page)
         self.assertIn('data-stop="Pasaia"', page)
+        self.assertIn('class="sortable"', page)
+        self.assertIn('class="sort-button"', page)
+        self.assertIn('aria-sort="none"', page)
+        self.assertIn('<tr id="E1-WD-0535" data-calls="0,1">', page)
         self.assertIn("assets/site.js", page)
+
+    def test_reverse_corridor_link(self):
+        reverse = make_service(
+            "E1-MATIKO-PASAIA-WD-0600",
+            "WD",
+            "E1",
+            "Matiko-Pasaia",
+            "6:00",
+            stops=("Herrera (Donostia)", "Altza (Donostia)", "Pasaia"),
+        )
+        output = Path(self.temp.name) / "site-reverse"
+        build_site(
+            [self.services[2], reverse],
+            output,
+            MANIFEST,
+            generated_at="2026-11-21T00:00:00+00:00",
+        )
+        page = (output / "line" / "e1" / "pasaia-matiko" / "weekday.html").read_text()
+        self.assertIn('id="journey-reverse"', page)
+        self.assertIn('id="journey-reverse-link"', page)
+        self.assertIn('href="../matiko-pasaia/weekday.html"', page)
+        reverse_page = (output / "line" / "e1" / "matiko-pasaia" / "weekday.html").read_text()
+        self.assertIn('href="../pasaia-matiko/weekday.html"', reverse_page)
 
     def test_master_rows_and_attributes(self):
         page = (self.output / "master.html").read_text()
@@ -150,7 +181,7 @@ class SiteTests(unittest.TestCase):
 
     def test_validate_site_reports_duplicate_ids(self):
         page = self.output / "line" / "e1" / "pasaia-matiko" / "weekday.html"
-        page.write_text(page.read_text().replace('<tr id="E2-WD-0535">', '<tr id="E1-WD-0535">'))
+        page.write_text(page.read_text().replace('id="E2-WD-0535"', 'id="E1-WD-0535"'))
         errors = validate_site(self.output)
         self.assertTrue(any("duplicate id" in error for error in errors))
 

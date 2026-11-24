@@ -43,7 +43,8 @@ Egutegi-blokeak pilatuta daude korridore-orri bakoitzean. `Coverage` orriak line
 - hasierako orri bat linea, noranzko eta egutegi estekekin, baliozkotasunarekin eta deskargekin;
 - linea/noranzko/egutegi konbinazio ez-huts bakoitzeko orri bat;
 - egutegi-hautatzailea, goiburu itsaskorra eta horizontalean korritzea; lehen zutabea ez da finkatzen;
-- geltokien bilaketa-iragazkia, datalist iradokizunekin, azentuekiko sentikorra ez den bat-etortzearekin, zerbitzuen errenkaden iragazketarekin eta bat datozen zutabeak nabarmentzearekin;
+- Nondik / Nora geltoki-iragazkia, bi geltokietatik bidaiaren ordenan igarotzen diren zerbitzuak soilik erakusten dituena, eta tarteko geltokien zutabeak tolestuta uzten dituena, zabaltzeko botoi baten atzean, eta alderantzizko noranzkoaren esteka aurrez iragazia, geltokiak ordena inversoan hautatzen direnean;
+- geltoki-zutabeak ordenatzeko aukera, gorantz/behera adierazle ikusgaiarekin; taula lehen geltokiaren arabera ordenatzen da modu lehenetsian (edo hautatutako Nondik geltokiaren arabera), ikusgai dauden orduak ordenan egon daitezen;
 - metadatuen etengailua: Service ID, linea, eredua, jatorria, helmuga, irteera eta iritsiera;
 - Master orria testu-bilaketarekin eta linea, egutegi, jatorri, helmuga eta irteera iragazkiekin;
 - `data/services.json` (1. schema bertsioa) eta lan-koadernoaren deskarga;
@@ -130,7 +131,7 @@ Gunearen baliozkotzeak esteka eta aingura internak, ID bikoiztuak, JSON karga et
 | `euskotren_timetable/workbook.py` | Excel errendatzailea |
 | `euskotren_timetable/site.py` | HTML gune estatikoaren sortzailea eta esteken baliozkotzailea |
 | `euskotren_timetable/templates/` | Gunearen Jinja2 txantiloiak |
-| `euskotren_timetable/assets/` | Gunearen estilo-orria eta Master/geltoki-iragazkien scriptak |
+| `euskotren_timetable/assets/` | Gunearen estilo-orria eta Master/korridore-taula scriptak |
 | `euskotren_timetable/manifest.py`, `pdf.py` | PDF deskarga, jatorria eta erauzketa |
 | `euskotren_timetable/stops.py`, `source_notes.py` | Geltoki kanonikoak eta kartelen oharrak |
 | `data/manifest.json`, `data/corrections.yaml` | Iturburuko URLak eta alboko zuzenketak |

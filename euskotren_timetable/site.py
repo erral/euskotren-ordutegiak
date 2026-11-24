@@ -216,10 +216,22 @@ def _corridor_rows(
         key=lambda service: corridor_sort_key(service, own_line),
     ):
         by_name = {stop_time.stop_name: stop_time for stop_time in service.stop_times}
+        served = {
+            stop_time.stop_name: stop_time.sequence
+            for stop_time in service.stop_times
+            if stop_time.disposition in ("stop", "unpublished")
+        }
+        call_order = [
+            index
+            for _, index in sorted(
+                (served[stop], index) for index, stop in enumerate(corridor.stops) if stop in served
+            )
+        ]
         rows.append(
             {
                 "service": service,
                 "cells": [_cell(by_name.get(stop)) for stop in corridor.stops],
+                "call_order": call_order,
                 "notes": "; ".join(service.notes),
             }
         )
@@ -352,6 +364,14 @@ def build_site(
         ]
         if not available_calendars:
             continue
+        reverse = next(
+            (
+                item
+                for item in CORRIDORS
+                if item.line == corridor.line and item.sheet != corridor.sheet
+            ),
+            None,
+        )
         directory = (
             output / "line" / LINE_SLUGS[corridor.line] / DIRECTION_SLUGS[corridor.direction]
         )
@@ -367,6 +387,11 @@ def build_site(
                 dict(_calendar_data(other), current=other == calendar)
                 for other in available_calendars
             ]
+            reverse_url = None
+            if reverse is not None and (reverse.sheet, calendar) in combos:
+                reverse_url = (
+                    f"../{DIRECTION_SLUGS[reverse.direction]}/{calendar_data['slug']}.html"
+                )
             page_context = dict(
                 context,
                 root="../../../",
@@ -376,6 +401,8 @@ def build_site(
                 stops=list(corridor.stops),
                 rows=rows,
                 night=calendar in NIGHT_CALENDARS,
+                reverse_url=reverse_url,
+                reverse_direction=reverse.direction if reverse_url else None,
                 title=(f"{corridor.line} · {corridor.direction} · {calendar_data['label_eu']}"),
             )
             (directory / f"{calendar_data['slug']}.html").write_text(

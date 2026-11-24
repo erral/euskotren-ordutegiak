@@ -43,7 +43,8 @@ Calendar blocks are stacked in each corridor sheet. The `Coverage` sheet marks e
 - an index with line, direction and calendar links, validity and downloads;
 - one page for every non-empty line/direction/calendar combination;
 - a calendar switcher, sticky table header and horizontal scrolling; the first column scrolls with the table;
-- a stop search filter with datalist suggestions, accent-insensitive matching, service row filtering and matching-column highlighting;
+- a From / To stop filter that shows only services calling at both stops in travel order, with the intermediate stop columns collapsed behind an expand toggle and a pre-filtered link to the reverse direction when the stops are selected in reverse order;
+- sortable stop columns with a visible ascending/descending indicator; the table defaults to the first stop (or the selected From stop) so the visible times are in order;
 - a metadata toggle for Service ID, line, pattern, origin, destination, departure and arrival;
 - a Master page with text search and line, calendar, origin, destination and departure filters;
 - `data/services.json` (schema version 1) and the workbook download;
@@ -130,7 +131,7 @@ The site validation checks internal links and anchors, duplicate IDs, the JSON p
 | `euskotren_timetable/workbook.py` | Excel renderer |
 | `euskotren_timetable/site.py` | Static HTML generator and link validator |
 | `euskotren_timetable/templates/` | Jinja2 site templates |
-| `euskotren_timetable/assets/` | Site stylesheet and Master/stop-filter scripts |
+| `euskotren_timetable/assets/` | Site stylesheet and Master/corridor-table scripts |
 | `euskotren_timetable/manifest.py`, `pdf.py` | PDF download, provenance and extraction |
 | `euskotren_timetable/stops.py`, `source_notes.py` | Canonical stops and poster notes |
 | `data/manifest.json`, `data/corrections.yaml` | Source URLs and sidecar corrections |
