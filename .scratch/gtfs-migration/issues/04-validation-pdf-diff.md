@@ -24,3 +24,4 @@ Cover at least:
 ## Comments
 
 - Charted 2026-11-25.
+- 2026-11-25: adapter mapping (01) and service identity/calendars (02) resolved; still blocked by [Decide stop alias and canonical-name mapping](03-stop-aliases.md).

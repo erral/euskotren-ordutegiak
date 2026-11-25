@@ -1,7 +1,7 @@
 # Decide service identity and calendar derivation
 
 Type: grilling
-Status: open
+Status: resolved
 Parent: [Migrate the static timetable pipeline to Euskotren GTFS](../map.md)
 
 ## Question
@@ -18,6 +18,19 @@ Cover at least:
 
 ➡️ Recommendation: preserve the current human-readable ID scheme; keep the GTFS `trip_id`/`service_id` as provenance; deduplicate to one service per line/direction/calendar/departure; derive calendars from representative dates; ignore holiday exceptions for the first migration; keep the existing sort contract.
 
+## Answer
+
+Resolved 2026-11-25. All recommendations accepted.
+
+- **Service identity**: preserve the public `<line>-<direction>-<calendar>-<departure>` scheme. GTFS `trip_id` and `service_id` remain provenance. IDs change when times change, as they do today; no cross-feed stability guarantee.
+- **Deduplication**: emit one `Service` per line/direction/calendar/departure. Where GTFS exposes the same train under several `service_id`s (for example Mon–Thu and Friday), pick one representative and keep the source IDs as provenance.
+- **Calendar derivation**: derive the existing per-line `WD/SA/SU/WE/FN/SN` calendar sets from representative dates inside the feed window. Do not generate all six calendars for every line; preserve the current per-line combinations.
+- **Holiday exceptions**: ignore `calendar_dates` exceptions for the first migration, but retain the date-specific data in the adapter for the later date-aware view.
+- **Night calendars**: derive `FN`/`SN` from Friday/Saturday service days using GTFS extended times and the existing `Service day` rule.
+- **Ordering**: keep the `service_order` contract and corridor sort keys; do not use GTFS file order.
+- **Manifest**: record the representative dates and `feed_version` used for the calendar derivation.
+
 ## Comments
 
 - Charted 2026-11-25.
+- 2026-11-25: claimed and resolved. The user accepted all recommendations.
