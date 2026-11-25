@@ -19,3 +19,8 @@ It must cover:
 - build, manifest, refresh cadence, staleness gate and rollout;
 - licence/attribution requirements;
 - the explicit implementation boundary: what is in the first migration and what is deferred (E3a, date-specific calendars/date picker, new views, real-time).
+
+## Comments
+
+- Charted 2026-11-25.
+- 2026-11-25: all decision blockers (01–06) resolved; this task is now on the frontier.
