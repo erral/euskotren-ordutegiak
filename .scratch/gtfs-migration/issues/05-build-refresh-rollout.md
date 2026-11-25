@@ -24,3 +24,4 @@ Cover at least:
 
 - Charted 2026-11-25.
 - 2026-11-25: licence confirmed as CC BY 4.0 in [Confirm Open Data Euskadi licence and attribution](06-license-attribution.md); the attribution and change-notice requirements are settled for this ticket.
+- 2026-11-25: [Decide validation and the PDF-diff contract](04-validation-pdf-diff.md) resolved; all blockers are clear and this ticket is now on the frontier.
