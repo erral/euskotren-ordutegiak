@@ -1,6 +1,6 @@
 # Evaluate Euskotren GTFS as a timetable source
 
-Status: charted 2026-11-25. Source-of-truth decision accepted; calendar/route/output decision open.
+Status: route clear — GTFS evaluation and first-migration scope decided 2026-11-25.
 
 ## Destination
 
@@ -8,7 +8,7 @@ A written evaluation and recommendation on whether the timetable pipeline should
 
 ## Notes
 
-- **Effort type**: planning/research. The map resolves the source-of-truth decision; it does not build a GTFS parser.
+- **Effort type**: planning/research. The map resolves the source-of-truth and first-migration scope decisions; it does not build a GTFS parser.
 - **Issue tracker**: local markdown. This file is the map; tickets live in `issues/`. See `docs/agents/issue-tracker.md`.
 - **Branch**: `research/gtfs-evaluation`; a research branch, not a merge candidate.
 - **Data index**: `https://s3.itbatera.euskadi.eus/02-pro-e3525cfb1b3d99109c5220a2b24bcb30-inet/transport/moveuskadi/data-index.json`; the `.data.Euskotren` key lists the feeds.
@@ -29,16 +29,16 @@ A written evaluation and recommendation on whether the timetable pipeline should
 - [Compare GTFS coverage with the current PDF-derived data](issues/02-coverage.md): stop sets align after name normalization; E2-T1 splits into T0+T1 in GTFS, E3a is an extra branch, and GTFS carries date-specific holiday exceptions.
 - [Assess GTFS licensing, URL stability and operating constraints](issues/03-license-operations.md): URLs are stable and the feed is refreshed daily, but the feed window is short, the licence/attribution terms need confirmation, and SIRI/NeTEx access is blocked.
 - [Decide the timetable source of truth and refresh policy](issues/04-source-of-truth.md): GTFS is the static source of truth; PDFs remain a validation/provenance and reference build; rebuild daily and never publish a stale GTFS window.
+- [Decide calendar, route and output scope for a GTFS-based pipeline](issues/05-calendar-route-output-scope.md): keep the current four lines and merge T0+T1 under E2-T1; defer E3a; derive the current day-type calendars first; keep the current workbook/HTML outputs.
 
 ## Not yet specified
 
-- Migration architecture: a GTFS adapter feeding the existing `Service` model, a direct GTFS-to-workbook/HTML path, or a parallel validation path.
-- Whether GTFS-RT trip updates become a later live-service feature.
-- Whether the Open Data Euskadi licence permits the intended redistribution, and what attribution the workbook/site must carry.
+None for this evaluation. Migration architecture, licence confirmation and real-time work belong to the separate implementation effort.
 
 ## Out of scope
 
 - Implementing the GTFS parser or changing the workbook/site generator; the destination is the evaluation.
+- E3a, date-specific calendars/date picker and new user-facing views; deferred beyond the first GTFS migration.
 - Real-time integration (GTFS-RT/SIRI) in the static timetable.
 - Trams, the funicular and non-Euskotren operators.
 - Replacing the Excel workbook or republishing the GTFS feed.
