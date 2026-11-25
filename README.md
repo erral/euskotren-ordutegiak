@@ -17,12 +17,12 @@ The workbook is the source of truth. The HTML site is an additional view built f
 
 ### Timetable data
 
-- **2,227 services** on **E1, E2-T1, E4 and E3-L3**, both directions.
+- **2,225 services** on **E1, E2-T1, E4 and E3-L3**, both directions.
 - **Calendars:** weekday, Saturday, Sunday/holiday, combined weekend, Friday night and Saturday night.
 - Through-running and cross-line membership: a service appears in every corridor it traverses, such as E1 services on the shared E2-T1 Donostia section.
 - Partial and special services: E1 Pasaia–Zumaia, Zaldibar–Matiko/Traña, Elgoibar–Matiko and Eibar–Ermua; E2 Añorga shuttles; E4 Gernika variants and short-turns; the Amorebieta Geltokia transfer column; and the night blocks.
 - Canonical ordering shared by Excel and HTML: **calendar → departure → line → direction → service ID**. Corridor pages put the corridor’s own line first when services share a departure.
-- **212 structural validation checks** and **163 unit tests**.
+- **215 structural validation checks** and **166 unit tests**.
 
 ### Excel workbook
 
@@ -127,7 +127,7 @@ The site validation checks internal links and anchors, duplicate IDs, the JSON p
 | `euskotren_timetable/corridors.py` | Eight corridor definitions and cross-line membership |
 | `euskotren_timetable/model.py` | Normalized `Service` / `StopTime` records |
 | `euskotren_timetable/service_order.py` | Shared canonical sort contract |
-| `euskotren_timetable/validate.py` | 212 structural checks |
+| `euskotren_timetable/validate.py` | 215 structural checks |
 | `euskotren_timetable/workbook.py` | Excel renderer |
 | `euskotren_timetable/site.py` | Static HTML generator and link validator |
 | `euskotren_timetable/templates/` | Jinja2 site templates |

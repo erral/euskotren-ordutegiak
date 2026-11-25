@@ -36,7 +36,7 @@ FORWARD = WeekendConfig(
     origin="Pasaia",
     direction="Pasaia-Matiko",
     slug="PASAIA-MATIKO",
-    rows=(50, 1420, 600, 760, 40, 80),
+    rows=(50, 1420, 600, 760, 10, 1400),
     note=(680, 695, 680, 700, 600, 870),
     block="E1 Pasaia -> Matiko weekend",
 )
@@ -47,7 +47,7 @@ REVERSE = WeekendConfig(
     origin="Matiko-Bilbao",
     direction="Matiko-Pasaia",
     slug="MATIKO-PASAIA",
-    rows=(50, 1420, 600, 760, 40, 80),
+    rows=(50, 1420, 600, 760, 10, 1400),
     note=(665, 685, 710, 730, 550, 900),
     block="E1 Matiko -> Pasaia weekend",
 )
@@ -64,12 +64,20 @@ def _build_service(
     timed = [(stop, record[stop]) for stop in config.stops_50 if is_time(record.get(stop))]
     origin, origin_time = timed[0]
     destination, arrival = timed[-1]
+    origin_is_full = origin == config.stops_50[0]
+    pattern = (
+        ["through"] if origin_is_full and destination == config.stops_50[-1] else ["short-turn"]
+    )
     notes = ["Weekend (Saturday, Sunday + holiday)"]
     notes.append(
         f"Hourly frequency {frequency_rule_id}"
         if frequency_rule_id
         else "Explicit service outside the frequency range"
     )
+    if not origin_is_full:
+        notes.append(f"Partial from {origin}")
+    elif destination != config.stops_50[-1]:
+        notes.append(f"Short-turn to {destination}")
 
     stop_times: list[StopTime] = []
     for sequence, stop in enumerate(config.stops_50, 1):
@@ -91,7 +99,7 @@ def _build_service(
     return Service(
         service_id=f"E1-{config.slug}-WE-{departure.replace(':', '').zfill(4)}",
         primary_line="E1",
-        pattern=["through"],
+        pattern=pattern,
         direction=config.direction,
         calendar="WE",
         valid_from="2026-11-21",
@@ -125,14 +133,20 @@ def parse_e1_weekend_direction(
     if not rows:
         raise ValueError("E1 weekend rows not found")
 
-    grid = build_grid(
-        next(row for row in rows if len(row) == len(config.stops_42)), config.stops_42
-    )
-    explicit = {}
-    for row in rows:
-        values = row_to_dict(row, grid)
-        if is_time(values.get(config.origin)):
-            explicit[values[config.origin]] = values
+    complete = next((row for row in rows if len(row) == len(config.stops_42)), None)
+    if complete is None:
+        raise ValueError("E1 weekend complete full-line row not found")
+    grid = build_grid(complete, config.stops_42)
+    records = [row_to_dict(row, grid) for row in rows]
+    explicit = {
+        values[config.origin]: values for values in records if is_time(values.get(config.origin))
+    }
+    partial_rows = [
+        values
+        for values in records
+        if not is_time(values.get(config.origin))
+        and sum(1 for stop in config.stops_42 if is_time(values.get(stop))) >= 2
+    ]
     if not explicit:
         raise ValueError("E1 weekend full-line row not found")
 
@@ -140,7 +154,8 @@ def parse_e1_weekend_direction(
     rule_id = (
         f"E1-WE-{start.replace(':', '').zfill(4)}-{end.replace(':', '').zfill(4)}-{int(interval)}"
     )
-    template = explicit[start]
+    template_departure = start if start in explicit else min(explicit, key=to_minutes)
+    template = explicit[template_departure]
     generated = generate_fixed(start, end, interval)
 
     services: list[Service] = []
@@ -179,6 +194,25 @@ def parse_e1_weekend_direction(
             if stop in record_42:
                 record[stop] = record_42[stop]
                 source[stop] = "full"
+            else:
+                record[stop] = "?"
+                source[stop] = "unpublished"
+        services.append(_build_service(departure, record, source, source_url, config, None))
+
+    for values in partial_rows:
+        timed = [(stop, values[stop]) for stop in config.stops_42 if is_time(values.get(stop))]
+        if len(timed) < 2:
+            continue
+        departure = timed[0][1]
+        record = {}
+        source = {}
+        for stop in config.stops_50:
+            if stop in values:
+                record[stop] = values[stop]
+                source[stop] = "full"
+            elif stop in config.stops_42:
+                record[stop] = ""
+                source[stop] = "not_served"
             else:
                 record[stop] = "?"
                 source[stop] = "unpublished"

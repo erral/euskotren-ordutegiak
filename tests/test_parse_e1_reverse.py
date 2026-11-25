@@ -14,11 +14,24 @@ class ParseE1ReverseTests(unittest.TestCase):
         cls.by_departure = {service.departure: service for service in cls.services}
 
     def test_count(self):
-        self.assertEqual(len(self.services), 15)
+        self.assertEqual(len(self.services), 16)
 
     def test_first_last(self):
-        self.assertEqual(self.services[0].departure, "5:55")
+        self.assertEqual(self.services[0].departure, "5:39")
         self.assertEqual(self.services[-1].departure, "19:55")
+
+    def test_partial_from_durango(self):
+        service = self.by_departure["5:39"]
+        self.assertEqual(service.origin, "Durango")
+        self.assertEqual(service.destination, "Pasaia")
+        self.assertEqual(service.pattern, ["short-turn"])
+        times = {st.stop_name: st.time for st in service.stop_times}
+        self.assertEqual(times["Arroa (Zestoa)"], "6:53")
+        self.assertEqual(times["Usurbil"], "7:26")
+        self.assertEqual(times["Altza (Donostia)"], "7:53")
+        self.assertEqual(times["Pasaia"], "7:55")
+        self.assertFalse([st for st in service.stop_times if st.disposition == "unpublished"])
+        self.assertIn("Partial from Durango", service.notes)
 
     def test_template(self):
         service = self.by_departure["5:55"]
@@ -35,8 +48,9 @@ class ParseE1ReverseTests(unittest.TestCase):
         self.assertIn("Topo times from Zumaia-Pasaia partial table", service.notes)
 
     def test_altzola(self):
-        # Only the 19:55 full-line service brackets its footnote time.
-        # The 6:26/10:26/13:26 times belong to deferred partial services.
+        # The full-line services only bracket the 21:26 footnote time.
+        # The 6:26 stop belongs to the Durango 5:39 partial; 10:26/13:26
+        # belong to the Elgoibar/Eibar partial services.
         expected = {"5:55": None, "9:55": None, "12:55": None, "19:55": "21:26"}
         for departure, value in expected.items():
             service = self.by_departure[departure]

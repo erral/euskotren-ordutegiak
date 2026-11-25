@@ -17,12 +17,12 @@ Lan-koadernoa da erreferentzia nagusia. HTML gunea `Service` datu normalizatu be
 
 ### Ordutegi-datuak
 
-- **2.227 zerbitzu** **E1, E2-T1, E4 eta E3-L3** lineetan, bi noranzkoetan.
+- **2.225 zerbitzu** **E1, E2-T1, E4 eta E3-L3** lineetan, bi noranzkoetan.
 - **Egutegiak:** astegunak, larunbatak, igandeak/jaiegunak, asteburu osoa, ostiral gaua eta larunbat gaua.
 - Lineaz haraindiko ibilbideak: zerbitzua igarotzen duen korridore guztietan agertzen da; adibidez, E1eko zerbitzuak E2-T1eko Donostia inguruko tarte partekatuan.
 - Zerbitzu partzial eta bereziak: E1 Pasaia–Zumaia, Zaldibar–Matiko/Traña, Elgoibar–Matiko eta Eibar–Ermua; E2ko Añorgako anezkak; E4ko Gernika aldaerak eta ibilbide laburrak; Amorebieta Geltokia transbordo-zutabea; eta gaueko blokeak.
 - Excelek eta HTMLak partekatutako ordenamendu kanonikoa: **egutegia → irteera → linea → noranzkoa → zerbitzu IDa**. Korridore-orrietan, korridorearen linea propioa lehenesten da irteera bereko zerbitzuen artean.
-- **212 egitura-egiaztapen** eta **163 unitate-proba**.
+- **215 egitura-egiaztapen** eta **166 unitate-proba**.
 
 ### Excel lan-koadernoa
 
@@ -127,7 +127,7 @@ Gunearen baliozkotzeak esteka eta aingura internak, ID bikoiztuak, JSON karga et
 | `euskotren_timetable/corridors.py` | Zortzi korridore-definizio eta lineaz haraindiko kidetza |
 | `euskotren_timetable/model.py` | `Service` / `StopTime` erregistro normalizatuak |
 | `euskotren_timetable/service_order.py` | Partekatutako ordenamendu kanonikoaren kontratua |
-| `euskotren_timetable/validate.py` | 212 egitura-egiaztapen |
+| `euskotren_timetable/validate.py` | 215 egitura-egiaztapen |
 | `euskotren_timetable/workbook.py` | Excel errendatzailea |
 | `euskotren_timetable/site.py` | HTML gune estatikoaren sortzailea eta esteken baliozkotzailea |
 | `euskotren_timetable/templates/` | Gunearen Jinja2 txantiloiak |

@@ -17,14 +17,33 @@ class ParseE1WeekendTests(unittest.TestCase):
         cls.reverse_by = {service.departure: service for service in cls.reverse}
 
     def test_counts(self):
-        self.assertEqual(len(self.forward), 14)
-        self.assertEqual(len(self.reverse), 14)
+        self.assertEqual(len(self.forward), 15)
+        self.assertEqual(len(self.reverse), 15)
 
     def test_first_last(self):
-        self.assertEqual(self.forward[0].departure, "7:35")
+        self.assertEqual(self.forward[0].departure, "6:35")
         self.assertEqual(self.forward[-1].departure, "20:35")
         self.assertEqual(self.reverse[0].departure, "6:52")
         self.assertEqual(self.reverse[-1].departure, "19:52")
+
+    def test_partial_services(self):
+        forward = self.forward_by["6:35"]
+        self.assertEqual(forward.origin, "Pasaia")
+        self.assertEqual(forward.destination, "Deba")
+        self.assertEqual(forward.pattern, ["short-turn"])
+        forward_times = {st.stop_name: st.time for st in forward.stop_times}
+        self.assertEqual(forward_times["Arroa (Zestoa)"], "7:33")
+        self.assertEqual(forward_times["Altza (Donostia)"], "6:37")
+        self.assertFalse([st for st in forward.stop_times if st.disposition == "unpublished"])
+
+        reverse = self.reverse_by["7:44"]
+        self.assertEqual(reverse.origin, "Deba")
+        self.assertEqual(reverse.destination, "Pasaia")
+        self.assertEqual(reverse.pattern, ["short-turn"])
+        reverse_times = {st.stop_name: st.time for st in reverse.stop_times}
+        self.assertEqual(reverse_times["Arroa (Zestoa)"], "7:53")
+        self.assertEqual(reverse_times["Altza (Donostia)"], "8:53")
+        self.assertFalse([st for st in reverse.stop_times if st.disposition == "unpublished"])
 
     def test_templates(self):
         for service in (self.forward_by["7:35"], self.reverse_by["6:52"]):

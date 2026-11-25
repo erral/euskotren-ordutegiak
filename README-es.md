@@ -17,12 +17,12 @@ El libro de Excel es la fuente de verdad. El sitio HTML es una vista adicional c
 
 ### Datos del horario
 
-- **2.227 servicios** en **E1, E2-T1, E4 y E3-L3**, en ambos sentidos.
+- **2.225 servicios** en **E1, E2-T1, E4 y E3-L3**, en ambos sentidos.
 - **Calendarios:** laborables, sábados, domingos/festivos, fin de semana combinado, noche del viernes y noche del sábado.
 - Circulación pasante y pertenencia entre líneas: un servicio aparece en todos los corredores por los que pasa, como los servicios E1 en el tramo compartido de Donostia de E2-T1.
 - Servicios parciales y especiales: E1 Pasaia–Zumaia, Zaldibar–Matiko/Traña, Elgoibar–Matiko y Eibar–Ermua; lanzaderas de Añorga de la E2; variantes y cortos de Gernika de la E4; la columna de transbordo de Amorebieta Geltokia; y los bloques nocturnos.
 - Ordenación canónica compartida por Excel y HTML: **calendario → salida → línea → sentido → ID de servicio**. En las páginas de corredor, la línea propia del corredor va primero cuando hay servicios con la misma salida.
-- **212 comprobaciones estructurales** y **163 pruebas unitarias**.
+- **215 comprobaciones estructurales** y **166 pruebas unitarias**.
 
 ### Libro de Excel
 
@@ -127,7 +127,7 @@ La validación del sitio comprueba enlaces y anclas internas, IDs duplicados, la
 | `euskotren_timetable/corridors.py` | Ocho definiciones de corredor y pertenencia entre líneas |
 | `euskotren_timetable/model.py` | Registros normalizados `Service` / `StopTime` |
 | `euskotren_timetable/service_order.py` | Contrato de ordenación canónica compartido |
-| `euskotren_timetable/validate.py` | 212 comprobaciones estructurales |
+| `euskotren_timetable/validate.py` | 215 comprobaciones estructurales |
 | `euskotren_timetable/workbook.py` | Renderizador de Excel |
 | `euskotren_timetable/site.py` | Generador del sitio HTML estático y validador de enlaces |
 | `euskotren_timetable/templates/` | Plantillas Jinja2 del sitio |

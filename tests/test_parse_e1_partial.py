@@ -57,19 +57,19 @@ class ParseE1PartialTests(unittest.TestCase):
 
     def test_counts(self):
         self.assertEqual(len(self.wd), 17)
-        self.assertEqual(len(self.sa), 17)
-        self.assertEqual(len(self.su), 11)
-        self.assertEqual(len(self.rwd), 19)
-        self.assertEqual(len(self.rsa), 18)
-        self.assertEqual(len(self.rsu), 10)
+        self.assertEqual(len(self.sa), 16)
+        self.assertEqual(len(self.su), 10)
+        self.assertEqual(len(self.rwd), 18)
+        self.assertEqual(len(self.rsa), 17)
+        self.assertEqual(len(self.rsu), 9)
 
     def test_first_last(self):
         self.assertEqual((self.wd[0].departure, self.wd[-1].departure), ("6:05", "21:35"))
-        self.assertEqual((self.sa[0].departure, self.sa[-1].departure), ("6:35", "21:35"))
-        self.assertEqual((self.su[0].departure, self.su[-1].departure), ("6:35", "21:35"))
+        self.assertEqual((self.sa[0].departure, self.sa[-1].departure), ("7:05", "21:35"))
+        self.assertEqual((self.su[0].departure, self.su[-1].departure), ("13:05", "21:35"))
         self.assertEqual((self.rwd[0].departure, self.rwd[-1].departure), ("6:00", "22:31"))
         self.assertEqual((self.rsa[0].departure, self.rsa[-1].departure), ("7:00", "22:31"))
-        self.assertEqual((self.rsu[0].departure, self.rsu[-1].departure), ("8:00", "22:31"))
+        self.assertEqual((self.rsu[0].departure, self.rsu[-1].departure), ("14:30", "22:31"))
 
     def test_sample(self):
         service = {s.departure: s for s in self.wd}["6:05"]

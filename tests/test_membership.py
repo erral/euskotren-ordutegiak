@@ -370,10 +370,10 @@ class MembershipTests(unittest.TestCase):
         )
 
     def test_corridor_counts(self):
-        self.assertEqual(len(services_for_corridor(self.services, CORRIDORS[0])), 1110)
-        self.assertEqual(len(services_for_corridor(self.services, CORRIDORS[1])), 1108)
-        self.assertEqual(len(services_for_corridor(self.services, CORRIDORS[2])), 524)
-        self.assertEqual(len(services_for_corridor(self.services, CORRIDORS[3])), 522)
+        self.assertEqual(len(services_for_corridor(self.services, CORRIDORS[0])), 1109)
+        self.assertEqual(len(services_for_corridor(self.services, CORRIDORS[1])), 1107)
+        self.assertEqual(len(services_for_corridor(self.services, CORRIDORS[2])), 523)
+        self.assertEqual(len(services_for_corridor(self.services, CORRIDORS[3])), 521)
         self.assertEqual(len(services_for_corridor(self.services, CORRIDORS[4])), 514)
         self.assertEqual(len(services_for_corridor(self.services, CORRIDORS[5])), 509)
         self.assertEqual(len(services_for_corridor(self.services, CORRIDORS[6])), 509)

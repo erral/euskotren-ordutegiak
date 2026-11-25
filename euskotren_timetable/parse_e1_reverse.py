@@ -42,12 +42,24 @@ def _build_service(
     record: dict[str, str],
     source: dict[str, str],
     source_url: str,
-    rule_id: str,
+    rule_id: str | None,
 ) -> Service:
     timed = [(stop, record[stop]) for stop in E1_REVERSE_STOPS if is_time(record.get(stop))]
     origin, origin_time = timed[0]
     destination, arrival = timed[-1]
-    pattern = ["through"] if destination == PASAIA else ["short-turn"]
+    origin_is_full = origin == E1_REVERSE_STOPS[0]
+    pattern = ["through"] if origin_is_full and destination == PASAIA else ["short-turn"]
+    notes: list[str] = []
+    if rule_id:
+        notes.append(f"Hourly frequency {rule_id}")
+    else:
+        notes.append("Explicit service outside the frequency range")
+    if not origin_is_full:
+        notes.append(f"Partial from {origin}")
+    if destination != PASAIA:
+        notes.append(f"Short-turn to {destination}")
+    if is_time(record.get(ALTZOLA)):
+        notes.append("Altzola conditional stop")
 
     stop_times: list[StopTime] = []
     for sequence, stop in enumerate(E1_REVERSE_STOPS, 1):
@@ -79,8 +91,8 @@ def _build_service(
         departure=origin_time,
         arrival=arrival,
         source_pdf=source_url,
-        frequency_rule_ids=[rule_id],
-        notes=[f"Hourly frequency {rule_id}"],
+        frequency_rule_ids=[rule_id] if rule_id else [],
+        notes=notes,
         appears_in=[],
         stop_times=stop_times,
     )
@@ -96,17 +108,30 @@ def parse_e1_reverse(
     )
 
     words = words_from_pdf(pdf, page=1)
-    rows = cluster_rows(words, 50, 1420, 430, 560, 40, 80)
+    rows = cluster_rows(words, 50, 1420, 430, 560, 10, 1400)
     if not rows:
         raise ValueError("could not find the E1 reverse full-line table")
 
-    grid = build_grid(rows[0], E1_REVERSE_42)
+    complete = next((row for row in rows if len(row) == len(E1_REVERSE_42)), None)
+    if complete is None:
+        raise ValueError("could not find a complete E1 reverse full-line row")
+    grid = build_grid(complete, E1_REVERSE_42)
+    records = [row_to_dict(row, grid) for row in rows]
     explicit = {
-        row_to_dict(row, grid).get("Matiko-Bilbao", "?"): row_to_dict(row, grid) for row in rows
+        values["Matiko-Bilbao"]: values
+        for values in records
+        if is_time(values.get("Matiko-Bilbao"))
     }
+    partial_rows = [
+        values
+        for values in records
+        if not is_time(values.get("Matiko-Bilbao"))
+        and sum(1 for stop in E1_REVERSE_42 if is_time(values.get(stop))) >= 2
+    ]
 
     start, end, interval = parse_frequency_note(words)
-    template = explicit[start]
+    template_departure = start if start in explicit else min(explicit, key=to_minutes)
+    template = explicit[template_departure]
     footnote_times = parse_altzola_footnote(pdf)
     rule_id = (
         f"E1-WD-{start.replace(':', '').zfill(4)}-{end.replace(':', '').zfill(4)}-{int(interval)}"
@@ -137,6 +162,25 @@ def parse_e1_reverse(
                 record[stop] = "?"
                 source[stop] = "unpublished"
         services.append(_build_service(departure, record, source, source_url, rule_id))
+
+    for values in partial_rows:
+        timed = [(stop, values[stop]) for stop in E1_REVERSE_42 if is_time(values.get(stop))]
+        if len(timed) < 2:
+            continue
+        departure = timed[0][1]
+        record = {}
+        source = {}
+        for stop in E1_REVERSE_STOPS:
+            if stop in values:
+                record[stop] = values[stop]
+                source[stop] = "full"
+            elif stop in E1_TOP0_MISSING:
+                record[stop] = "?"
+                source[stop] = "unpublished"
+            else:
+                record[stop] = ""
+                source[stop] = "not_served"
+        services.append(_build_service(departure, record, source, source_url, None))
 
     for service in services:
         altzola = next(st for st in service.stop_times if st.stop_name == ALTZOLA)
@@ -176,6 +220,8 @@ def parse_e1_reverse(
         end=end,
         interval_minutes=interval,
         calendar="WD",
-        expanded_service_ids=[service.service_id for service in services],
+        expanded_service_ids=[
+            service.service_id for service in services if rule_id in service.frequency_rule_ids
+        ],
     )
     return services, rule

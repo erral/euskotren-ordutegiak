@@ -359,12 +359,12 @@ def validate(services: list[Service], rules: list[FrequencyRule]) -> list[Check]
     ]
 
     checks.append(_check("e1_west_count", len(e1w) == 16, f"found {len(e1w)}, expected 16"))
-    checks.append(_check("e1_east_count", len(e1e) == 15, f"found {len(e1e)}, expected 15"))
+    checks.append(_check("e1_east_count", len(e1e) == 16, f"found {len(e1e)}, expected 16"))
     checks.append(
-        _check("e1_weekend_west_count", len(e1we) == 14, f"found {len(e1we)}, expected 14")
+        _check("e1_weekend_west_count", len(e1we) == 15, f"found {len(e1we)}, expected 15")
     )
     checks.append(
-        _check("e1_weekend_east_count", len(e1ww) == 14, f"found {len(e1ww)}, expected 14")
+        _check("e1_weekend_east_count", len(e1ww) == 15, f"found {len(e1ww)}, expected 15")
     )
     checks.append(
         _check("e1_saturday_night_west_count", len(e1snw) == 4, f"found {len(e1snw)}, expected 4")
@@ -379,31 +379,31 @@ def validate(services: list[Service], rules: list[FrequencyRule]) -> list[Check]
     )
     checks.append(
         _check(
-            "e1_partial_west_saturday_count", len(e1p_sa) == 17, f"found {len(e1p_sa)}, expected 17"
+            "e1_partial_west_saturday_count", len(e1p_sa) == 16, f"found {len(e1p_sa)}, expected 16"
         )
     )
     checks.append(
         _check(
-            "e1_partial_west_sunday_count", len(e1p_su) == 11, f"found {len(e1p_su)}, expected 11"
+            "e1_partial_west_sunday_count", len(e1p_su) == 10, f"found {len(e1p_su)}, expected 10"
         )
     )
     checks.append(
         _check(
             "e1_partial_east_weekday_count",
-            len(e1pr_wd) == 19,
-            f"found {len(e1pr_wd)}, expected 19",
+            len(e1pr_wd) == 18,
+            f"found {len(e1pr_wd)}, expected 18",
         )
     )
     checks.append(
         _check(
             "e1_partial_east_saturday_count",
-            len(e1pr_sa) == 18,
-            f"found {len(e1pr_sa)}, expected 18",
+            len(e1pr_sa) == 17,
+            f"found {len(e1pr_sa)}, expected 17",
         )
     )
     checks.append(
         _check(
-            "e1_partial_east_sunday_count", len(e1pr_su) == 10, f"found {len(e1pr_su)}, expected 10"
+            "e1_partial_east_sunday_count", len(e1pr_su) == 9, f"found {len(e1pr_su)}, expected 9"
         )
     )
     checks.append(_check("e1_refuerzo_count", len(e1_ref) == 5, f"found {len(e1_ref)}, expected 5"))
@@ -599,17 +599,17 @@ def validate(services: list[Service], rules: list[FrequencyRule]) -> list[Check]
     )
 
     checks.append(_first_last(e1w, "5:35", "20:35", "e1_west_first_last"))
-    checks.append(_first_last(e1e, "5:55", "19:55", "e1_east_first_last"))
-    checks.append(_first_last(e1we, "7:35", "20:35", "e1_weekend_west_first_last"))
+    checks.append(_first_last(e1e, "5:39", "19:55", "e1_east_first_last"))
+    checks.append(_first_last(e1we, "6:35", "20:35", "e1_weekend_west_first_last"))
     checks.append(_first_last(e1ww, "6:52", "19:52", "e1_weekend_east_first_last"))
     checks.append(_first_last(e1snw, "25:37", "31:19", "e1_saturday_night_west_first_last"))
     checks.append(_first_last(e1sne, "23:45", "29:45", "e1_saturday_night_east_first_last"))
     checks.append(_first_last(e1p_wd, "6:05", "21:35", "e1_partial_west_weekday_first_last"))
-    checks.append(_first_last(e1p_sa, "6:35", "21:35", "e1_partial_west_saturday_first_last"))
-    checks.append(_first_last(e1p_su, "6:35", "21:35", "e1_partial_west_sunday_first_last"))
+    checks.append(_first_last(e1p_sa, "7:05", "21:35", "e1_partial_west_saturday_first_last"))
+    checks.append(_first_last(e1p_su, "13:05", "21:35", "e1_partial_west_sunday_first_last"))
     checks.append(_first_last(e1pr_wd, "6:00", "22:31", "e1_partial_east_weekday_first_last"))
     checks.append(_first_last(e1pr_sa, "7:00", "22:31", "e1_partial_east_saturday_first_last"))
-    checks.append(_first_last(e1pr_su, "8:00", "22:31", "e1_partial_east_sunday_first_last"))
+    checks.append(_first_last(e1pr_su, "14:30", "22:31", "e1_partial_east_sunday_first_last"))
     checks.append(_first_last(e1_ref_fwd, "6:42", "7:12", "e1_refuerzo_west_first_last"))
     checks.append(_first_last(e1_ref_rev, "7:32", "8:32", "e1_refuerzo_east_first_last"))
     checks.append(_first_last(e1elg_wd, "7:01", "22:01", "e1_elgoibar_weekday_west_first_last"))
@@ -707,6 +707,13 @@ def validate(services: list[Service], rules: list[FrequencyRule]) -> list[Check]
     checks.append(_stop_time(e1w_by.get("5:35"), "Usurbil", "6:04", "e1_west_usurbil"))
     checks.append(_stop_time(e1e_by.get("5:55"), "Usurbil", "8:26", "e1_east_usurbil"))
     checks.append(_stop_time(e1e_by.get("5:55"), "Altza (Donostia)", "8:53", "e1_east_altza"))
+    checks.append(_stop_time(e1e_by.get("5:39"), "Arroa (Zestoa)", "6:53", "e1_east_durango_arroa"))
+    checks.append(
+        _stop_time(e1we_by.get("6:35"), "Arroa (Zestoa)", "7:33", "e1_weekend_west_deba_arroa")
+    )
+    checks.append(
+        _stop_time(e1ww_by.get("7:44"), "Arroa (Zestoa)", "7:53", "e1_weekend_east_deba_arroa")
+    )
     checks.append(
         _stop_time(e1we_by.get("7:35"), "Añorga (Donostia)", "7:56", "e1_weekend_west_anorga")
     )
