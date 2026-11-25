@@ -32,6 +32,8 @@ class Service:
     notes: list[str] = field(default_factory=list)
     appears_in: list[str] = field(default_factory=list)
     stop_times: list[StopTime] = field(default_factory=list)
+    gtfs_trip_id: str | None = None
+    gtfs_service_id: str | None = None
 
 
 @dataclass

@@ -22,7 +22,7 @@ Lan-koadernoa da erreferentzia nagusia. HTML gunea `Service` datu normalizatu be
 - Lineaz haraindiko ibilbideak: zerbitzua igarotzen duen korridore guztietan agertzen da; adibidez, E1eko zerbitzuak E2-T1eko Donostia inguruko tarte partekatuan.
 - Zerbitzu partzial eta bereziak: E1 Pasaia–Zumaia, Zaldibar–Matiko/Traña, Elgoibar–Matiko eta Eibar–Ermua; E2ko Añorgako anezkak; E4ko Gernika aldaerak eta ibilbide laburrak; Amorebieta Geltokia transbordo-zutabea; eta gaueko blokeak.
 - Excelek eta HTMLak partekatutako ordenamendu kanonikoa: **egutegia → irteera → linea → noranzkoa → zerbitzu IDa**. Korridore-orrietan, korridorearen linea propioa lehenesten da irteera bereko zerbitzuen artean.
-- **215 egitura-egiaztapen** eta **166 unitate-proba**.
+- **215 egitura-egiaztapen** eta **170 unitate-proba**.
 
 ### Excel lan-koadernoa
 
@@ -50,12 +50,15 @@ Egutegi-blokeak pilatuta daude korridore-orri bakoitzean. `Coverage` orriak line
 - `data/services.json` (1. schema bertsioa) eta lan-koadernoaren deskarga;
 - inprimatzeko estiloak, edukira salto egiteko esteka, teklatu bidezko korritze-eremuak eta `aria-live` emaitza-kontagailuak;
 - esteka erlatiboak, proiektu baten Pages URLtik funtziona dezan;
-- argitaratutako artefaktuan iturburuko PDFrik ez.
+- argitaratutako artefaktuan iturburuko PDFrik ez;
+- **GTFS-tik eratorritako gune paraleloa `/gtfs/` atalean**, bere lan-koaderno eta iturri/lizentzia metadatuekin; PDF eta GTFS edizioak desberdinak dira eta ez dira bateratzen;
+- **`/compare.html` konparatzailea**, bi `services.json` fitxategiak kargatzen dituena eta zerbitzu/irteera kopuruak, PDF soilik, GTFS soilik eta aldatutako irteerak erakusten dituena.
 
 ### Automatizazioa
 
-- GitHub Actions-ek Ruff, proba-multzo osoa, lan-koadernoaren/gunearen eraikuntza eta gunearen baliozkotze-atea exekutatzen ditu.
-- `deploy` lanak `main` adarretik soilik argitaratzen du `output/html` GitHub Pages-en.
+- GitHub Actions-ek Ruff, proba-multzo osoa, PDF eraikuntza, GTFS eraikuntza eta gune konposatuaren baliozkotzea exekutatzen ditu.
+- Fluxua egunero exekutatzen da; `/` PDF gunea da eta `/gtfs/` GTFS gunea, `/compare.html` haien arteko konparazioarekin.
+- `deploy` lanak `output/site` argitaratzen du GitHub Pages-en, `main` adarretik soilik.
 
 ## Abiarazte azkarra
 
@@ -72,10 +75,11 @@ Edo Make erabiliz:
 
 ```bash
 make workbook   # Excel lan-koadernoa soilik
-make html       # lan-koadernoa + gune estatikoa output/html karpetan
+make html       # PDF lan-koadernoa + gune estatikoa output/html karpetan
+make gtfs       # GTFS gunea output/html-gtfs karpetan (data/gtfs/gtfs_euskotren.zip behar da)
 ```
 
-`make workbook` eta `make html` komandoek `data/pdfs/` karpetan jatorrizko PDFak daudela espero dute. Kopia berri batean, exekutatu manifest komandoa lehenago.
+`make workbook` eta `make html` komandoek `data/pdfs/` karpetan jatorrizko PDFak daudela espero dute. Kopia berri batean, exekutatu manifest komandoa lehenago. `make gtfs` komandoak GTFS zipa `data/gtfs/` karpetan espero du; GitHub fluxuak automatikoki deskargatzen du eta bi guneak `output/site/` karpetan konposatzen ditu.
 
 ### Komando indibidualak
 
@@ -89,7 +93,9 @@ python3 -m euskotren_timetable.cli validate-site --output output/html
 ### Irteerak
 
 - `output/euskotren_timetables_winter_2026_v12.xlsx`
-- `output/html/` — ordutegi-gune estatikoa
+- `output/html/` — PDF ordutegi-gune estatikoa
+- `output/html-gtfs/` — GTFS-tik eratorritako gune estatikoa
+- `output/site/` — PDF `/` atalean eta GTFS `/gtfs/` atalean dituen lan-fluxuaren konposizioa
 - `output/validation.md`
 - `data/manifest.json`
 - `data/pdfs/*.pdf`
@@ -130,8 +136,9 @@ Gunearen baliozkotzeak esteka eta aingura internak, ID bikoiztuak, JSON karga et
 | `euskotren_timetable/validate.py` | 215 egitura-egiaztapen |
 | `euskotren_timetable/workbook.py` | Excel errendatzailea |
 | `euskotren_timetable/site.py` | HTML gune estatikoaren sortzailea eta esteken baliozkotzailea |
+| `euskotren_timetable/gtfs.py`, `gtfs_stops.py` | GTFS egokitzailea eta geltoki nagusien aliasak |
 | `euskotren_timetable/templates/` | Gunearen Jinja2 txantiloiak |
-| `euskotren_timetable/assets/` | Gunearen estilo-orria eta Master/korridore-taula scriptak |
+| `euskotren_timetable/assets/` | Estilo-orria, korridore-taula eta PDF/GTFS konparatzailea |
 | `euskotren_timetable/manifest.py`, `pdf.py` | PDF deskarga, jatorria eta erauzketa |
 | `euskotren_timetable/stops.py`, `source_notes.py` | Geltoki kanonikoak eta kartelen oharrak |
 | `data/manifest.json`, `data/corrections.yaml` | Iturburuko URLak eta alboko zuzenketak |

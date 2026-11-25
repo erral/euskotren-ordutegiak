@@ -16,6 +16,13 @@
   {% include "_legend.html" %}
 </section>
 
+{% if meta.source == "gtfs" %}
+<p class="compare-note">
+  GTFS edizioa da; PDFarekin ez da bateratzen. Erabili konparatzailea aldeak ikusteko.
+  / <span lang="es">Esta es la edición GTFS; no está reconciliada con el PDF. Usa el comparador para ver las diferencias.</span>
+</p>
+{% endif %}
+
 {% for line in line_sections %}
 <section class="line-card">
   <h2>{{ line.code }}</h2>

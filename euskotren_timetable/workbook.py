@@ -60,64 +60,101 @@ def _widths(ws, widths: dict[str, float]) -> None:
 def _readme(ws, manifest: dict | None, workbook_name: str) -> None:
     ws.sheet_view.showGridLines = False
     _title(ws, "A1", "Euskotren — single timetable workbook", 18)
+    first = ((manifest or {}).get("files") or [{}])[0]
+    season = first.get("season", "Winter 2026")
+    valid_from = first.get("valid_from", "2026-11-21")
+    valid_to = first.get("valid_to")
+    validity = f"from {valid_from}" + (f" to {valid_to}" if valid_to else "; open until superseded")
+    source = (manifest or {}).get("source", "pdf")
+    if source == "gtfs":
+        source_text = (
+            f"Euskotren GTFS, {first.get('url', '')}, "
+            f"feed {((manifest or {}).get('feed_version') or 'unknown')}, CC BY 4.0"
+        )
+        source_notes = "Not applicable to the GTFS source."
+        legend = "Blank = does not stop. Times are 24-hour."
+    else:
+        source_text = (
+            "Official Euskotren winter-2026 PDFs, https://euskotren.eus/eu/tren/ordutegiak"
+        )
+        source_notes = "Verbatim side notes from the posters are on the Source notes sheet."
+        legend = "Blank = does not stop. ? = time not published. Times are 24-hour."
+    licence = (manifest or {}).get("licence")
+    licence_url = (manifest or {}).get("licence_url")
     rows = [
         ("Workbook", workbook_name),
-        ("Season", "Winter 2026"),
-        ("Validity", "from 2026-11-21; open until superseded"),
+        ("Season", season),
+        ("Validity", validity),
         ("Generated", datetime.now(UTC).isoformat()),
         ("Generator", f"euskotren-timetable {__version__}"),
         (
             "Scope",
             "E1, E2-T1, E4 and E3/L3 weekdays, combined weekend services, the E2 Saturday/Sunday Añorga shuttle, E1/E2-T1/E4 Saturday night, E3-L3 Friday/Saturday night, the E1 Pasaia-Zumaia, Zaldibar/Matiko-Traña, Elgoibar-Matiko and Eibar-Ermua partials, the E4 22:12/22:45 Gernika variants, E4 Gernika short-turns and the Amorebieta Geltokia transfer column, both directions. Basque names are canonical; Spanish aliases are intentionally omitted.",
         ),
-        ("Source", "Official Euskotren winter-2026 PDFs, https://euskotren.eus/eu/tren/ordutegiak"),
-        ("Legend", "Blank = does not stop. ? = time not published. Times are 24-hour."),
-        (
-            "Cross-line",
-            "Master > Appears in lists every corridor sheet a service traverses. A service can appear on both E1 and E2.",
-        ),
-        (
-            "Sort order",
-            "Services are ordered by calendar, departure time, line and direction; corridor sheets put their own line first when services share a departure. Night times use the extended clock (24:xx/25:xx).",
-        ),
-        ("Source notes", "Verbatim side notes from the posters are on the Source notes sheet."),
-        ("", ""),
-        ("Sheet", "Purpose"),
-        ("Stops", "Canonical network stops and notes"),
-        ("Calendars", "Named service sets"),
-        ("Manifest", "Source PDF provenance"),
-        ("Coverage", "Included and pending line/calendar patterns"),
-        ("Source notes", "Verbatim side notes printed on the posters"),
-        ("Master", "One canonical row per service"),
-        (
-            "E1 Pasaia-Matiko",
-            "E1 westbound corridor, including E2 services on the shared Donostia section",
-        ),
-        (
-            "E1 Matiko-Pasaia",
-            "E1 eastbound corridor, including E2 services on the shared Donostia section",
-        ),
-        (
-            "E2-T1 Hendaia-Lasarte",
-            "E2 westbound corridor, including E1 services on the shared Donostia section",
-        ),
-        (
-            "E2-T1 Lasarte-Hendaia",
-            "E2 eastbound corridor, including E1 services on the shared Donostia section",
-        ),
-        (
-            "E4 Matiko-Bermeo",
-            "E4 eastbound corridor, including E1 services on the shared Bilbao core",
-        ),
-        (
-            "E4 Bermeo-Matiko",
-            "E4 westbound corridor, including E1 services on the shared Bilbao core",
-        ),
-        ("E3-L3 Lezama-Kukullaga", "E3 branch, including E1/E4 services on the shared Bilbao core"),
-        ("E3-L3 Kukullaga-Lezama", "E3 branch, including E1/E4 services on the shared Bilbao core"),
-        ("Frequency rules", "Compressed source rules and expanded services"),
-        ("Validation", "Structural checks for this run"),
+        ("Source", source_text),
     ]
+    if licence:
+        rows.append(("Licence", f"{licence} — {licence_url or ''}"))
+    rows.extend(
+        [
+            ("Legend", legend),
+            (
+                "Cross-line",
+                "Master > Appears in lists every corridor sheet a service traverses. A service can appear on both E1 and E2.",
+            ),
+            (
+                "Sort order",
+                "Services are ordered by calendar, departure time, line and direction; corridor sheets put their own line first when services share a departure. Night times use the extended clock (24:xx/25:xx).",
+            ),
+            ("Source notes", source_notes),
+            ("", ""),
+            ("Sheet", "Purpose"),
+            ("Stops", "Canonical network stops and notes"),
+            ("Calendars", "Named service sets"),
+            ("Manifest", "Source provenance"),
+            ("Coverage", "Included and pending line/calendar patterns"),
+            ("Source notes", "Verbatim side notes printed on the posters"),
+            ("Master", "One canonical row per service"),
+        ]
+    )
+    rows.extend(
+        [
+            (
+                "E1 Pasaia-Matiko",
+                "E1 westbound corridor, including E2 services on the shared Donostia section",
+            ),
+            (
+                "E1 Matiko-Pasaia",
+                "E1 eastbound corridor, including E2 services on the shared Donostia section",
+            ),
+            (
+                "E2-T1 Hendaia-Lasarte",
+                "E2 westbound corridor, including E1 services on the shared Donostia section",
+            ),
+            (
+                "E2-T1 Lasarte-Hendaia",
+                "E2 eastbound corridor, including E1 services on the shared Donostia section",
+            ),
+            (
+                "E4 Matiko-Bermeo",
+                "E4 eastbound corridor, including E1 services on the shared Bilbao core",
+            ),
+            (
+                "E4 Bermeo-Matiko",
+                "E4 westbound corridor, including E1 services on the shared Bilbao core",
+            ),
+            (
+                "E3-L3 Lezama-Kukullaga",
+                "E3 branch, including E1/E4 services on the shared Bilbao core",
+            ),
+            (
+                "E3-L3 Kukullaga-Lezama",
+                "E3 branch, including E1/E4 services on the shared Bilbao core",
+            ),
+            ("Frequency rules", "Compressed source rules and expanded services"),
+            ("Validation", "Structural checks for this run"),
+        ]
+    )
     for r, (key, value) in enumerate(rows, 3):
         ws.cell(row=r, column=1, value=key).font = Font(bold=True)
         ws.cell(row=r, column=2, value=value).alignment = Alignment(wrap_text=True, vertical="top")
@@ -377,7 +414,7 @@ def _master(ws, services: list[Service]) -> None:
         "Destination",
         "Departure",
         "Arrival",
-        "Source PDF",
+        "Source",
         "Frequency rule(s)",
         "Notes",
     ]
@@ -560,11 +597,17 @@ def _corridor_sheet(
     ws.print_area = f"A1:{last_letter}{last_service_row}"
 
     note_row = last_service_row + 2
-    ws.cell(
-        row=note_row,
-        column=1,
-        value="Legend: blank = does not stop; ? = time not published; times are 24-hour.",
+    has_unpublished = any(
+        stop_time.disposition == "unpublished"
+        for service in services
+        for stop_time in service.stop_times
     )
+    legend = (
+        "Legend: blank = does not stop; ? = time not published; times are 24-hour."
+        if has_unpublished
+        else "Legend: blank = does not stop; times are 24-hour."
+    )
+    ws.cell(row=note_row, column=1, value=legend)
     ws.cell(row=note_row, column=1).font = Font(italic=True, color="595959")
 
 

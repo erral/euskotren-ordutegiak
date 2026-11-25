@@ -1,0 +1,70 @@
+{% extends "base.html" %}
+{% block title %}PDF vs GTFS — Euskotren{% endblock %}
+{% block description %}Compare the PDF-derived and GTFS-derived Euskotren timetables side by side.{% endblock %}
+{% block content %}
+<header class="page-head">
+  <h1>PDF <span aria-hidden="true">↔</span> GTFS</h1>
+  <p class="page-meta">
+    Konparatu bi iturriak / <span lang="es">Compara las dos fuentes</span>
+  </p>
+</header>
+
+<p class="compare-note">
+  PDF eta GTFS ordutegiak edizio desberdinak dira. GTFS egunero eguneratzen da; PDFak kartel estatikoak dira.
+  Konparatzaileak aldeak erakusten ditu, ez ditu bateratzen.
+  / <span lang="es">Los horarios PDF y GTFS son ediciones distintas. GTFS se actualiza a diario; los PDF son carteles estáticos. Este comparador muestra las diferencias; no las reconcilia.</span>
+</p>
+
+<form class="filters compare-filters" id="compare-filters">
+  <label>Korridorea / <span lang="es">Corredor</span>
+    <select id="compare-corridor"></select>
+  </label>
+  <label>Egutegia / <span lang="es">Calendario</span>
+    <select id="compare-calendar"></select>
+  </label>
+</form>
+
+<div class="journey-filter js-only compare-journey" role="search" aria-label="Bidaia iragazi / Filtrar viaje">
+  <label for="compare-from">Nondik / <span lang="es">Desde</span>
+    <select id="compare-from"></select>
+  </label>
+  <label for="compare-to">Nora / <span lang="es">Hasta</span>
+    <select id="compare-to"></select>
+  </label>
+  <div class="journey-actions">
+    <button type="button" id="compare-toggle" aria-expanded="false" aria-controls="compare-grid" hidden></button>
+    <button type="button" id="compare-clear" hidden>Garbitu / <span lang="es">Limpiar</span></button>
+  </div>
+  <p id="compare-count" class="filter-count" aria-live="polite"></p>
+  <p id="compare-empty" class="filter-empty" hidden>Ez dago zerbitzu zuzenik / <span lang="es">No hay servicio directo</span></p>
+  <p id="compare-reverse" class="journey-hint" hidden>
+    <button type="button" id="compare-reverse-link"></button>
+  </p>
+</div>
+
+<input type="checkbox" id="compare-metadata" class="metadata-toggle">
+<label for="compare-metadata" class="metadata-toggle-label">
+  <span class="show-label">Erakutsi metadatuak / <span lang="es">Mostrar metadatos</span></span>
+  <span class="hide-label">Ezkutatu metadatuak / <span lang="es">Ocultar metadatos</span></span>
+</label>
+
+<div id="compare-grid" class="compare-grid">
+  <section class="compare-panel">
+    <h2>PDF</h2>
+    <div class="table-scroll" tabindex="0" role="region" aria-label="PDF taula / tabla">
+      <table class="timetable compare-table" id="compare-pdf-table"></table>
+    </div>
+  </section>
+  <section class="compare-panel">
+    <h2>GTFS</h2>
+    <div class="table-scroll" tabindex="0" role="region" aria-label="GTFS taula / tabla">
+      <table class="timetable compare-table" id="compare-gtfs-table"></table>
+    </div>
+  </section>
+</div>
+
+<div id="compare-summary" class="compare-summary"></div>
+<div id="compare-details" class="compare-details"></div>
+
+<script src="{{ root }}assets/compare.js" defer></script>
+{% endblock %}

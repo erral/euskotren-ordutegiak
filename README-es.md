@@ -22,7 +22,7 @@ El libro de Excel es la fuente de verdad. El sitio HTML es una vista adicional c
 - Circulación pasante y pertenencia entre líneas: un servicio aparece en todos los corredores por los que pasa, como los servicios E1 en el tramo compartido de Donostia de E2-T1.
 - Servicios parciales y especiales: E1 Pasaia–Zumaia, Zaldibar–Matiko/Traña, Elgoibar–Matiko y Eibar–Ermua; lanzaderas de Añorga de la E2; variantes y cortos de Gernika de la E4; la columna de transbordo de Amorebieta Geltokia; y los bloques nocturnos.
 - Ordenación canónica compartida por Excel y HTML: **calendario → salida → línea → sentido → ID de servicio**. En las páginas de corredor, la línea propia del corredor va primero cuando hay servicios con la misma salida.
-- **215 comprobaciones estructurales** y **166 pruebas unitarias**.
+- **215 comprobaciones estructurales** y **170 pruebas unitarias**.
 
 ### Libro de Excel
 
@@ -50,12 +50,15 @@ Los bloques de calendario se apilan en cada hoja de corredor. La hoja `Coverage`
 - `data/services.json` (versión de esquema 1) y la descarga del libro;
 - estilos de impresión, enlace para saltar al contenido, regiones de desplazamiento accesibles por teclado y contadores de resultados con `aria-live`;
 - enlaces relativos, para que el sitio funcione desde una URL de Pages de proyecto;
-- ningún PDF de origen en el artefacto publicado.
+- ningún PDF de origen en el artefacto publicado;
+- un **sitio paralelo derivado de GTFS en `/gtfs/`**, con su propio libro y metadatos de fuente/licencia; las ediciones PDF y GTFS son distintas y no se reconcilian;
+- un **comparador `/compare.html`** que carga ambos `services.json` y muestra recuentos de servicios/salidas y diferencias de solo PDF, solo GTFS y salidas cambiadas.
 
 ### Automatización
 
-- GitHub Actions ejecuta Ruff, la suite completa de pruebas, la compilación del libro/sitio y la puerta de validación del sitio.
-- El trabajo `deploy` publica `output/html` en GitHub Pages solo desde `main`.
+- GitHub Actions ejecuta Ruff, la suite completa, la compilación PDF, la compilación GTFS y la validación del sitio compuesto.
+- El flujo se ejecuta a diario; `/` es el sitio PDF y `/gtfs/` el sitio GTFS, con `/compare.html` para compararlos.
+- El trabajo `deploy` publica `output/site` en GitHub Pages solo desde `main`.
 
 ## Inicio rápido
 
@@ -72,10 +75,11 @@ O con Make:
 
 ```bash
 make workbook   # solo el libro de Excel
-make html       # libro + sitio estático en output/html
+make html       # libro + sitio estático PDF en output/html
+make gtfs       # sitio GTFS en output/html-gtfs (requiere data/gtfs/gtfs_euskotren.zip)
 ```
 
-`make workbook` y `make html` esperan los PDF de origen en `data/pdfs/`. En una copia nueva, ejecuta primero el comando manifest.
+`make workbook` y `make html` esperan los PDF de origen en `data/pdfs/`. En una copia nueva, ejecuta primero el comando manifest. `make gtfs` espera el zip GTFS en `data/gtfs/`; el flujo de GitHub lo descarga y compone ambos sitios en `output/site/`.
 
 ### Comandos individuales
 
@@ -89,7 +93,9 @@ python3 -m euskotren_timetable.cli validate-site --output output/html
 ### Salidas
 
 - `output/euskotren_timetables_winter_2026_v12.xlsx`
-- `output/html/` — el sitio estático del horario
+- `output/html/` — el sitio estático del horario PDF
+- `output/html-gtfs/` — el sitio estático derivado de GTFS
+- `output/site/` — la composición PDF en `/` y GTFS en `/gtfs/` publicada por el flujo de trabajo
 - `output/validation.md`
 - `data/manifest.json`
 - `data/pdfs/*.pdf`
@@ -130,8 +136,9 @@ La validación del sitio comprueba enlaces y anclas internas, IDs duplicados, la
 | `euskotren_timetable/validate.py` | 215 comprobaciones estructurales |
 | `euskotren_timetable/workbook.py` | Renderizador de Excel |
 | `euskotren_timetable/site.py` | Generador del sitio HTML estático y validador de enlaces |
+| `euskotren_timetable/gtfs.py`, `gtfs_stops.py` | Adaptador GTFS y alias de estaciones padre |
 | `euskotren_timetable/templates/` | Plantillas Jinja2 del sitio |
-| `euskotren_timetable/assets/` | Hoja de estilos y scripts de Master/tabla de corredor |
+| `euskotren_timetable/assets/` | Hoja de estilos, tabla de corredor y comparador PDF/GTFS |
 | `euskotren_timetable/manifest.py`, `pdf.py` | Descarga, procedencia y extracción de PDF |
 | `euskotren_timetable/stops.py`, `source_notes.py` | Paradas canónicas y notas de carteles |
 | `data/manifest.json`, `data/corrections.yaml` | URL de origen y correcciones auxiliares |

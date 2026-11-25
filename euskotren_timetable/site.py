@@ -80,12 +80,21 @@ NIGHT_CALENDARS = {"FN", "SN"}
 def _meta(manifest: dict | None, generated_at: str | None) -> dict[str, Any]:
     files = (manifest or {}).get("files", [])
     first = files[0] if files else {}
+    source = (manifest or {}).get("source", "pdf")
     return {
         "season": first.get("season", "Winter 2026"),
         "valid_from": first.get("valid_from", "2026-11-21"),
         "valid_to": first.get("valid_to"),
         "generated_at": generated_at or datetime.now(UTC).isoformat(),
         "generator_version": __version__,
+        "source": source,
+        "source_label": (manifest or {}).get("source_label"),
+        "licence": (manifest or {}).get("licence"),
+        "licence_url": (manifest or {}).get("licence_url"),
+        "feed_version": (manifest or {}).get("feed_version"),
+        "feed_start_date": (manifest or {}).get("feed_start_date"),
+        "feed_end_date": (manifest or {}).get("feed_end_date"),
+        "representative_dates": (manifest or {}).get("representative_dates", {}),
         "source_manifest": [
             {
                 "label": entry.get("label") or "",
@@ -286,6 +295,9 @@ def build_site(
     manifest: dict | None = None,
     workbook_path: str | Path | None = None,
     generated_at: str | None = None,
+    extra_context: dict[str, Any] | None = None,
+    build_compare: bool = False,
+    workbook_name: str = WORKBOOK_FILENAME,
 ) -> Path:
     """Render the static site and return its output directory."""
     output = Path(output_dir)
@@ -304,14 +316,14 @@ def build_site(
     if workbook_path is not None and Path(workbook_path).exists():
         downloads = output / "downloads"
         downloads.mkdir()
-        shutil.copyfile(workbook_path, downloads / WORKBOOK_FILENAME)
-        workbook_url = f"downloads/{WORKBOOK_FILENAME}"
+        shutil.copyfile(workbook_path, downloads / workbook_name)
+        workbook_url = f"downloads/{workbook_name}"
 
     assets = output / "assets"
     shutil.copytree(ASSET_DIR, assets)
     (output / ".nojekyll").write_text("", encoding="utf-8")
 
-    context = {"meta": meta, "workbook_url": workbook_url}
+    context = {"meta": meta, "workbook_url": workbook_url, **(extra_context or {})}
     environment = Environment(
         loader=FileSystemLoader(str(TEMPLATE_DIR)),
         autoescape=select_autoescape(["html", "xml"]),
@@ -356,6 +368,19 @@ def build_site(
     (output / "master.html").write_text(
         environment.get_template("master.html").render(master_context), encoding="utf-8"
     )
+
+    if build_compare:
+        compare_context = dict(
+            context,
+            root="",
+            title="PDF vs GTFS",
+            pdf_url="index.html",
+            gtfs_url="gtfs/index.html",
+            compare_url=None,
+        )
+        (output / "compare.html").write_text(
+            environment.get_template("compare.html").render(compare_context), encoding="utf-8"
+        )
 
     template = environment.get_template("corridor.html")
     for corridor in CORRIDORS:

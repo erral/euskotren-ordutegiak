@@ -2,9 +2,11 @@
 
 import argparse
 import json
+from datetime import date, datetime
 from pathlib import Path
 
 from .corridors import assign_membership
+from .gtfs import load_gtfs_services
 from .manifest import MANIFEST_PATH, build_manifest
 from .parse_e1 import parse_e1_weekday, to_minutes
 from .parse_e1_eibar import parse_e1_eibar
@@ -55,15 +57,25 @@ from .parse_night import (
     parse_e4_night,
     parse_e4_night_reverse,
 )
-from .site import SITE_DIR, build_site, validate_site
+from .site import SITE_DIR, WORKBOOK_FILENAME, build_site, validate_site
 from .validate import validate, write_report
 from .workbook import build_workbook
 
 DEFAULT_OUTPUT = "output/euskotren_timetables_winter_2026_v12.xlsx"
 DEFAULT_SITE_OUTPUT = str(SITE_DIR)
+DEFAULT_GTFS = "data/gtfs/gtfs_euskotren.zip"
+DEFAULT_GTFS_WORKBOOK = "output/euskotren_timetables_winter_2026_gtfs.xlsx"
+DEFAULT_GTFS_SITE_OUTPUT = "output/html-gtfs"
 
 
-def _build_weekday(manifest_path: str, output: str, site_output: str | None = None) -> None:
+def _build_weekday(
+    manifest_path: str,
+    output: str,
+    site_output: str | None = None,
+    compare: bool = False,
+    gtfs_url: str | None = None,
+    workbook_name: str = WORKBOOK_FILENAME,
+) -> None:
     path = Path(manifest_path)
     if not path.exists():
         raise SystemExit(
@@ -290,7 +302,60 @@ def _build_weekday(manifest_path: str, output: str, site_output: str | None = No
     if passed != len(checks):
         raise SystemExit(1)
     if site_output:
-        site_path = build_site(services, site_output, manifest, workbook_path=target)
+        extra_context = {}
+        if compare:
+            extra_context["compare_url"] = "compare.html"
+        if gtfs_url:
+            extra_context["gtfs_url"] = gtfs_url
+        site_path = build_site(
+            services,
+            site_output,
+            manifest,
+            workbook_path=target,
+            extra_context=extra_context or None,
+            build_compare=compare,
+            workbook_name=workbook_name,
+        )
+        print(f"site: {site_path}")
+
+
+def _build_gtfs(
+    gtfs_path: str,
+    output: str,
+    site_output: str | None,
+    workbook_name: str,
+    pdf_url: str | None = None,
+    compare_url: str | None = None,
+) -> None:
+    try:
+        services, meta = load_gtfs_services(gtfs_path)
+    except (OSError, ValueError) as exc:
+        raise SystemExit(f"GTFS build failed: {exc}") from exc
+    manifest = meta.as_manifest()
+    feed_end = datetime.strptime(meta.feed_end_date, "%Y-%m-%d").date()
+    if (feed_end - date.today()).days < 7:
+        raise SystemExit(
+            f"GTFS feed ends on {meta.feed_end_date}; fewer than 7 days remain. "
+            "Refresh the feed before publishing."
+        )
+    target = build_workbook(output, services, [], [], manifest)
+    print(f"source: GTFS {meta.feed_version} ({meta.feed_start_date} → {meta.feed_end_date})")
+    print(f"services: {len(services)}")
+    print(f"workbook: {target}")
+    if site_output:
+        extra_context = {"variant_label": "GTFS bertsioa / Versión GTFS"}
+        if pdf_url:
+            extra_context["pdf_url"] = pdf_url
+        if compare_url:
+            extra_context["compare_url"] = compare_url
+        site_path = build_site(
+            services,
+            site_output,
+            manifest,
+            workbook_path=target,
+            extra_context=extra_context,
+            workbook_name=workbook_name,
+        )
         print(f"site: {site_path}")
 
 
@@ -305,8 +370,15 @@ def main() -> None:
     build.add_argument("--output", default=DEFAULT_OUTPUT)
     html = sub.add_parser("build-html", help="Build the workbook and the static HTML site")
     html.add_argument("--manifest", default=str(MANIFEST_PATH))
-    html.add_argument("--output", default=DEFAULT_SITE_OUTPUT)
-    html.add_argument("--workbook", default=DEFAULT_OUTPUT)
+    html.add_argument("--source", choices=("pdf", "gtfs"), default="pdf")
+    html.add_argument("--gtfs", default=DEFAULT_GTFS)
+    html.add_argument("--output", default=None)
+    html.add_argument("--workbook", default=None)
+    html.add_argument("--workbook-name", default=None)
+    html.add_argument("--compare", action="store_true")
+    html.add_argument("--gtfs-url", default=None)
+    html.add_argument("--pdf-url", default=None)
+    html.add_argument("--compare-url", default=None)
     site_check = sub.add_parser("validate-site", help="Check the generated site")
     site_check.add_argument("--output", default=DEFAULT_SITE_OUTPUT)
     sub.add_parser("all", help="manifest + build-weekday + build-html")
@@ -319,7 +391,24 @@ def main() -> None:
         return
 
     if args.command == "build-html":
-        _build_weekday(args.manifest, args.workbook, site_output=args.output)
+        if args.source == "gtfs":
+            _build_gtfs(
+                args.gtfs,
+                args.workbook or DEFAULT_GTFS_WORKBOOK,
+                args.output or DEFAULT_GTFS_SITE_OUTPUT,
+                args.workbook_name or "euskotren_timetables_winter_2026_gtfs.xlsx",
+                pdf_url=args.pdf_url,
+                compare_url=args.compare_url,
+            )
+        else:
+            _build_weekday(
+                args.manifest,
+                args.workbook or DEFAULT_OUTPUT,
+                site_output=args.output or DEFAULT_SITE_OUTPUT,
+                compare=args.compare,
+                gtfs_url=args.gtfs_url,
+                workbook_name=args.workbook_name or WORKBOOK_FILENAME,
+            )
         return
 
     if args.command == "validate-site":

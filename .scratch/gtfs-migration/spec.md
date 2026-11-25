@@ -14,7 +14,7 @@ In scope:
 - route and direction filtering for E1, E2-T1, E4 and E3-L3;
 - service identity, deduplication and `WD/SA/SU/WE/FN/SN` calendar derivation;
 - the GTFS parent-station to canonical-stop alias table;
-- the hard PDF-diff validation contract;
+- the integrity gate and the PDF/GTFS comparator contract;
 - build, manifest, refresh cadence, staleness gate and rollout;
 - the CC BY 4.0 licence and attribution requirements.
 
@@ -148,37 +148,37 @@ For the 2026-11-25 feed the natural candidate dates are 2026-11-25/27 (weekday),
 - Hard validation: every in-scope GTFS parent station maps exactly once; every canonical stop used by the four lines has a mapping. No fuzzy matching at runtime.
 - Known many-to-one cases (if any) must be explicit and reviewed, not accidental.
 
-## Validation and PDF diff
+## Integrity gate and comparator
 
-- Reference: the pinned PDF-derived build from `data/manifest.json` and the current parsers.
-- Build both sources in CI and compare the overlapping services and calendars.
-- Compare by `(primary_line, direction, calendar, departure)` and by canonical stop.
-- Hard failures:
-  - missing or extra services;
-  - different displayed departure times;
-  - different served/`not_served` sets;
-  - duplicate public IDs;
-  - unmapped GTFS trips or stops;
-  - a PDF known time that GTFS does not publish.
-- `Service.arrival`: compare against the last displayed departure via the terminal-stop rule; report a GTFS arrival difference separately rather than failing when the departure matches.
-- Presentation differences:
-  - PDF `pass` (`>`) becomes blank; the marker is retired.
-  - PDF `?` may become a GTFS time; report these as improvements and require an explicit allowlist entry.
-  - `pattern`, `notes`, `source_pdf`, `frequency_rule_ids`, validity metadata and the `refuerzo` label are not part of the timetable equality gate.
-- Allowlist: `data/gtfs-pdf-allowlist.yaml`, initially empty; every entry names the service/field, the reason and the review date. No silent tolerance.
-- Diff report: a human-readable `added / removed / changed` report produced as a CI artifact.
-- Golden tests: Arroa 06:53, E1 05:35, representative E2/E3/E4 services and the night calendars.
-- Holiday exceptions are excluded from the first comparison; record the limitation in the report.
+The PDF and GTFS feeds are different timetable editions; the migration does **not** attempt to reconcile them.
+
+The GTFS build must pass a hard **integrity** gate:
+
+- every in-scope GTFS parent station maps exactly once to a canonical stop;
+- every in-scope trip maps to a line, direction and canonical stop order;
+- no duplicate public service IDs after collision suffixes;
+- the feed is present and at least seven days of its validity window remain;
+- every service has at least two served stops and a canonical stop set.
+
+The PDF site remains the reference publication at `/`; the GTFS site is published independently at `/gtfs/`. `/compare.html` is the human review mechanism:
+
+- it loads both `services.json` files;
+- it filters by line, direction and calendar;
+- it renders the PDF and GTFS tables side by side;
+- it reports service/departure counts, PDF-only departures, GTFS-only departures and changed departures;
+- it links every service to its page in the corresponding site.
+
+The comparator note states that the editions differ and that differences are expected. There is no blocking PDF-equality gate and no allowlist; differences are visible, not suppressed.
 
 ## Build and manifest
 
-- CLI: `build-html --source gtfs|pdf --gtfs <zip>`; `pdf` remains the default until cutover.
-- The GTFS path builds the same workbook and site from `load_gtfs_services`; the PDF path remains the reference/validation build.
+- CLI: `build-html --source gtfs|pdf --gtfs <zip>`; `pdf` remains the default at `/`, `gtfs` builds the parallel `/gtfs/` site.
+- The GTFS path builds the same workbook and site from `load_gtfs_services`; the PDF path remains the reference build.
 - Generate `data/gtfs-manifest.json` inside each GTFS site's `data/` directory with the feed metadata and SHA-256.
 - Add an optional `gtfs` object to `data/services.json` meta with the feed version/window/source/checksum.
 - Carry the feed version/window/licence into the site footer and workbook metadata.
 - Do not commit a new manifest daily; the deployed artifact is the record. Keep a committed schema/example.
-- Keep the PDF manifest and PDF download path for validation.
+- Keep the PDF manifest and PDF download path.
 - The Frequency rules sheet remains but has no GTFS rules; GTFS trips are explicit.
 - The Master `Source PDF` column becomes `Source` and shows the GTFS source/feed identifier.
 
@@ -188,29 +188,25 @@ For the 2026-11-25 feed the natural candidate dates are 2026-11-25/27 (weekday),
 
 - Extend `.github/workflows/tests.yml` with a daily schedule after the feed's ~07:00 local publication (for example 06:30 UTC).
 - Download the GTFS zip and the pinned PDFs.
-- Compute/check the feed metadata; fail when the feed is missing, the download fails, or fewer than **7 days** remain in `feed_end_date`.
-- Build the GTFS site/workbook and the PDF reference; run the hard diff.
-- Publish only on success; a failed run leaves the last successful Pages deployment live.
-- Keep the push/PR/manual test job and the PDF download for the diff.
+- Run the tests, including the GTFS adapter integrity tests.
+- Build the PDF site at `/` and the GTFS site at `/gtfs/`; both are linked by the shared banner and the comparator.
+- Build both workbooks: `…_pdf.xlsx` and `…_gtfs.xlsx`.
+- Validate the composed site and publish it on success; a failed run leaves the last successful deployment live.
+- Keep the push/PR/manual test job.
 
-### One-week parallel publication
+### Publication model
 
-During the soak:
+- `/` is the PDF-derived site.
+- `/gtfs/` is the GTFS-derived site.
+- `/compare.html` is the side-by-side comparator.
+- Both workbooks are public.
+- This is a permanent parallel publication, not a one-week soak and not a cutover.
+- The PDF site is not retired; the GTFS site is an additional, independently sourced view.
+- The comparator explicitly states that the two editions are not reconciled.
 
-- `/` remains the PDF-derived site.
-- `/gtfs/` is the GTFS preview, self-contained, linked from `/` with a visible “GTFS preview” banner/label.
-- Both workbook variants are public: `…_pdf.xlsx` and `…_gtfs.xlsx`.
-- The daily workflow updates `/gtfs/` only when the hard diff passes.
+### Attribution
 
-After one week of clean daily runs:
-
-- GTFS becomes the canonical site at `/`.
-- The PDF build is retired from public publication but remains the CI validation/reference build.
-- The canonical workbook download becomes the GTFS workbook.
-
-### Attribution at cutover
-
-Add the CC BY 4.0 attribution to the README, site footer and workbook metadata: credit Eusko Trenbideak, link the GTFS source and the CC BY 4.0 licence, note that the data was transformed, and include the feed version/last-update date.
+Add the CC BY 4.0 attribution to the GTFS site footer, the GTFS workbook metadata and the README: credit Eusko Trenbideak, link the GTFS source and the CC BY 4.0 licence, note that the data was transformed, and include the feed version/last-update date.
 
 ## Licence and attribution
 
@@ -241,7 +237,7 @@ Integration tests:
 - golden Arroa/E1/E2/E3/E4/night services;
 - staleness gate and missing-feed failure.
 
-The hard PDF diff is part of the release gate, not merely a local check.
+The integrity gate is hard; the comparator is the review surface, not a local convenience check.
 
 ## Implementation boundary
 
@@ -251,7 +247,7 @@ In the first migration:
 - current per-line calendar sets;
 - current workbook and wide HTML shapes;
 - daily GTFS refresh with a 7-day staleness floor;
-- one-week `/` vs `/gtfs/` parallel publication;
+- permanent `/` PDF + `/gtfs/` GTFS parallel publication plus the `/compare.html` comparator;
 - CC BY 4.0 attribution.
 
 Deferred:
@@ -265,12 +261,26 @@ Deferred:
 
 ## Open risks
 
-- GTFS/PDF differences will appear during the first diff; the allowlist process must stay empty by default and reviewed.
+- GTFS/PDF differences are expected; they are surfaced in the comparator and are not suppressed or reconciled.
 - The rolling feed expires; the 7-day staleness gate and daily rebuild are mandatory.
 - GTFS stop IDs/names may change; the hard alias check will surface it.
 - Night-calendar classification may need tuning against the PDF night calendars.
 - The licence has minor portal inconsistencies (general legal link, legacy “do not alter” clause); attribution plus a change notice is the mitigation.
 - GTFS contains more data than the current wide table; the first migration deliberately filters it.
+
+## Implementation finding (2026-11-25)
+
+The first adapter spike (on `feat/gtfs-migration`) showed that the live GTFS feed and the current PDF output are different timetable editions and calendar groupings:
+
+- **2,186** in-scope GTFS rail trips (E3a excluded) against **2,225** PDF service rows — 39 fewer.
+- **913** unique GTFS timetable patterns against **1,521** unique PDF patterns — 608 fewer.
+- The date-derived calendar expansion produced 2,845 *calendar candidates*; that is calendar duplication, not more physical services.
+- Only 599 unique patterns are common; 922 PDF patterns have no GTFS match and 314 GTFS patterns have no PDF match.
+- Seven public-ID conflicts share the same line/direction/calendar/departure but differ in pattern or destination.
+- The E1 weekend GTFS trips omit Arroa, while the PDF weekend table publishes it at 08:33.
+- The PDF calendars are source-table groups, not pure day types.
+
+Consequence: the **hard PDF equality gate** is not workable, and the date-derived calendar grouping is not reconciled with the PDFs. The chosen implementation is a permanent parallel publication: PDF at `/`, GTFS at `/gtfs/`, and `/compare.html` as the side-by-side review surface. The adapter, the 82-stop alias table, the provenance fields, the GTFS build and the comparator are implemented on `feat/gtfs-migration`.
 
 ## References
 
