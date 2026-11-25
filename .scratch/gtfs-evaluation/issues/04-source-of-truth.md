@@ -1,7 +1,7 @@
 # Decide the timetable source of truth and refresh policy
 
 Type: grilling
-Status: open
+Status: resolved
 Parent: [Evaluate Euskotren GTFS as a timetable source](../map.md)
 
 ## Question
@@ -21,6 +21,19 @@ Also decide:
 
 ➡️ Recommendation: **(a)**. Adopt GTFS as the static source of truth; keep the PDF-derived output as a diff/validation artifact and last-known-good fallback; rebuild daily with a staleness alarm; allow GTFS-derived improvements such as arrival/departure times and date-specific calendars after the first migration.
 
+## Answer
+
+Resolved 2026-11-25. Option **(a)** accepted.
+
+- **Source of truth**: the static Euskotren GTFS feed.
+- **PDFs**: retained as a validation/provenance artifact and reference build, not as the primary parser.
+- **Refresh**: rebuild from GTFS daily; alarm or fail when the feed is unavailable or its validity window is stale. A stale GTFS build must not be published; keep the last successful build live.
+- **First migration**: preserve the current workbook and wide HTML timetable shapes. GTFS-derived improvements such as arrival/departure times and date-specific calendars are follow-ups.
+- **Real-time**: out of scope for the static pipeline. GTFS-RT trip updates may be evaluated later as a live-service feature.
+
+The exact publish-on-failure behaviour (keep last successful deployment vs publish the PDF-derived reference build) remains an implementation detail for the follow-up effort.
+
 ## Comments
 
 - Charted 2026-11-25 from the three research tickets.
+- 2026-11-25: claimed and resolved. The user chose option (a), GTFS as the static source of truth.

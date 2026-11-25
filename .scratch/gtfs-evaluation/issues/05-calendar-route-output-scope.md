@@ -19,3 +19,4 @@ Once the source-of-truth model is chosen:
 ## Comments
 
 - Charted 2026-11-25. Blocked by the source-of-truth decision.
+- 2026-11-25: [Decide the timetable source of truth and refresh policy](04-source-of-truth.md) resolved with option (a); this ticket is now on the frontier.
