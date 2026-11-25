@@ -1,0 +1,51 @@
+{% extends "base.html" %}
+{% block title %}PDF vs GTFS — Euskotren{% endblock %}
+{% block description %}Compare the PDF-derived and GTFS-derived Euskotren timetables side by side.{% endblock %}
+{% block content %}
+<header class="page-head">
+  <h1>PDF <span aria-hidden="true">↔</span> GTFS</h1>
+  <p class="page-meta">
+    Konparatu bi iturriak / <span lang="es">Compara las dos fuentes</span>
+  </p>
+</header>
+
+<p class="compare-note">
+  PDF eta GTFS ordutegiak edizio desberdinak dira. GTFS egunero eguneratzen da; PDFak kartel estatikoak dira.
+  Konparatzaileak aldeak erakusten ditu, ez ditu bateratzen.
+  / <span lang="es">Los horarios PDF y GTFS son ediciones distintas. GTFS se actualiza a diario; los PDF son carteles estáticos. Este comparador muestra las diferencias; no las reconcilia.</span>
+</p>
+
+<form class="filters compare-filters" id="compare-filters">
+  <label>Linea
+    <select id="compare-line"></select>
+  </label>
+  <label>Norabidea / <span lang="es">Sentido</span>
+    <select id="compare-direction"></select>
+  </label>
+  <label>Egutegia / <span lang="es">Calendario</span>
+    <select id="compare-calendar"></select>
+  </label>
+</form>
+
+<p id="compare-status" class="filter-count" aria-live="polite"></p>
+<div id="compare-summary" class="compare-summary"></div>
+
+<div class="compare-grid">
+  <section class="compare-panel">
+    <h2>PDF</h2>
+    <div class="table-scroll" tabindex="0" role="region" aria-label="PDF taula / tabla">
+      <table class="timetable compare-table" id="compare-pdf-table"></table>
+    </div>
+  </section>
+  <section class="compare-panel">
+    <h2>GTFS</h2>
+    <div class="table-scroll" tabindex="0" role="region" aria-label="GTFS taula / tabla">
+      <table class="timetable compare-table" id="compare-gtfs-table"></table>
+    </div>
+  </section>
+</div>
+
+<div id="compare-details" class="compare-details"></div>
+
+<script src="{{ root }}assets/compare.js" defer></script>
+{% endblock %}

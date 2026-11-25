@@ -1,6 +1,6 @@
 # Migrate the static timetable pipeline to Euskotren GTFS
 
-Status: route clear — GTFS migration specification written 2026-11-25.
+Status: route clear — parallel PDF + GTFS publication and comparator implemented on `feat/gtfs-migration`.
 
 ## Destination
 
@@ -30,10 +30,11 @@ A decision-complete implementation specification for replacing the PDF static pi
 - [Decide build, refresh and rollout](issues/05-build-refresh-rollout.md): `--source gtfs|pdf` with a staged default; generated GTFS manifest and feed metadata; daily scheduled build with a 7-day staleness floor and hard PDF diff; one-week `/` PDF vs `/gtfs/` GTFS parallel publication with both workbooks, then GTFS at `/`; CC BY 4.0 attribution at cutover.
 - [Confirm Open Data Euskadi licence and attribution](issues/06-license-attribution.md): the dataset is CC BY 4.0; attribute Eusko Trenbideak, link the source and licence, note changes and the feed version; derived outputs may be published under CC BY 4.0 with the code under GPL-2.0.
 - [Write the GTFS migration specification](issues/07-write-spec.md): spec written at [`spec.md`](spec.md); adapter, mapping, calendars, stop aliases, validation, build/refresh, parallel publication, licence/attribution, testing and implementation boundary defined.
+- [Decide GTFS-to-published calendar reconciliation](issues/08-calendar-reconciliation.md): parallel publication, not reconciliation; `/` stays PDF, `/gtfs/` is GTFS, `/compare.html` is the side-by-side comparator; collision suffixes; representative-day calendars; integrity gate.
 
 ## Not yet specified
 
-None beyond the live tickets. The specification ticket consolidates the answers; any remaining implementation detail should be added there rather than kept as fog.
+None. Date-aware calendars, E3a and real-time remain deferred follow-ups.
 
 ## Out of scope
 

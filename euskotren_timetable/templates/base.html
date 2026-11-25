@@ -21,6 +21,15 @@
     </div>
   </header>
 
+  {% if variant_label or gtfs_url or pdf_url or compare_url %}
+  <div class="wrap variant-banner">
+    {% if variant_label %}<strong>{{ variant_label }}</strong>{% endif %}
+    {% if pdf_url %}<a href="{{ root }}{{ pdf_url }}">PDF ordutegia / <span lang="es">Horario PDF</span></a>{% endif %}
+    {% if gtfs_url %}<a href="{{ root }}{{ gtfs_url }}">GTFS ordutegia / <span lang="es">Horario GTFS</span></a>{% endif %}
+    {% if compare_url %}<a href="{{ root }}{{ compare_url }}">Konparatu / <span lang="es">Comparar</span></a>{% endif %}
+  </div>
+  {% endif %}
+
   <main id="main" class="wrap">
     {% block content %}{% endblock %}
   </main>
@@ -38,6 +47,13 @@
         {% for source in meta.source_manifest %}
           <a href="{{ source.url }}">{{ source.label }}</a>{% if not loop.last %} · {% endif %}
         {% endfor %}
+      </p>
+      {% endif %}
+      {% if meta.licence %}
+      <p>
+        Lizentzia / <span lang="es">Licencia</span>:
+        <a href="{{ meta.licence_url }}">{{ meta.licence }}</a>
+        · {{ meta.source_label or "Eusko Trenbideak" }}{% if meta.feed_version %} · feed {{ meta.feed_version }}{% endif %}
       </p>
       {% endif %}
     </div>

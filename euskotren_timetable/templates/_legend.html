@@ -1,5 +1,7 @@
 <aside class="legend" aria-label="Sinboloak / Símbolos">
+  {% if meta.source != "gtfs" %}
   <p><span class="unpublished">?</span> — ordua argitaratu gabe / <span lang="es">hora no publicada</span>.</p>
   <p><span class="pass">&gt;</span> — gelditu gabe pasatzen du / <span lang="es">pasa sin parar</span>.</p>
+  {% endif %}
   <p>Zelula hutsa — geltokia ez du zerbitzatzen / <span lang="es">la estación no se sirve</span>.</p>
 </aside>

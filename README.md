@@ -22,7 +22,7 @@ The workbook is the source of truth. The HTML site is an additional view built f
 - Through-running and cross-line membership: a service appears in every corridor it traverses, such as E1 services on the shared E2-T1 Donostia section.
 - Partial and special services: E1 Pasaia–Zumaia, Zaldibar–Matiko/Traña, Elgoibar–Matiko and Eibar–Ermua; E2 Añorga shuttles; E4 Gernika variants and short-turns; the Amorebieta Geltokia transfer column; and the night blocks.
 - Canonical ordering shared by Excel and HTML: **calendar → departure → line → direction → service ID**. Corridor pages put the corridor’s own line first when services share a departure.
-- **215 structural validation checks** and **166 unit tests**.
+- **215 structural validation checks** and **170 unit tests**.
 
 ### Excel workbook
 
@@ -50,12 +50,15 @@ Calendar blocks are stacked in each corridor sheet. The `Coverage` sheet marks e
 - `data/services.json` (schema version 1) and the workbook download;
 - print styles, a skip link, keyboard-accessible scroll regions and `aria-live` result counts;
 - relative links, so the site works from a project Pages URL;
-- no source PDFs in the published artifact.
+- no source PDFs in the published artifact;
+- a parallel **GTFS-derived site at `/gtfs/`** with its own workbook and source/licence metadata; the PDF and GTFS editions differ and are not reconciled;
+- a **`/compare.html` side-by-side comparator** that loads both `services.json` files and reports service/departure counts, PDF-only, GTFS-only and changed departures.
 
 ### Automation
 
-- GitHub Actions runs Ruff, the full test suite, the workbook/site build and the site validation gate.
-- The `deploy` job publishes `output/html` to GitHub Pages only from `main`.
+- GitHub Actions runs Ruff, the full test suite, the PDF build, the GTFS build and the composed site validation gate.
+- The workflow runs daily; `/` is the PDF-derived site and `/gtfs/` is the GTFS-derived site, with `/compare.html` comparing them.
+- The `deploy` job publishes `output/site` to GitHub Pages only from `main`.
 
 ## Quick start
 
@@ -72,10 +75,11 @@ Or use Make:
 
 ```bash
 make workbook   # Excel workbook only
-make html       # workbook + static site in output/html
+make html       # PDF-derived workbook + static site in output/html
+make gtfs       # GTFS-derived site in output/html-gtfs (requires data/gtfs/gtfs_euskotren.zip)
 ```
 
-`make workbook` and `make html` expect the source PDFs in `data/pdfs/`. Run the manifest command first on a fresh checkout.
+`make workbook` and `make html` expect the source PDFs in `data/pdfs/`. Run the manifest command first on a fresh checkout. `make gtfs` expects the GTFS zip in `data/gtfs/`; the GitHub workflow downloads it automatically and composes both sites under `output/site/`.
 
 ### Individual commands
 
@@ -83,6 +87,7 @@ make html       # workbook + static site in output/html
 python3 -m euskotren_timetable.cli manifest
 python3 -m euskotren_timetable.cli build-weekday
 python3 -m euskotren_timetable.cli build-html
+python3 -m euskotren_timetable.cli build-html --source gtfs --gtfs data/gtfs/gtfs_euskotren.zip --output output/html-gtfs --workbook output/euskotren_timetables_winter_2026_gtfs.xlsx
 python3 -m euskotren_timetable.cli validate-site --output output/html
 ```
 
@@ -130,8 +135,9 @@ The site validation checks internal links and anchors, duplicate IDs, the JSON p
 | `euskotren_timetable/validate.py` | 215 structural checks |
 | `euskotren_timetable/workbook.py` | Excel renderer |
 | `euskotren_timetable/site.py` | Static HTML generator and link validator |
+| `euskotren_timetable/gtfs.py`, `gtfs_stops.py` | GTFS adapter and parent-station aliases |
 | `euskotren_timetable/templates/` | Jinja2 site templates |
-| `euskotren_timetable/assets/` | Site stylesheet and Master/corridor-table scripts |
+| `euskotren_timetable/assets/` | Site stylesheet, corridor table and PDF/GTFS comparator scripts |
 | `euskotren_timetable/manifest.py`, `pdf.py` | PDF download, provenance and extraction |
 | `euskotren_timetable/stops.py`, `source_notes.py` | Canonical stops and poster notes |
 | `data/manifest.json`, `data/corrections.yaml` | Source URLs and sidecar corrections |

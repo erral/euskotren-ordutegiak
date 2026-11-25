@@ -4,6 +4,8 @@ on:
   push:
   pull_request:
   workflow_dispatch:
+  schedule:
+    - cron: "30 6 * * *"
 
 permissions:
   contents: read
@@ -58,19 +60,56 @@ jobs:
               print(f"downloaded {target}")
           PY
 
+      - name: Download GTFS
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+
+          import requests
+
+          url = "https://opendata.euskadi.eus/transport/moveuskadi/euskotren/gtfs_euskotren.zip"
+          target = Path("data/gtfs/gtfs_euskotren.zip")
+          target.parent.mkdir(parents=True, exist_ok=True)
+          response = requests.get(
+              url,
+              timeout=120,
+              headers={"User-Agent": "Mozilla/5.0 (compatible; euskotren-timetable CI)"},
+          )
+          response.raise_for_status()
+          target.write_bytes(response.content)
+          print(f"downloaded {target}")
+          PY
+
       - name: Run tests
         run: python -m unittest discover -s tests -v
 
-      - name: Build workbook and site
-        run: python -m euskotren_timetable.cli build-html
+      - name: Build PDF site
+        run: |
+          python -m euskotren_timetable.cli build-html \
+            --source pdf \
+            --output output/site \
+            --compare \
+            --gtfs-url gtfs/index.html \
+            --workbook-name euskotren_timetables_winter_2026_pdf.xlsx
 
-      - name: Validate site
-        run: python -m euskotren_timetable.cli validate-site --output output/html
+      - name: Build GTFS site
+        run: |
+          python -m euskotren_timetable.cli build-html \
+            --source gtfs \
+            --gtfs data/gtfs/gtfs_euskotren.zip \
+            --output output/site/gtfs \
+            --workbook output/euskotren_timetables_winter_2026_gtfs.xlsx \
+            --workbook-name euskotren_timetables_winter_2026_gtfs.xlsx \
+            --pdf-url ../index.html \
+            --compare-url ../compare.html
+
+      - name: Validate composed site
+        run: python -m euskotren_timetable.cli validate-site --output output/site
 
       - name: Upload Pages artifact
         uses: actions/upload-pages-artifact@v3
         with:
-          path: output/html
+          path: output/site
 
   deploy:
     needs: test
