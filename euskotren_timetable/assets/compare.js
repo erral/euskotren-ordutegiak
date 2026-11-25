@@ -1,31 +1,55 @@
 (function () {
   "use strict";
 
+  document.documentElement.classList.add("js");
+
   const byId = (id) => document.getElementById(id);
-  const lineSelect = byId("compare-line");
-  const directionSelect = byId("compare-direction");
+  const corridorSelect = byId("compare-corridor");
   const calendarSelect = byId("compare-calendar");
-  const status = byId("compare-status");
-  const summary = byId("compare-summary");
-  const details = byId("compare-details");
+  const fromSelect = byId("compare-from");
+  const toSelect = byId("compare-to");
+  const toggle = byId("compare-toggle");
+  const clear = byId("compare-clear");
+  const count = byId("compare-count");
+  const empty = byId("compare-empty");
+  const reverse = byId("compare-reverse");
+  const reverseLink = byId("compare-reverse-link");
   const pdfTable = byId("compare-pdf-table");
   const gtfsTable = byId("compare-gtfs-table");
+  const summary = byId("compare-summary");
+  const details = byId("compare-details");
 
   if (
-    !lineSelect ||
-    !directionSelect ||
+    !corridorSelect ||
     !calendarSelect ||
-    !status ||
-    !summary ||
-    !details ||
+    !fromSelect ||
+    !toSelect ||
+    !toggle ||
+    !clear ||
+    !count ||
+    !empty ||
+    !reverse ||
+    !reverseLink ||
     !pdfTable ||
-    !gtfsTable
+    !gtfsTable ||
+    !summary ||
+    !details
   ) {
     return;
   }
 
   let pdfData;
   let gtfsData;
+  let corridor;
+  let stopNames = [];
+  let pdfEntries = [];
+  let gtfsEntries = [];
+  let pdfBody;
+  let gtfsBody;
+  let expanded = false;
+  let sortStop = null;
+  let sortDirection = "asc";
+  let reverseCorridor = null;
 
   function minutes(value) {
     const match = /^(\d{1,2}):(\d{2})$/.exec(String(value || "").trim());
@@ -44,10 +68,6 @@
     });
   }
 
-  function setStatus(text) {
-    status.textContent = text;
-  }
-
   function setOptions(select, values, selected) {
     select.replaceChildren();
     for (const value of values) {
@@ -61,9 +81,14 @@
     }
   }
 
-  function corridorFor(line, direction) {
+  function corridorValue(value) {
+    return `${value.line}|${value.direction}`;
+  }
+
+  function selectedCorridor() {
+    const [line, direction] = corridorSelect.value.split("|");
     return pdfData.corridors.find(
-      (corridor) => corridor.line === line && corridor.direction === direction
+      (item) => item.line === line && item.direction === direction
     );
   }
 
@@ -80,126 +105,394 @@
       );
   }
 
-  function timeAt(service, stop) {
+  function availableCalendars(sheet) {
+    const ids = new Set();
+    for (const service of pdfData.services) {
+      if (service.appears_in.includes(sheet)) {
+        ids.add(service.calendar);
+      }
+    }
+    for (const service of gtfsData.services) {
+      if (service.appears_in.includes(sheet)) {
+        ids.add(service.calendar);
+      }
+    }
+    return pdfData.calendars
+      .filter((calendar) => ids.has(calendar.id))
+      .sort((a, b) => a.order - b.order);
+  }
+
+  function populateCorridors() {
+    corridorSelect.replaceChildren();
+    const groups = new Map();
+    for (const item of pdfData.corridors) {
+      if (!groups.has(item.line)) {
+        groups.set(item.line, []);
+      }
+      groups.get(item.line).push(item);
+    }
+    for (const [line, items] of groups) {
+      const group = document.createElement("optgroup");
+      group.label = line;
+      for (const item of items) {
+        const option = document.createElement("option");
+        option.value = corridorValue(item);
+        option.textContent = item.direction;
+        group.append(option);
+      }
+      corridorSelect.append(group);
+    }
+    const first = pdfData.corridors[0];
+    if (first) {
+      corridorSelect.value = corridorValue(first);
+    }
+  }
+
+  function fillStopSelects() {
+    const values = [{ value: "", label: "—" }].concat(
+      stopNames.map((stop) => ({ value: stop, label: stop }))
+    );
+    const previousFrom = stopNames.includes(fromSelect.value) ? fromSelect.value : "";
+    const previousTo = stopNames.includes(toSelect.value) ? toSelect.value : "";
+    setOptions(fromSelect, values, previousFrom);
+    setOptions(toSelect, values, previousTo);
+    syncOptions();
+  }
+
+  function syncOptions() {
+    for (const [select, other] of [
+      [fromSelect, toSelect],
+      [toSelect, fromSelect],
+    ]) {
+      const taken = other.value;
+      for (const option of select.options) {
+        option.disabled = option.value !== "" && option.value === taken;
+      }
+      if (select.value !== "" && select.value === taken) {
+        select.value = "";
+      }
+    }
+  }
+
+  function defaultSortStop() {
+    if (fromSelect.value) {
+      return fromSelect.value;
+    }
+    if (toSelect.value) {
+      return toSelect.value;
+    }
+    return stopNames[0];
+  }
+
+  function cellInfo(service, stop) {
     const row = service.stop_times.find((item) => item.stop_name === stop);
-    if (!row || !row.time) {
-      return "";
+    if (!row || row.disposition === "not_served") {
+      return { text: "", cls: "empty" };
     }
-    return row.time;
+    if (row.disposition === "unpublished") {
+      return { text: "?", cls: "unpublished" };
+    }
+    if (row.disposition === "pass") {
+      return { text: ">", cls: "pass" };
+    }
+    return { text: row.time || "", cls: row.time ? "time" : "empty" };
   }
 
-  function addCell(row, text, className, header) {
-    const cell = document.createElement(header ? "th" : "td");
-    if (header) {
-      cell.scope = "col";
-    }
-    if (className) {
-      cell.className = className;
-    }
-    cell.textContent = text;
-    row.append(cell);
+  function buildEntries(services) {
+    return services.map((service) => {
+      const cells = new Map();
+      const callIndex = new Map();
+      for (const stop of stopNames) {
+        cells.set(stop, cellInfo(service, stop));
+      }
+      service.stop_times.forEach((row, index) => {
+        if (
+          row.disposition !== "not_served" &&
+          row.disposition !== "pass" &&
+          row.time
+        ) {
+          callIndex.set(row.stop_name, index);
+        }
+      });
+      return { service, cells, callIndex, row: null };
+    });
   }
 
-  function serviceHref(prefix, line, corridor, calendar, serviceId) {
-    const lineData = pdfData.lines.find((item) => item.code === line);
-    const calendarData = pdfData.calendars.find((item) => item.id === calendar);
-    if (!lineData || !calendarData || !corridor) {
+  function serviceHref(prefix, serviceId) {
+    const lineData = pdfData.lines.find((item) => item.code === corridor.line);
+    const calendarData = pdfData.calendars.find(
+      (item) => item.id === calendarSelect.value
+    );
+    if (!lineData || !calendarData) {
       return null;
     }
     return `${prefix}line/${lineData.slug}/${corridor.slug}/${calendarData.slug}.html#${serviceId}`;
   }
 
-  function renderTable(table, services, line, corridor, calendar, prefix) {
+  function addHeader(row, text, className) {
+    const header = document.createElement("th");
+    header.scope = "col";
+    if (className) {
+      header.className = className;
+    }
+    header.textContent = text;
+    row.append(header);
+    return header;
+  }
+
+  function addSortHeader(row, stop) {
+    const header = document.createElement("th");
+    header.scope = "col";
+    header.className = "sortable";
+    header.dataset.stop = stop;
+    header.setAttribute("aria-sort", "none");
+    const button = document.createElement("button");
+    button.type = "button";
+    button.className = "sort-button";
+    button.append(document.createTextNode(stop));
+    const arrow = document.createElement("span");
+    arrow.className = "sort-arrow";
+    arrow.setAttribute("aria-hidden", "true");
+    button.append(arrow);
+    button.addEventListener("click", () => {
+      if (sortStop === stop) {
+        sortDirection = sortDirection === "asc" ? "desc" : "asc";
+      } else {
+        sortStop = stop;
+        sortDirection = "asc";
+      }
+      applyState();
+    });
+    header.append(button);
+    row.append(header);
+  }
+
+  function addMetadataCell(row, text, className, header) {
+    const cell = document.createElement(header ? "th" : "td");
+    if (header) {
+      cell.scope = "row";
+    }
+    cell.className = className ? `metadata-col ${className}` : "metadata-col";
+    cell.textContent = text;
+    row.append(cell);
+  }
+
+  function buildTable(table, entries, prefix) {
     table.replaceChildren();
     const head = document.createElement("thead");
-    const headRow = document.createElement("tr");
-    for (const title of ["Service ID", "Dep.", "Arr.", "Destination"]) {
-      addCell(headRow, title, null, true);
+    const headerRow = document.createElement("tr");
+    addHeader(headerRow, "Service ID", "metadata-col");
+    for (const title of ["Line", "Pattern", "Origin", "Destination", "Departure", "Arrival"]) {
+      addHeader(headerRow, title, title === "Departure" || title === "Arrival" ? "metadata-col time" : "metadata-col");
     }
-    for (const stop of corridor.stops) {
-      addCell(headRow, stop, null, true);
+    for (const stop of stopNames) {
+      addSortHeader(headerRow, stop);
     }
-    head.append(headRow);
+    head.append(headerRow);
     table.append(head);
 
     const body = document.createElement("tbody");
-    for (const service of services) {
+    for (const entry of entries) {
       const row = document.createElement("tr");
-      const idCell = document.createElement("th");
-      idCell.scope = "row";
-      idCell.className = "service-id";
-      const href = serviceHref(prefix, line, corridor, calendar, service.service_id);
+      const serviceId = document.createElement("th");
+      serviceId.scope = "row";
+      serviceId.className = "metadata-col service-id";
+      const href = serviceHref(prefix, entry.service.service_id);
       if (href) {
         const link = document.createElement("a");
         link.href = href;
-        link.textContent = service.service_id;
-        idCell.append(link);
+        link.textContent = entry.service.service_id;
+        serviceId.append(link);
       } else {
-        idCell.textContent = service.service_id;
+        serviceId.textContent = entry.service.service_id;
       }
-      row.append(idCell);
-      addCell(row, service.departure || "", "time");
-      addCell(row, service.arrival || "", "time");
-      addCell(row, service.destination || "");
-      for (const stop of corridor.stops) {
-        const value = timeAt(service, stop);
-        addCell(row, value, value === "?" ? "unpublished" : value ? "time" : "empty");
+      row.append(serviceId);
+      addMetadataCell(row, entry.service.primary_line);
+      addMetadataCell(row, (entry.service.pattern || []).join("; "));
+      addMetadataCell(row, entry.service.origin);
+      addMetadataCell(row, entry.service.destination);
+      addMetadataCell(row, entry.service.departure, "time");
+      addMetadataCell(row, entry.service.arrival, "time");
+      for (const stop of stopNames) {
+        const info = entry.cells.get(stop);
+        const cell = document.createElement("td");
+        cell.dataset.stop = stop;
+        cell.className = info.cls;
+        cell.textContent = info.text;
+        row.append(cell);
       }
+      entry.row = row;
       body.append(row);
     }
     table.append(body);
+    return body;
   }
 
-  function signature(services, stops) {
-    return services
-      .map((service) => stops.map((stop) => timeAt(service, stop)).join("|"))
-      .sort()
-      .join(";");
+  function columnState() {
+    const from = fromSelect.value;
+    const to = toSelect.value;
+    if (!from || !to) {
+      return null;
+    }
+    const fromIndex = stopNames.indexOf(from);
+    const toIndex = stopNames.indexOf(to);
+    if (fromIndex === -1 || toIndex === -1) {
+      return null;
+    }
+    return {
+      fromIndex,
+      toIndex,
+      start: Math.min(fromIndex, toIndex),
+      end: Math.max(fromIndex, toIndex),
+    };
   }
 
-  function departureMap(services) {
+  function applyColumns(state) {
+    for (const table of [pdfTable, gtfsTable]) {
+      for (const element of table.querySelectorAll("[data-stop]")) {
+        const index = stopNames.indexOf(element.dataset.stop);
+        const isEnd =
+          state !== null && (index === state.fromIndex || index === state.toIndex);
+        const isBetween =
+          state !== null && index > state.start && index < state.end;
+        const hidden =
+          state !== null && !isEnd && (!isBetween || !expanded);
+        element.classList.toggle("journey-hidden", hidden);
+        element.classList.toggle("journey-end", isEnd);
+        element.classList.toggle("journey-between", isBetween);
+      }
+    }
+  }
+
+  function matches(entry) {
+    const from = fromSelect.value;
+    const to = toSelect.value;
+    if (!from && !to) {
+      return true;
+    }
+    if (from && !entry.callIndex.has(from)) {
+      return false;
+    }
+    if (to && !entry.callIndex.has(to)) {
+      return false;
+    }
+    if (from && to && !(entry.callIndex.get(from) < entry.callIndex.get(to))) {
+      return false;
+    }
+    return true;
+  }
+
+  function sortValue(entry, stop) {
+    const cell = entry.cells.get(stop);
+    if (!cell) {
+      return { group: 2, minutes: 0 };
+    }
+    if (cell.cls === "time") {
+      const value = minutes(cell.text);
+      return { group: 0, minutes: value === null ? Number.MAX_SAFE_INTEGER : value };
+    }
+    if (cell.cls === "unpublished") {
+      return { group: 1, minutes: 0 };
+    }
+    return { group: 2, minutes: 0 };
+  }
+
+  function applySort(entries, body) {
+    if (!sortStop) {
+      return;
+    }
+    const direction = sortDirection === "asc" ? 1 : -1;
+    const ordered = entries.slice().sort((a, b) => {
+      const aValue = sortValue(a, sortStop);
+      const bValue = sortValue(b, sortStop);
+      if (aValue.group !== bValue.group) {
+        return aValue.group - bValue.group;
+      }
+      if (aValue.group === 0 && aValue.minutes !== bValue.minutes) {
+        return (aValue.minutes - bValue.minutes) * direction;
+      }
+      return a.service.service_id.localeCompare(b.service.service_id);
+    });
+    const fragment = document.createDocumentFragment();
+    for (const entry of ordered) {
+      fragment.append(entry.row);
+    }
+    body.append(fragment);
+  }
+
+  function updateSortIndicators() {
+    for (const table of [pdfTable, gtfsTable]) {
+      for (const header of table.querySelectorAll("thead th[data-stop]")) {
+        const active = header.dataset.stop === sortStop;
+        header.setAttribute(
+          "aria-sort",
+          active ? (sortDirection === "asc" ? "ascending" : "descending") : "none"
+        );
+      }
+    }
+  }
+
+  function updateToggle(state) {
+    const middle =
+      state === null ? 0 : Math.max(0, state.end - state.start - 1);
+    toggle.hidden = middle === 0;
+    toggle.setAttribute("aria-expanded", expanded ? "true" : "false");
+    if (middle > 0) {
+      const noun = middle === 1 ? "parada intermedia" : "paradas intermedias";
+      const verb = expanded ? "Ezkutatu" : "Erakutsi";
+      const verbEs = expanded ? "Ocultar" : "Mostrar";
+      toggle.textContent = `${verb} tarteko ${middle} geltoki / ${verbEs} ${middle} ${noun}`;
+    }
+  }
+
+  function updateReverse(state) {
+    reverseCorridor = null;
+    if (state === null || !fromSelect.value || !toSelect.value) {
+      reverse.hidden = true;
+      return;
+    }
+    const fromIndex = stopNames.indexOf(fromSelect.value);
+    const toIndex = stopNames.indexOf(toSelect.value);
+    if (fromIndex === -1 || toIndex === -1 || toIndex >= fromIndex) {
+      reverse.hidden = true;
+      return;
+    }
+    reverseCorridor = pdfData.corridors.find(
+      (item) => item.line === corridor.line && item.direction !== corridor.direction
+    );
+    if (!reverseCorridor) {
+      reverse.hidden = true;
+      return;
+    }
+    reverse.hidden = false;
+    reverseLink.textContent =
+      `Begiratu alderantzizko noranzkoa: ${reverseCorridor.direction} / ` +
+      `Consulta el sentido inverso: ${reverseCorridor.direction}`;
+  }
+
+  function departureMap(entries) {
     const map = new Map();
-    for (const service of services) {
-      const key = service.departure || "";
+    for (const entry of entries) {
+      const key = entry.service.departure || "";
       if (!map.has(key)) {
         map.set(key, []);
       }
-      map.get(key).push(service);
+      map.get(key).push(entry);
     }
     return map;
   }
 
-  function serviceIds(services) {
-    return services.map((service) => service.service_id).join(", ");
+  function serviceIds(entries) {
+    return entries.map((entry) => entry.service.service_id).join(", ");
   }
 
-  function addDetail(text, className) {
-    const item = document.createElement("li");
-    item.textContent = text;
-    if (className) {
-      item.className = className;
-    }
-    details.querySelector("ul").append(item);
-  }
-
-  function render() {
-    const line = lineSelect.value;
-    const direction = directionSelect.value;
-    const calendar = calendarSelect.value;
-    const corridor = corridorFor(line, direction);
-    if (!corridor) {
-      setStatus("—");
-      return;
-    }
-
-    const pdfServices = servicesFor(pdfData, corridor.sheet, calendar);
-    const gtfsServices = servicesFor(gtfsData, corridor.sheet, calendar);
-    renderTable(pdfTable, pdfServices, line, corridor, calendar, "");
-    renderTable(gtfsTable, gtfsServices, line, corridor, calendar, "gtfs/");
-
-    const pdfByDeparture = departureMap(pdfServices);
-    const gtfsByDeparture = departureMap(gtfsServices);
-    const allDepartures = new Set([...pdfByDeparture.keys(), ...gtfsByDeparture.keys()]);
+  function renderSummary(visiblePdf, visibleGtfs) {
+    const pdfByDeparture = departureMap(visiblePdf);
+    const gtfsByDeparture = departureMap(visibleGtfs);
+    const allDepartures = new Set([
+      ...pdfByDeparture.keys(),
+      ...gtfsByDeparture.keys(),
+    ]);
     const onlyPdf = [];
     const onlyGtfs = [];
     const changed = [];
@@ -216,22 +509,25 @@
         onlyGtfs.push([departure, gtfsGroup]);
       } else {
         common += 1;
-        if (signature(pdfGroup, corridor.stops) !== signature(gtfsGroup, corridor.stops)) {
+        const pdfSignature = pdfGroup
+          .map((entry) => stopNames.map((stop) => entry.cells.get(stop).text).join("|"))
+          .sort()
+          .join(";");
+        const gtfsSignature = gtfsGroup
+          .map((entry) => stopNames.map((stop) => entry.cells.get(stop).text).join("|"))
+          .sort()
+          .join(";");
+        if (pdfSignature !== gtfsSignature) {
           changed.push([departure, pdfGroup, gtfsGroup]);
         }
       }
     }
 
-    setStatus(
-      `PDF: ${pdfServices.length} · GTFS: ${gtfsServices.length} · ` +
-        `irtendako orduak / salidas: ${allDepartures.size}`
-    );
-
     summary.replaceChildren();
     const counts = document.createElement("p");
     counts.textContent =
-      `PDF: ${pdfServices.length} zerbitzu / servicios · ` +
-      `GTFS: ${gtfsServices.length} zerbitzu / servicios · ` +
+      `PDF: ${visiblePdf.length} / ${pdfEntries.length} · ` +
+      `GTFS: ${visibleGtfs.length} / ${gtfsEntries.length} · ` +
       `irteera komunak / salidas comunes: ${common} · ` +
       `PDF soilik / solo PDF: ${onlyPdf.length} · ` +
       `GTFS soilik / solo GTFS: ${onlyGtfs.length} · ` +
@@ -245,97 +541,183 @@
     let shown = 0;
     for (const [departure, group] of onlyPdf) {
       if (shown >= limit) break;
-      addDetail(`${departure} — PDF: ${serviceIds(group)}`, "diff-pdf-only");
+      const item = document.createElement("li");
+      item.className = "diff-pdf-only";
+      item.textContent = `${departure} — PDF: ${serviceIds(group)}`;
+      list.append(item);
       shown += 1;
     }
     for (const [departure, group] of onlyGtfs) {
       if (shown >= limit) break;
-      addDetail(`${departure} — GTFS: ${serviceIds(group)}`, "diff-gtfs-only");
+      const item = document.createElement("li");
+      item.className = "diff-gtfs-only";
+      item.textContent = `${departure} — GTFS: ${serviceIds(group)}`;
+      list.append(item);
       shown += 1;
     }
     for (const [departure, pdfGroup, gtfsGroup] of changed) {
       if (shown >= limit) break;
-      addDetail(
-        `${departure} — PDF: ${serviceIds(pdfGroup)} ↔ GTFS: ${serviceIds(gtfsGroup)}`,
-        "diff-changed"
-      );
+      const item = document.createElement("li");
+      item.className = "diff-changed";
+      item.textContent =
+        `${departure} — PDF: ${serviceIds(pdfGroup)} ↔ GTFS: ${serviceIds(gtfsGroup)}`;
+      list.append(item);
       shown += 1;
     }
     if (onlyPdf.length + onlyGtfs.length + changed.length > limit) {
-      addDetail("…", "diff-muted");
+      const item = document.createElement("li");
+      item.className = "diff-muted";
+      item.textContent = "…";
+      list.append(item);
     }
     if (shown === 0) {
-      addDetail("Ez dago alderik hautatutako egutegian / No hay diferencias en el calendario seleccionado.", "diff-muted");
+      const item = document.createElement("li");
+      item.className = "diff-muted";
+      item.textContent =
+        "Ez dago alderik hautatutako egutegian / No hay diferencias en el calendario seleccionado.";
+      list.append(item);
     }
   }
 
-  function updateDirections() {
-    const line = lineSelect.value;
-    const directions = [];
-    const seen = new Set();
-    for (const corridor of pdfData.corridors) {
-      if (corridor.line !== line || seen.has(corridor.direction)) {
-        continue;
+  function applyState() {
+    syncOptions();
+    const state = columnState();
+    applyColumns(state);
+    if (sortStop && state) {
+      const index = stopNames.indexOf(sortStop);
+      const hidden =
+        index !== state.fromIndex &&
+        index !== state.toIndex &&
+        (index < state.start ||
+          index > state.end ||
+          (index > state.start && index < state.end && !expanded));
+      if (hidden) {
+        sortStop = defaultSortStop();
       }
-      seen.add(corridor.direction);
-      directions.push({ value: corridor.direction, label: corridor.direction });
     }
-    const previous = directionSelect.value;
-    setOptions(
-      directionSelect,
-      directions,
-      directions.some((item) => item.value === previous) ? previous : directions[0]?.value
+    applySort(pdfEntries, pdfBody);
+    applySort(gtfsEntries, gtfsBody);
+
+    const visiblePdf = [];
+    const visibleGtfs = [];
+    for (const entry of pdfEntries) {
+      const show = matches(entry);
+      entry.row.hidden = !show;
+      if (show) {
+        visiblePdf.push(entry);
+      }
+    }
+    for (const entry of gtfsEntries) {
+      const show = matches(entry);
+      entry.row.hidden = !show;
+      if (show) {
+        visibleGtfs.push(entry);
+      }
+    }
+
+    count.textContent =
+      `PDF: ${visiblePdf.length} / ${pdfEntries.length} · ` +
+      `GTFS: ${visibleGtfs.length} / ${gtfsEntries.length}`;
+    const filtering = fromSelect.value !== "" || toSelect.value !== "";
+    empty.hidden = !filtering || visiblePdf.length + visibleGtfs.length > 0;
+    clear.hidden = !filtering;
+    updateToggle(state);
+    updateSortIndicators();
+    updateReverse(state);
+    renderSummary(visiblePdf, visibleGtfs);
+  }
+
+  function rebuildTables() {
+    sortStop = defaultSortStop();
+    pdfEntries = buildEntries(
+      servicesFor(pdfData, corridor.sheet, calendarSelect.value)
     );
-    updateCalendars();
+    gtfsEntries = buildEntries(
+      servicesFor(gtfsData, corridor.sheet, calendarSelect.value)
+    );
+    pdfBody = buildTable(pdfTable, pdfEntries, "");
+    gtfsBody = buildTable(gtfsTable, gtfsEntries, "gtfs/");
+    applyState();
   }
 
-  function servicesForCorridor(data, sheet) {
-    return data.services.filter((service) => service.appears_in.includes(sheet));
+  function updateCalendars(preserveFilters) {
+    const calendars = availableCalendars(corridor.sheet);
+    const previous = calendarSelect.value;
+    const fallback = calendars.find((item) => item.id === "WD") || calendars[0];
+    setOptions(
+      calendarSelect,
+      calendars.map((item) => ({
+        value: item.id,
+        label: `${item.label_eu} / ${item.label_es}`,
+      })),
+      calendars.some((item) => item.id === previous) ? previous : fallback?.id
+    );
+    if (!preserveFilters) {
+      fromSelect.value = "";
+      toSelect.value = "";
+      expanded = false;
+    }
+    fillStopSelects();
+    rebuildTables();
   }
 
-  function updateCalendars() {
-    const corridor = corridorFor(lineSelect.value, directionSelect.value);
+  function selectCorridor(value, preserveFilters) {
+    corridorSelect.value = value;
+    corridor = selectedCorridor();
     if (!corridor) {
       return;
     }
-    const available = new Set();
-    for (const service of servicesForCorridor(pdfData, corridor.sheet)) {
-      available.add(service.calendar);
-    }
-    for (const service of servicesForCorridor(gtfsData, corridor.sheet)) {
-      available.add(service.calendar);
-    }
-    const calendars = pdfData.calendars
-      .filter((calendar) => available.has(calendar.id))
-      .sort((a, b) => a.order - b.order)
-      .map((calendar) => ({
-        value: calendar.id,
-        label: `${calendar.label_eu} / ${calendar.label_es}`,
-      }));
-    const fallback = calendars.find((item) => item.value === "WD") || calendars[0];
-    const previous = calendarSelect.value;
-    setOptions(
-      calendarSelect,
-      calendars,
-      calendars.some((item) => item.value === previous) ? previous : fallback?.value
-    );
-    render();
+    stopNames = corridor.stops;
+    updateCalendars(preserveFilters);
   }
 
-  function init() {
-    const lines = pdfData.lines.map((line) => ({ value: line.code, label: line.name }));
-    setOptions(lineSelect, lines, lines[0]?.value);
-    lineSelect.addEventListener("change", updateDirections);
-    directionSelect.addEventListener("change", updateCalendars);
-    calendarSelect.addEventListener("change", render);
-    updateDirections();
-  }
+  corridorSelect.addEventListener("change", () => {
+    selectCorridor(corridorSelect.value, false);
+  });
+  calendarSelect.addEventListener("change", () => {
+    rebuildTables();
+  });
+  fromSelect.addEventListener("change", () => {
+    expanded = false;
+    sortStop = defaultSortStop();
+    applyState();
+  });
+  toSelect.addEventListener("change", () => {
+    expanded = false;
+    sortStop = defaultSortStop();
+    applyState();
+  });
+  toggle.addEventListener("click", () => {
+    expanded = !expanded;
+    applyState();
+  });
+  clear.addEventListener("click", () => {
+    fromSelect.value = "";
+    toSelect.value = "";
+    expanded = false;
+    sortStop = defaultSortStop();
+    applyState();
+    fromSelect.focus();
+  });
+  reverseLink.addEventListener("click", () => {
+    if (!reverseCorridor) {
+      return;
+    }
+    selectCorridor(corridorValue(reverseCorridor), true);
+    reverse.hidden = true;
+  });
 
   Promise.all([loadJson("data/services.json"), loadJson("gtfs/data/services.json")])
     .then(([pdf, gtfs]) => {
       pdfData = pdf;
       gtfsData = gtfs;
-      init();
+      populateCorridors();
+      corridor = selectedCorridor();
+      if (!corridor) {
+        throw new Error("no comparisons available");
+      }
+      stopNames = corridor.stops;
+      updateCalendars(false);
     })
     .catch((error) => {
       summary.replaceChildren();

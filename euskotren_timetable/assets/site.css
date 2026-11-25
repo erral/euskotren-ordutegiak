@@ -637,7 +637,11 @@ h3 {
 }
 
 .compare-filters {
-  grid-template-columns: repeat(3, minmax(10rem, 1fr));
+  grid-template-columns: repeat(2, minmax(10rem, 1fr));
+}
+
+#compare-metadata:checked ~ .compare-grid .metadata-col {
+  display: table-cell;
 }
 
 .compare-summary {
