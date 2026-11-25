@@ -1,7 +1,7 @@
 # Write the GTFS migration specification
 
 Type: task
-Status: open
+Status: resolved
 Blocked by: 01, 02, 03, 04, 05, 06
 Parent: [Migrate the static timetable pipeline to Euskotren GTFS](../map.md)
 
@@ -20,7 +20,14 @@ It must cover:
 - licence/attribution requirements;
 - the explicit implementation boundary: what is in the first migration and what is deferred (E3a, date-specific calendars/date picker, new views, real-time).
 
+## Answer
+
+Resolved 2026-11-25. The specification is written at [spec.md](../spec.md).
+
+It covers the GTFS source contract, adapter boundary, route/direction mapping, `Service`/`StopTime` mapping, public service identity and deduplication, per-line calendar derivation, stop aliases, the hard PDF-diff contract, build/manifest, daily workflow, the one-week `/` vs `/gtfs/` parallel publication, CC BY 4.0 attribution, testing, the implementation boundary and open risks.
+
 ## Comments
 
 - Charted 2026-11-25.
 - 2026-11-25: all decision blockers (01–06) resolved; this task is now on the frontier.
+- 2026-11-25: claimed and resolved. The specification is written.
