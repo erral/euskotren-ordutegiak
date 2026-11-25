@@ -1,6 +1,6 @@
 # Migrate the static timetable pipeline to Euskotren GTFS
 
-Status: charted 2026-11-25. Adapter mapping decided; service identity/calendars and stop aliases open.
+Status: charted 2026-11-25. Adapter mapping and licence decided; service identity/calendars and stop aliases open.
 
 ## Destination
 
@@ -24,6 +24,7 @@ A decision-complete implementation specification for replacing the PDF static pi
 ## Decisions so far
 
 - [Decide the GTFS adapter boundary and Service mapping](issues/01-adapter-boundary.md): thin in-package `gtfs.py` adapter using stdlib `zipfile`/`csv`; explicit route mapping (T0+T1 → E2-T1, E3+L3 → E3-L3, E3a excluded); departure times for display; omitted stops as `not_served`; GTFS IDs kept as sidecar provenance.
+- [Confirm Open Data Euskadi licence and attribution](issues/06-license-attribution.md): the dataset is CC BY 4.0; attribute Eusko Trenbideak, link the source and licence, note changes and the feed version; derived outputs may be published under CC BY 4.0 with the code under GPL-2.0.
 
 ## Not yet specified
 
