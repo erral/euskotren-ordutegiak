@@ -1,6 +1,6 @@
 # Migrate the static timetable pipeline to Euskotren GTFS
 
-Status: charted 2026-11-25. Decisions open.
+Status: charted 2026-11-25. Adapter mapping decided; service identity/calendars and stop aliases open.
 
 ## Destination
 
@@ -23,7 +23,7 @@ A decision-complete implementation specification for replacing the PDF static pi
 
 ## Decisions so far
 
-None yet.
+- [Decide the GTFS adapter boundary and Service mapping](issues/01-adapter-boundary.md): thin in-package `gtfs.py` adapter using stdlib `zipfile`/`csv`; explicit route mapping (T0+T1 → E2-T1, E3+L3 → E3-L3, E3a excluded); departure times for display; omitted stops as `not_served`; GTFS IDs kept as sidecar provenance.
 
 ## Not yet specified
 

@@ -1,7 +1,7 @@
 # Decide the GTFS adapter boundary and Service mapping
 
 Type: grilling
-Status: open
+Status: resolved
 Parent: [Migrate the static timetable pipeline to Euskotren GTFS](../map.md)
 
 ## Question
@@ -19,6 +19,18 @@ Cover at least:
 
 ➡️ Recommendation: a thin `gtfs.py` adapter returning `list[Service]`; filter and map routes in a small table; use departure times for display and arrival only for `Service.arrival`; fill omitted stops as `not_served`; keep the current pattern vocabulary; keep GTFS IDs as provenance.
 
+## Answer
+
+Resolved 2026-11-25. All recommendations accepted.
+
+- **Adapter boundary**: new `euskotren_timetable/gtfs.py` using the standard-library `zipfile` and `csv` modules. It returns `(list[Service], GtfsFeedMeta)`. The workbook, site, service-order and corridor modules stay unchanged; the adapter reuses `assign_membership`.
+- **Route/line mapping**: filter to GTFS `route_short_name` `E1`, `E3`, `E4`, `L3`, `T0`, `T1`; map `E1 → E1`, `E4 → E4`, `E3 + L3 → E3-L3`, `T0 + T1 → E2-T1`. Exclude `E3a` and all non-rail routes. Derive `Direction` from the trip's first/last stops against the canonical line direction.
+- **Time semantics**: use each stop's GTFS `departure_time` for display; `Service.departure` is the first departure and `Service.arrival` the last arrival.
+- **Missing stops and states**: stops omitted from the GTFS trip become `not_served`; GTFS has no `unpublished` `?`. Ignore `pickup_type` / `drop_off_type` in the first migration.
+- **Patterns**: keep `through` / `short-turn` derived from whether the trip serves the mapped corridor endpoints; use `night` for `FN`/`SN`; drop `refuerzo`-only labels as a documented presentation difference.
+- **Provenance**: keep GTFS `trip_id` / `service_id` as optional sidecar fields on `Service` and `feed_version` in the feed/build metadata. The public service-ID scheme is deferred to [Decide service identity and calendar derivation](02-service-identity-calendars.md).
+
 ## Comments
 
 - Charted 2026-11-25. Inherits the evaluation decisions on the source of truth and first-migration scope.
+- 2026-11-25: claimed and resolved. The user accepted all mapping recommendations.
