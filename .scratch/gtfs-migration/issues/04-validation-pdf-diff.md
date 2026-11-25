@@ -1,0 +1,41 @@
+# Decide validation and the PDF-diff contract
+
+Type: grilling
+Status: resolved
+Blocked by: 01, 02, 03
+Parent: [Migrate the static timetable pipeline to Euskotren GTFS](../map.md)
+
+## Question
+
+How do we prove the GTFS pipeline matches the current PDF-derived output before cutover?
+
+Cover at least:
+
+- **Dual run**: build both sources in CI and compare the overlapping calendars.
+- **Fail conditions**: missing or extra services, stop-time differences, stop-mapping gaps and duplicate IDs.
+- **Allowlist**: an explicit list of documented differences; no silent tolerance.
+- **Diff report**: a human-readable report of added, removed and changed services.
+- **Golden examples**: the Arroa 06:53 service, the E1 05:35 service, representative E2, E3, E4 services and the night calendars.
+- **Time comparison**: compare displayed departure times and the `not_served` sets; ignore date-specific `calendar_dates` exceptions for the first migration and record that limitation.
+- **Gate**: decide whether the PDF diff is a hard release gate or advisory.
+
+➡️ Recommendation: a hard release gate with an explicit allowlist and a diff report; compare departure times and `not_served` sets exactly for overlapping services; use golden examples across all four lines and the night calendars.
+
+## Answer
+
+Resolved 2026-11-25. All recommendations accepted.
+
+- **Baseline**: build both pipelines in CI from the pinned PDF manifest (`data/manifest.json`) and a freshly downloaded GTFS; use the PDF-derived build as the reference. Compare the overlapping four lines and existing calendar sets. Exclude E3a and date-specific `calendar_dates` exceptions from the first comparison.
+- **Release gate**: hard gate. Fail on missing/extra services, stop-time differences, stop-mapping gaps, duplicate IDs and any unmapped GTFS trip.
+- **Allowlist**: explicit and versioned, starting empty; every entry is reviewed. No silent tolerance.
+- **Comparison detail**: compare displayed departure times at every stop and the `not_served` set exactly. Compare `Service.departure`/`arrival` with a documented terminal-stop rule: use the last displayed departure as the comparison value and report a GTFS arrival difference separately.
+- **Artifact**: produce a human-readable diff report (added, removed, changed) as a CI artifact.
+- **Golden tests**: the Arroa 06:53 service, the E1 05:35 service, representative E2/E3/E4 services and the night calendars.
+- **Limitation**: record that date-specific `calendar_dates` exceptions are ignored in the first migration.
+
+## Comments
+
+- Charted 2026-11-25.
+- 2026-11-25: adapter mapping (01) and service identity/calendars (02) resolved; still blocked by [Decide stop alias and canonical-name mapping](03-stop-aliases.md).
+- 2026-11-25: [Decide stop alias and canonical-name mapping](03-stop-aliases.md) resolved; all blockers are clear and this ticket is now on the frontier.
+- 2026-11-25: claimed and resolved. The user accepted all recommendations.
